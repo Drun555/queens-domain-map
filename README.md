@@ -50,7 +50,7 @@ map3d/
   place3d.py           range les modèles 3D et ajoute objets et étages → map/site/tiles3d/
   make_3d_html.py      génère map/site/3d.html
 input/                 fichiers à fournir soi-même (voir input/README.md)
-deploy/.htaccess       redirection https et cache, pour un hébergement Apache (OVH…)
+deploy/                .htaccess (https, cache), favicon.svg, robots.txt, sitemap.xml
 ```
 
 ### Comment la sauvegarde est lue
@@ -99,7 +99,7 @@ Les identifiants des zones (`ile`, `marchand`, `aquatique`, `tour-du-savoir`, `m
 
 ## Mise en ligne
 
-Envoie le contenu de `map/site/` (`index.html`, `3d.html`, `tiles/`, `tiles3d/`) et `deploy/.htaccess` à la racine de ton hébergement. Le site est entièrement statique : pas de serveur, pas de base de données.
+Envoie le contenu de `map/site/` (`index.html`, `3d.html`, `tiles/`, `tiles3d/`, `og-image.jpg`) et celui de `deploy/` à la racine de ton hébergement. Pense à adapter l'adresse du site dans `robots.txt`, `sitemap.xml` et les balises `og:` de `map/template.html` et `map3d/viewer3d_site.html`. Le site est entièrement statique : pas de serveur, pas de base de données.
 
 ## Support
 

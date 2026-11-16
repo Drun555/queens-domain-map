@@ -3,7 +3,27 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Carte de Neasied</title>
+<title>Carte interactive Queen's Domain — 2D, 3D et 100 % | Carte de Neasied</title>
+<meta name="description" content="Carte interactive de Queen's Domain en 2D et 3D : tous les mondes, coffres, crânes argentés, armes, murs secrets et bestiaire. Charge ta sauvegarde pour voir ce qu'il te manque pour le 100 %.">
+<link rel="canonical" href="https://queensdomain.leny15.me/">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#0f131d">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Carte de Neasied">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:title" content="Carte interactive Queen's Domain — 2D, 3D et 100 % | Carte de Neasied">
+<meta property="og:description" content="Carte interactive de Queen's Domain en 2D et 3D : tous les mondes, coffres, crânes argentés, armes, murs secrets et bestiaire. Charge ta sauvegarde pour voir ce qu'il te manque pour le 100 %.">
+<meta property="og:url" content="https://queensdomain.leny15.me/">
+<meta property="og:image" content="https://queensdomain.leny15.me/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Vue 3D de l'Île de Neasied avec les objets à trouver">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Carte interactive Queen's Domain — 2D, 3D et 100 % | Carte de Neasied">
+<meta name="twitter:description" content="Carte interactive de Queen's Domain en 2D et 3D : tous les mondes, coffres, crânes argentés, armes, murs secrets et bestiaire. Charge ta sauvegarde pour voir ce qu'il te manque pour le 100 %.">
+<meta name="twitter:image" content="https://queensdomain.leny15.me/og-image.jpg">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Carte de Neasied — Queen's Domain", "url": "https://queensdomain.leny15.me/", "description": "Carte interactive de Queen's Domain en 2D et 3D : tous les mondes, coffres, crânes argentés, armes, murs secrets et bestiaire. Charge ta sauvegarde pour voir ce qu'il te manque pour le 100 %.", "applicationCategory": "GameApplication", "operatingSystem": "Navigateur web", "inLanguage": "fr", "isAccessibleForFree": true, "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"}, "about": {"@type": "VideoGame", "name": "Queen's Domain"}, "author": {"@type": "Person", "name": "Leny15"}, "sameAs": ["https://github.com/Pivix15/queens-domain-map"]}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Jacquard+12&family=Barlow+Semi+Condensed:wght@400;500;600&display=swap" rel="stylesheet">
@@ -94,6 +114,15 @@ body.dropping main::after { content: 'Dépose ta sauvegarde (World0.sav, World1.
 .support b { color: var(--ink); font-weight: 600; }
 .support a { display: block; text-align: center; padding: 7px 10px; border-radius: 3px; background: #5865f2; color: #fff; text-decoration: none; font-weight: 600; font-size: 14px; }
 .support a:hover { background: #4752c4; }
+.support a.gh { background: var(--chart-2); border: 1px solid var(--line); color: var(--ink); font-weight: 500; }
+.support a.gh:hover { background: var(--chart-2); border-color: var(--dim); }
+.about { border-top: 1px solid var(--line); padding-top: 12px; font-size: 13px; color: var(--dim); line-height: 1.45; }
+.about summary { cursor: pointer; font-size: 12.5px; }
+.about h2 { font: 600 15px var(--font-body); color: var(--ink); margin: 10px 0 6px; }
+.about h3 { font: 600 12px var(--font-body); letter-spacing: .08em; text-transform: uppercase; margin: 10px 0 4px; }
+.about p { margin: 0 0 8px; }
+.about b { color: var(--ink); font-weight: 600; }
+.about ul { margin: 0; padding-left: 18px; }
 
 
 main { position: relative; min-width: 0; min-height: 0; }
@@ -239,11 +268,21 @@ canvas.drag { cursor: grabbing; }
       <button id="zreset" type="button">Afficher toutes les hauteurs</button>
     </details>
     <div class="foot">
-      <p>Positions tirées des fichiers du jeu. Les noms d'objets et de zones sont les noms internes, en anglais.</p>
+      <p>Positions tirées des fichiers du jeu. Les noms des objets sont les noms internes du jeu, en anglais.</p>
       <p>Les objets cochés « trouvé » et la sauvegarde chargée sont gardés dans ce navigateur uniquement.</p>
       <p>Projet de fan, sans lien avec Freshly Baked Games ni Future Friends Games.</p>
     </div>
-    <div class="support"><p>Un problème ou une idée&nbsp;? Contacte <b>Leny15</b> sur Discord&nbsp;:</p><a href="https://discord.gg/guKx9kJjmt" target="_blank" rel="noopener">Rejoindre le Discord</a></div>
+    <details class="about">
+      <summary>À propos de cette carte</summary>
+      <h2>Carte interactive de Queen's Domain</h2>
+      <p>Cette carte non officielle couvre tout <b>Queen's Domain</b> : chaque monde de l'île de Neasied en plan 2D par étage et en vue 3D, avec la position de chaque objet à trouver.</p>
+      <p>Pour viser le <b>100 %</b>, charge ta sauvegarde (<code>World0.sav</code>) : ce que tu as déjà fait est coché tout seul, et le panneau « Progression du jeu » liste ce qu'il te manque dans chaque monde.</p>
+      <h3>Mondes</h3>
+      <ul>__SEO_ZONES__</ul>
+      <h3>Objets répertoriés</h3>
+      <ul>__SEO_CATS__</ul>
+    </details>
+    <div class="support"><p>Un problème ou une idée&nbsp;? Contacte <b>Leny15</b> sur Discord&nbsp;:</p><a href="https://discord.gg/guKx9kJjmt" target="_blank" rel="noopener">Rejoindre le Discord</a><a class="gh" href="https://github.com/Pivix15/queens-domain-map" target="_blank" rel="noopener">Code source sur GitHub</a></div>
   </div>
 </aside>
 <main>

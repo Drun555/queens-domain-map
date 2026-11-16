@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://queensdomain.leny15.me/sitemap.xml

@@ -32,6 +32,13 @@ def main():
         print('%-18s %d étages (%d avant fusion), %d images' % (z['id'], len(meta['floors']), n, len(meta['bands'])))
     t = open('template.html', encoding='utf-8').read()
     s = json.dumps(d, ensure_ascii=False, separators=(',', ':')).replace('</', '<\\/')
+    from collections import Counter
+    import html as _h
+    cnt = Counter(p[0] for z in d['zones'] for p in z['pois'])
+    skip = {'enemy', 'consum', 'npc'}
+    zl = ''.join('<li>%s (%d objets)</li>' % (_h.escape(z['label']), sum(1 for p in z['pois'] if p[0] not in skip)) for z in d['zones'])
+    cl = ''.join('<li>%s : %d</li>' % (_h.escape(c['label']), cnt[c['id']]) for c in d['cats'] if c['id'] not in skip and cnt[c['id']])
+    t = t.replace('__SEO_ZONES__', zl).replace('__SEO_CATS__', cl)
     html = t.replace('__DATA__', s)
     open('site/index.html', 'w', encoding='utf-8').write(html)
     open('_check.js', 'w').write(html[html.rindex('<script>') + 8:html.rindex('</script>')])

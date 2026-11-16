@@ -3,7 +3,26 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Carte de Neasied — 3D</title>
+<title>Queen's Domain en 3D — carte interactive de tous les mondes | Carte de Neasied</title>
+<meta name="description" content="Explore Queen's Domain en 3D : chaque monde avec ses étages, ses coffres, crânes argentés et secrets. Clique sur un objet pour le voir de dessus.">
+<link rel="canonical" href="https://queensdomain.leny15.me/3d.html">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#0f131d">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Carte de Neasied">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:title" content="Queen's Domain en 3D — carte interactive de tous les mondes | Carte de Neasied">
+<meta property="og:description" content="Explore Queen's Domain en 3D : chaque monde avec ses étages, ses coffres, crânes argentés et secrets. Clique sur un objet pour le voir de dessus.">
+<meta property="og:url" content="https://queensdomain.leny15.me/3d.html">
+<meta property="og:image" content="https://queensdomain.leny15.me/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Vue 3D de l'Île de Neasied avec les objets à trouver">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Queen's Domain en 3D — carte interactive de tous les mondes | Carte de Neasied">
+<meta name="twitter:description" content="Explore Queen's Domain en 3D : chaque monde avec ses étages, ses coffres, crânes argentés et secrets. Clique sur un objet pour le voir de dessus.">
+<meta name="twitter:image" content="https://queensdomain.leny15.me/og-image.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Jacquard+12&family=Barlow+Semi+Condensed:wght@400;500;600&display=swap" rel="stylesheet">
@@ -77,6 +96,8 @@ ul { list-style: none; margin: 0; padding: 0; }
 .support b { color: var(--ink); font-weight: 600; }
 .support a { display: block; text-align: center; padding: 7px 10px; border-radius: 3px; background: #5865f2; color: #fff; text-decoration: none; font-weight: 600; font-size: 14px; }
 .support a:hover { background: #4752c4; }
+.support a.gh { background: var(--chart-2); border: 1px solid var(--line); color: var(--ink); font-weight: 500; }
+.support a.gh:hover { background: var(--chart-2); border-color: var(--dim); }
 
 [hidden] { display: none !important; }
 #floors { position: fixed; left: 326px; top: 42px; max-height: calc(100% - 104px); overflow-y: auto; z-index: 3;
@@ -156,7 +177,7 @@ body.dropping #view::after { content: 'Dépose ta sauvegarde (World0.sav, World1
     </div>
     <div class="foot"><p><b>Souris</b> : clic gauche tourner · clic droit déplacer · molette zoom · clic sur un point : vue de dessus sur l'objet<br>
   <b>Clavier</b> : ZQSD ou flèches se déplacer · A / E tourner · R / F zoom · Maj accélère · Espace vue de dessus<span id="fhelp"> · Page préc. / suiv. changer d'étage · Échap tout voir</span></p></div>
-    <div class="support"><p>Un problème ou une idée&nbsp;? Contacte <b>Leny15</b> sur Discord&nbsp;:</p><a href="https://discord.gg/guKx9kJjmt" target="_blank" rel="noopener">Rejoindre le Discord</a></div>
+    <div class="support"><p>Un problème ou une idée&nbsp;? Contacte <b>Leny15</b> sur Discord&nbsp;:</p><a href="https://discord.gg/guKx9kJjmt" target="_blank" rel="noopener">Rejoindre le Discord</a><a class="gh" href="https://github.com/Pivix15/queens-domain-map" target="_blank" rel="noopener">Code source sur GitHub</a></div>
   </div>
 </aside>
 <div id="floors"><div class="t">Étage</div><button id="fall" type="button" class="on">Tout</button></div>
