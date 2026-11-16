@@ -6,6 +6,9 @@
 <title>Queen's Domain en 3D — carte interactive de tous les mondes | Carte de Neasied</title>
 <meta name="description" content="Explore Queen's Domain en 3D : chaque monde avec ses étages, ses coffres, crânes argentés et secrets. Clique sur un objet pour le voir de dessus.">
 <link rel="canonical" href="https://queensdomain.leny15.me/3d.html">
+<link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/3d.html">
+<link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/3d-en.html">
+<link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/3d-en.html">
 <meta name="robots" content="index, follow">
 <meta name="theme-color" content="#0f131d">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -27,6 +30,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Jacquard+12&family=Barlow+Semi+Condensed:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
+.head { position: relative; }
+.lang { position: absolute; top: 18px; right: 18px; font-size: 12.5px; color: var(--dim); text-decoration: none; border: 1px solid var(--line); border-radius: 3px; padding: 3px 8px; }
+.lang:hover { color: var(--ink); border-color: var(--dim); }
 :root {
   color-scheme: dark;
   --sea: #0f131d; --bg: #0f131d; --chart: #161c2a; --chart-2: #1d2434; --line: #2b3347;
@@ -143,6 +149,7 @@ body.dropping #view::after { content: 'Dépose ta sauvegarde (World0.sav, World1
 <aside>
   <div class="head">
     <h1>Neasied</h1>
+    <a class="lang" href="3d-en.html" hreflang="en" lang="en" onclick="location.href=this.getAttribute('href')+location.hash;return false">English</a>
     <p>Carte non officielle de Queen's Domain</p>
     <div class="mode"><a id="to2d" href="index.html">Vue 2D</a><span>Vue 3D</span></div>
     <a class="progbtn" id="toProg" href="index.html#progression"><b>Progression du jeu</b><span>›</span></a>
@@ -204,6 +211,7 @@ addEventListener('hashchange', () => { const h = location.hash.slice(1); if (h &
 $('to2d').href = 'index.html#' + zid;
 const DIR = 'tiles3d/' + zid + '/';
 const zone = await (await fetch(DIR + 'zone.json')).json();
+/*__L10N_APPLY__*/
 document.title = zone.zone + ' — 3D · Carte de Neasied';
 // sauvegarde chargée sur la carte 2D (même navigateur) + objets cochés « trouvé »
 let saveHave = null, found = {};

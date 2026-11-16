@@ -6,6 +6,9 @@
 <title>Carte interactive Queen's Domain — 2D, 3D et 100 % | Carte de Neasied</title>
 <meta name="description" content="Carte interactive de Queen's Domain en 2D et 3D : tous les mondes, coffres, crânes argentés, armes, murs secrets et bestiaire. Charge ta sauvegarde pour voir ce qu'il te manque pour le 100 %.">
 <link rel="canonical" href="https://queensdomain.leny15.me/">
+<link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/">
+<link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/en.html">
+<link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/en.html">
 <meta name="robots" content="index, follow">
 <meta name="theme-color" content="#0f131d">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -28,6 +31,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Jacquard+12&family=Barlow+Semi+Condensed:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
+.head { position: relative; }
+.lang { position: absolute; top: 18px; right: 18px; font-size: 12.5px; color: var(--dim); text-decoration: none; border: 1px solid var(--line); border-radius: 3px; padding: 3px 8px; }
+.lang:hover { color: var(--ink); border-color: var(--dim); }
 /* Plan : une carte marine de nuit. Le relevé (points de terrain en blocs, comme des voxels PS1) occupe tout
    l'écran ; un seul panneau latéral sobre porte les réglages. L'or ne sert qu'à la sélection. Thème unique assumé. */
 :root {
@@ -219,6 +225,7 @@ canvas.drag { cursor: grabbing; }
 <aside>
   <div class="head">
     <h1>Neasied</h1>
+    <a class="lang" href="en.html" hreflang="en" lang="en" onclick="location.href=this.getAttribute('href')+location.hash;return false">English</a>
     <p>Carte non officielle de Queen's Domain</p>
     <div class="mode"><span>Vue 2D</span><a id="to3d" href="3d.html">Vue 3D</a></div>
     <button class="progbtn" id="progOpen" type="button"><b>Progression du jeu</b><span id="progShort"></span></button>

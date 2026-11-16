@@ -22,6 +22,7 @@ Carte interactive non officielle de **Queen's Domain** : tous les mondes en 2D e
   - clic sur un objet pour une vue de dessus ;
   - déplacement au clavier (ZQSD, A/E, R/F).
 - Recherche, filtres par catégorie et option « Masquer ce qui est déjà fait ». Les réglages sont gardés d'une zone à l'autre.
+- **En français et en anglais** : `index.html` / `3d.html` et `en.html` / `3d-en.html`.
 
 ## Où trouver sa sauvegarde
 
@@ -40,7 +41,8 @@ map/
   add_save_keys.py     ajoute à chaque objet les clés qui le retrouvent dans la sauvegarde
   add_bestiary.py      catégories Bestiaire et Cellules d'énergie
   pack.py              range les images des plans dans map/site/tiles/
-  assemble.py          template.html + data.json + plans → map/site/index.html
+  assemble.py          template.html + data.json + plans → map/site/index.html et en.html
+  i18n_en.py           traductions anglaises (interface, mondes, catégories)
 render/
   render_zone.py       rendu logiciel (numpy) du plan texturé d'une zone, étage par étage
   build3d.py           modèle 3D d'une zone au format glTF (.glb), écrit à la main
@@ -48,7 +50,7 @@ render/
 map3d/
   viewer3d_site.html   vue 3D (three.js)
   place3d.py           range les modèles 3D et ajoute objets et étages → map/site/tiles3d/
-  make_3d_html.py      génère map/site/3d.html
+  make_3d_html.py      génère map/site/3d.html et 3d-en.html
 input/                 fichiers à fournir soi-même (voir input/README.md)
 deploy/                .htaccess (https, cache), favicon.svg, robots.txt, sitemap.xml
 ```
@@ -119,7 +121,7 @@ Queen's Domain, ses noms, cartes, textures et modèles appartiennent à **Freshl
 
 Unofficial interactive map of **Queen's Domain**: every world in 2D and 3D, more than 1,100 items to find, and progress tracking from your save file.
 
-**Website: https://queensdomain.leny15.me** (interface in French)
+**Website: https://queensdomain.leny15.me/en.html** (also in French)
 
 ### Features
 
