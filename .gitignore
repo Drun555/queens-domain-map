@@ -1,0 +1,28 @@
+# Fichiers extraits du jeu (FModel) : ils appartiennent aux développeurs, on ne les publie pas
+all/
+meshes/
+input/*
+!input/enemy_names.json
+!input/README.md
+
+# Sorties générées (images des plans, modèles 3D, site assemblé)
+render/tiles_tex/
+map/site/
+map3d/z/
+map3d/ovh/
+*.glb
+*.bin
+*.webp
+*.png
+*.jpg
+
+# Sauvegardes du jeu (contiennent l'identifiant Steam)
+*.sav
+
+# Divers
+__pycache__/
+*.pyc
+node_modules/
+.DS_Store
+Thumbs.db
+.env

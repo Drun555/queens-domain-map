@@ -1,0 +1,19 @@
+# Redirige http vers https (à garder si le certificat SSL est actif)
+RewriteEngine On
+RewriteCond %{HTTPS} off
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Types des fichiers de la carte
+AddType image/webp .webp
+AddType model/gltf-binary .glb
+
+# Cache : images et modèles 3D gardés 30 jours, pages toujours à jour
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType image/webp "access plus 30 days"
+  ExpiresByType model/gltf-binary "access plus 30 days"
+  ExpiresByType text/html "access plus 0 seconds"
+</IfModule>
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html application/json model/gltf-binary
+</IfModule>

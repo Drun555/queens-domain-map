@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Carte de Neasied</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jacquard+12&family=Barlow+Semi+Condensed:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Plan : une carte marine de nuit. Le relevé (points de terrain en blocs, comme des voxels PS1) occupe tout
+   l'écran ; un seul panneau latéral sobre porte les réglages. L'or ne sert qu'à la sélection. Thème unique assumé. */
+:root {
+  color-scheme: dark;
+  --sea: #0f131d;
+  --chart: #161c2a;
+  --chart-2: #1d2434;
+  --line: #2b3347;
+  --ink: #e9e5d8;
+  --dim: #8d95a8;
+  --gold: #e9b949;
+  --font-display: "Jacquard 12", "Old English Text MT", "Times New Roman", serif;
+  --font-body: "Barlow Semi Condensed", "Arial Narrow", "Segoe UI", sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body {
+  background: var(--sea); color: var(--ink);
+  font: 400 15px/1.35 var(--font-body);
+  display: grid; grid-template-columns: 312px minmax(0, 1fr); overflow: hidden;
+}
+aside {
+  background: var(--chart); border-right: 1px solid var(--line);
+  display: flex; flex-direction: column; min-height: 0;
+}
+.head { padding: 16px 18px 12px; border-bottom: 1px solid var(--line); }
+h1 { font: 400 44px/0.9 var(--font-display); margin: 0; letter-spacing: 0.01em; color: var(--ink); text-wrap: balance; }
+.head p { margin: 6px 0 0; color: var(--dim); font-size: 13px; }
+.scroll { overflow-y: auto; padding: 14px 18px 18px; display: flex; flex-direction: column; gap: 18px; min-height: 0; }
+.group { display: flex; flex-direction: column; gap: 8px; }
+.group > label, .group > .lbl {
+  font-size: 12px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; color: var(--dim);
+  display: flex; justify-content: space-between; align-items: baseline; gap: 8px;
+}
+select, input[type="search"] {
+  width: 100%; background: var(--chart-2); color: var(--ink); border: 1px solid var(--line);
+  border-radius: 3px; padding: 8px 10px; font: 500 15px var(--font-body);
+}
+.zone-row { display: grid; grid-template-columns: 34px 1fr 34px; gap: 6px; }
+button {
+  font: 500 14px var(--font-body); color: var(--ink); background: var(--chart-2);
+  border: 1px solid var(--line); border-radius: 3px; cursor: pointer; padding: 6px 10px;
+}
+button:hover { border-color: var(--dim); }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.zone-sub { color: var(--dim); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.cats { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.cats li { border-top: 1px solid var(--line); }
+.cats li:last-child { border-bottom: 1px solid var(--line); }
+.cats label {
+  display: grid; grid-template-columns: 18px 14px 1fr auto; align-items: center; gap: 8px;
+  padding: 6px 2px; cursor: pointer;
+}
+.cats label.empty { color: var(--dim); }
+.cats input { margin: 0; accent-color: var(--gold); width: 15px; height: 15px; }
+.sw { width: 11px; height: 11px; border-radius: 50%; border: 1px solid rgba(0,0,0,.6); }
+.cnt { color: var(--dim); font-size: 13px; font-variant-numeric: tabular-nums; white-space: nowrap; text-align: right; min-width: 58px; flex: none; }
+.mini { display: flex; gap: 6px; }
+.mode { display: flex; gap: 6px; margin-top: 12px; }
+.mode a, .mode span { flex: 1; text-align: center; padding: 6px 8px; border-radius: 7px; border: 1px solid var(--line); font: 600 13px var(--font-body); text-decoration: none; color: var(--ink); background: var(--chart-2); }
+.mode span { background: var(--gold); color: #111; border-color: var(--gold); }
+.mode a:hover { border-color: var(--dim); }
+.mini button { flex: 1; padding: 4px 6px; font-size: 13px; }
+.range { display: grid; grid-template-columns: 34px 1fr 62px; align-items: center; gap: 8px; font-size: 13px; color: var(--dim); }
+.range output { text-align: right; color: var(--ink); font-variant-numeric: tabular-nums; }
+input[type="range"] { width: 100%; accent-color: var(--gold); }
+.fine summary { cursor: pointer; font-size: 12px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; color: var(--dim); }
+.fine[open] summary { margin-bottom: 4px; }
+[hidden] { display: none !important; }
+.save-hint { margin: 0; color: var(--dim); font-size: 12.5px; line-height: 1.45; }
+.save-info { font-size: 13px; color: var(--ink); font-variant-numeric: tabular-nums; }
+.save-info.err { color: #ff8a7a; }
+.group > label.chk, .chk { display: flex; align-items: center; justify-content: flex-start; gap: 8px; font-size: 13.5px; font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--ink); cursor: pointer; }
+.chk input { margin: 0; accent-color: var(--gold); width: 15px; height: 15px; }
+.where summary { cursor: pointer; font-size: 12.5px; color: var(--dim); }
+.where p { margin: 6px 0 0; font-size: 12.5px; color: var(--dim); line-height: 1.45; }
+.where code { font-size: 11.5px; word-break: break-all; color: var(--ink); }
+body.dropping main::after { content: 'Dépose ta sauvegarde (World0.sav, World1.sav…) ici'; position: absolute; inset: 12px; display: grid; place-items: center;
+  border: 2px dashed var(--gold); border-radius: 10px; background: rgba(15,19,29,0.82); color: var(--ink); font-size: 18px; pointer-events: none; z-index: 20; }
+.foot { color: var(--dim); font-size: 12.5px; border-top: 1px solid var(--line); padding-top: 12px; }
+.foot p { margin: 0 0 6px; }
+.support { border-top: 1px solid var(--line); padding-top: 12px; font-size: 13px; color: var(--dim); display: flex; flex-direction: column; gap: 8px; }
+.support p { margin: 0; }
+.support b { color: var(--ink); font-weight: 600; }
+.support a { display: block; text-align: center; padding: 7px 10px; border-radius: 3px; background: #5865f2; color: #fff; text-decoration: none; font-weight: 600; font-size: 14px; }
+.support a:hover { background: #4752c4; }
+
+
+main { position: relative; min-width: 0; min-height: 0; }
+canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; }
+canvas.drag { cursor: grabbing; }
+.hud { position: absolute; pointer-events: none; font-variant-numeric: tabular-nums; }
+/* --- progression : tous les mondes, comparés à la sauvegarde --- */
+.progbtn { width: 100%; margin-top: 10px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; text-align: left; }
+.progbtn b { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.progbtn span { color: var(--dim); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.prog { position: absolute; top: 12px; right: 12px; bottom: 12px; width: min(380px, calc(100% - 24px)); z-index: 6;
+  background: var(--chart); border: 1px solid var(--line); border-radius: 6px; display: flex; flex-direction: column; min-height: 0;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.45); }
+.prog[hidden] { display: none; }
+.prog .ph { padding: 14px 16px 12px; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 8px; }
+.prog .ph .row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.prog h2 { margin: 0; font: 600 18px var(--font-body); }
+.prog .tot { font-size: 13.5px; color: var(--dim); font-variant-numeric: tabular-nums; }
+.prog .tot b { color: var(--ink); font-weight: 600; }
+.prog .hint { font-size: 12.5px; color: var(--dim); margin: 0; }
+.prog .opts { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--dim); }
+.prog .opts label { display: flex; gap: 6px; align-items: center; cursor: pointer; }
+.prog .pl { overflow-y: auto; min-height: 0; padding: 6px 0 10px; }
+.bar { height: 5px; border-radius: 3px; background: var(--chart-2); overflow: hidden; }
+.bar i { display: block; height: 100%; background: #6fbf8a; }
+.pz { border-bottom: 1px solid var(--line); }
+.pz > summary { list-style: none; cursor: pointer; padding: 9px 16px; display: grid; grid-template-columns: 14px 1fr auto; gap: 4px 8px; align-items: center; }
+.pz > summary::-webkit-details-marker { display: none; }
+.pz > summary::before { content: '›'; color: var(--dim); transition: transform .15s; display: inline-block; }
+.pz[open] > summary::before { transform: rotate(90deg); }
+.pz > summary .n { font-weight: 600; }
+.pz > summary .c { color: var(--dim); font-size: 13px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pz > summary .bar { grid-column: 2 / 4; }
+.pz.full > summary .n::after { content: ' ✓'; color: #6fbf8a; }
+.pc { padding: 2px 16px 8px 38px; }
+.pc h3 { margin: 8px 0 3px; font: 600 12px var(--font-body); letter-spacing: 0.06em; text-transform: uppercase; color: var(--dim);
+  display: flex; justify-content: space-between; gap: 8px; }
+.pc h3 .sw { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: 1px; }
+.pc ul { list-style: none; margin: 0; padding: 0; }
+.pc li button { width: 100%; text-align: left; background: none; border: 0; border-radius: 3px; padding: 4px 6px; font-size: 14px; color: var(--ink);
+  display: flex; justify-content: space-between; gap: 8px; }
+.pc li button:hover, .pc li button:focus-visible { background: var(--chart-2); }
+.pc li button .go { color: var(--dim); font-size: 12.5px; white-space: nowrap; }
+.pc li.done button { color: var(--dim); }
+.pc li.done button .nm::before { content: '✓ '; color: #6fbf8a; }
+.pc .all-done { color: #6fbf8a; font-size: 13.5px; margin: 6px 0; }
+.zoom { right: 14px; top: 14px; display: flex; flex-direction: column; gap: 6px; pointer-events: auto; }
+.zoom button { width: 36px; height: 36px; padding: 0; font-size: 18px; background: var(--chart); }
+.floors {
+  left: 14px; top: 42px; max-height: calc(100% - 104px); overflow-y: auto; pointer-events: auto;
+  background: var(--chart); border: 1px solid var(--line); border-radius: 3px; padding: 4px 4px 5px;
+  display: none; flex-direction: column;
+}
+.floors .ttl { font-size: 9.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); text-align: center; padding: 1px 0 4px; }
+.floors .flist { display: flex; flex-direction: column; gap: 2px; }
+.floors button {
+  width: 42px; height: 27px; padding: 0; border: 0; border-radius: 2px;
+  background: transparent; color: var(--dim); font-size: 13.5px; font-variant-numeric: tabular-nums;
+}
+.floors button:hover { background: var(--chart-2); color: var(--ink); }
+.floors button[aria-current="true"] { background: var(--gold); color: #10131b; font-weight: 600; }
+.floors .all { font-size: 11.5px; height: 23px; border-bottom: 1px solid var(--line); border-radius: 0; margin-bottom: 4px; }
+.scale { left: 72px; bottom: 14px; color: var(--dim); font-size: 12.5px; }
+.scale i { display: block; height: 6px; border: 1px solid var(--dim); border-top: 0; margin-bottom: 3px; }
+.coord { left: 16px; top: 14px; color: var(--dim); font-size: 12.5px; }
+.tip {
+  background: var(--chart); border: 1px solid var(--line); border-radius: 3px; padding: 4px 8px;
+  font-size: 13.5px; white-space: nowrap; transform: translate(12px, -50%); display: none;
+}
+.card {
+  right: 14px; bottom: 14px; width: min(320px, calc(100% - 28px)); pointer-events: auto;
+  background: var(--chart); border: 1px solid var(--line); border-left: 3px solid var(--gold);
+  border-radius: 3px; padding: 12px 14px; display: none; flex-direction: column; gap: 8px;
+}
+.card h2 { margin: 0; font: 600 17px/1.2 var(--font-body); overflow-wrap: anywhere; }
+.card dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; font-size: 13.5px; }
+.card dt { color: var(--dim); }
+.card dd { margin: 0; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.card .row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.card label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 500; }
+.card input { accent-color: var(--gold); width: 16px; height: 16px; margin: 0; }
+
+@media (max-width: 760px) {
+  body { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); }
+  aside { border-right: 0; border-bottom: 1px solid var(--line); max-height: 46vh; }
+  .head { padding: 10px 16px 8px; display: flex; align-items: baseline; gap: 12px; }
+  h1 { font-size: 32px; }
+  .head p { margin: 0; }
+  .scroll { padding: 10px 16px 14px; gap: 14px; }
+}
+</style>
+</head>
+<body>
+<aside>
+  <div class="head">
+    <h1>Neasied</h1>
+    <p>Carte non officielle de Queen's Domain</p>
+    <div class="mode"><span>Vue 2D</span><a id="to3d" href="3d.html">Vue 3D</a></div>
+    <button class="progbtn" id="progOpen" type="button"><b>Progression du jeu</b><span id="progShort"></span></button>
+  </div>
+  <div class="scroll">
+    <div class="group">
+      <label for="zone">Zone</label>
+      <div class="zone-row">
+        <button id="prev" type="button" aria-label="Zone précédente">‹</button>
+        <select id="zone"></select>
+        <button id="next" type="button" aria-label="Zone suivante">›</button>
+      </div>
+      <div class="zone-sub" id="zoneSub"></div>
+      <div class="zone-sub" id="floorSub"></div>
+    </div>
+    <div class="group">
+      <label for="q">Rechercher un objet</label>
+      <input id="q" type="search" placeholder="Skull Rod, coffre, Budaen…" autocomplete="off">
+    </div>
+    <div class="group" id="saveGrp">
+      <div class="lbl"><span>Ma sauvegarde</span></div>
+      <p class="save-hint">Charge ton fichier de sauvegarde (<b>World0.sav</b>, <b>World1.sav</b>…) : ce que tu as déjà fait est grisé sur la carte. Le fichier est lu dans ton navigateur et n'est envoyé nulle part.</p>
+      <div class="save-info" id="saveInfo" hidden></div>
+      <div class="mini">
+        <button id="saveLoad" type="button">Charger ma sauvegarde</button>
+        <button id="saveClear" type="button" hidden>Oublier</button>
+      </div>
+      <input id="saveFile" type="file" accept=".sav" hidden>
+      <label class="chk"><input id="hideDone" type="checkbox"> Masquer ce qui est déjà fait</label>
+      <details class="where">
+        <summary>Où trouver ce fichier ?</summary>
+        <p>Sur PC, en général : <code>%LOCALAPPDATA%\QueensDomain\Saved\SaveGames\</code> puis le dossier à ton numéro Steam. Colle ce chemin dans la barre d'adresse de l'Explorateur Windows. Le fichier s'appelle <code>World0.sav</code>, <code>World1.sav</code>, <code>World2.sav</code>… selon l'emplacement de ta partie (le premier monde est <code>World0.sav</code>). Tu peux aussi glisser le fichier directement sur la carte.</p>
+      </details>
+    </div>
+    <div class="group">
+      <div class="lbl"><span>Catégories</span><span id="shown"></span></div>
+      <ul class="cats" id="cats"></ul>
+      <div class="mini">
+        <button id="all" type="button">Tout afficher</button>
+        <button id="none" type="button">Tout masquer</button>
+      </div>
+    </div>
+    <details class="group fine" id="fine">
+      <summary>Réglage fin de la hauteur</summary>
+      <div class="range"><span>Bas</span><input id="zmin" type="range" aria-label="Hauteur minimale"><output id="zminOut"></output></div>
+      <div class="range"><span>Haut</span><input id="zmax" type="range" aria-label="Hauteur maximale"><output id="zmaxOut"></output></div>
+      <button id="zreset" type="button">Afficher toutes les hauteurs</button>
+    </details>
+    <div class="foot">
+      <p>Positions tirées des fichiers du jeu. Les noms d'objets et de zones sont les noms internes, en anglais.</p>
+      <p>Les objets cochés « trouvé » et la sauvegarde chargée sont gardés dans ce navigateur uniquement.</p>
+      <p>Projet de fan, sans lien avec Freshly Baked Games ni Future Friends Games.</p>
+    </div>
+    <div class="support"><p>Un problème ou une idée&nbsp;? Contacte <b>Leny15</b> sur Discord&nbsp;:</p><a href="https://discord.gg/guKx9kJjmt" target="_blank" rel="noopener">Rejoindre le Discord</a></div>
+  </div>
+</aside>
+<main>
+  <canvas id="map" aria-label="Carte de la zone"></canvas>
+  <div class="hud coord" id="coord"></div>
+  <div class="hud floors" id="floors" role="group" aria-label="Choix de l'étage">
+    <span class="ttl">Étage</span>
+    <button class="all" id="fall" type="button" title="Vue d'ensemble : les salles intérieures sont cachées">Tout</button>
+    <div class="flist" id="flist"></div>
+  </div>
+  <div class="hud zoom">
+    <button id="zin" type="button" aria-label="Zoomer">+</button>
+    <button id="zout" type="button" aria-label="Dézoomer">−</button>
+    <button id="fit" type="button" aria-label="Recentrer la zone" title="Recentrer">⌂</button>
+  </div>
+  <div class="hud scale" id="scale"><i></i><span></span></div>
+  <div class="hud tip" id="tip"></div>
+  <section class="prog" id="prog" hidden aria-label="Progression de tous les mondes">
+    <div class="ph">
+      <div class="row"><h2>Progression</h2><button id="progClose" type="button" aria-label="Fermer">×</button></div>
+      <div class="tot" id="progTot"></div>
+      <div class="bar"><i id="progBar"></i></div>
+      <p class="hint" id="progHint"></p>
+      <div class="opts">
+        <label><input id="progDone" type="checkbox"> Montrer aussi ce qui est déjà fait</label>
+        <label><input id="progAll" type="checkbox"> Compter les ennemis, PNJ et consommables</label>
+      </div>
+    </div>
+    <div class="pl" id="progList"></div>
+  </section>
+  <div class="hud card" id="card">
+    <div class="row"><h2 id="cTitle"></h2><button id="cClose" type="button" aria-label="Fermer">×</button></div>
+    <dl>
+      <dt>Catégorie</dt><dd id="cCat"></dd>
+      <dt>Niveau</dt><dd id="cLvl"></dd>
+      <dt>Hauteur</dt><dd id="cZ"></dd>
+      <dt>Nom interne</dt><dd id="cName"></dd>
+    </dl>
+    <label><input id="cFound" type="checkbox"> <span id="cFoundTxt">Trouvé</span></label>
+  </div>
+</main>
+<script id="data" type="application/json">__DATA__</script>
+<script>
+(function () {
+  'use strict';
+  var DATA = JSON.parse(document.getElementById('data').textContent);
+  var CATS = DATA.cats, ZONES = DATA.zones, CELL = 150, ZCELL = 300;
+  var catById = {}; CATS.forEach(function (c, i) { c.i = i; catById[c.id] = c; });
+  var $ = function (id) { return document.getElementById(id); };
+  var canvas = $('map'), ctx = canvas.getContext('2d');
+
+  // --- état ---
+  var S = { hideDone: false, zone: 0, on: {}, q: '', zmin: 0, zmax: 0, view: { cx: 0, cy: 0, k: 0.02 }, sel: null, hover: null };
+  CATS.forEach(function (c) { S.on[c.id] = !!c.on; });
+  // catégories cochées : gardées d'une zone à l'autre, entre la 2D et la 3D, et d'une visite à l'autre
+  try { var savedOn = JSON.parse(localStorage.getItem('neasied-cats') || 'null'); if (savedOn) CATS.forEach(function (c) { if (c.id in savedOn) S.on[c.id] = !!savedOn[c.id]; }); } catch (e) {}
+  function saveCats() { try { localStorage.setItem('neasied-cats', JSON.stringify(S.on)); } catch (e) {} }
+  var found = {};
+  try { found = JSON.parse(localStorage.getItem('neasied-found') || '{}') || {}; } catch (e) { found = {}; }
+  function saveFound() { try { localStorage.setItem('neasied-found', JSON.stringify(found)); } catch (e) {} }
+  function key(z, p) { return z.levels[p[5]] + '/' + p[6]; }
+  // objets faits d'après la sauvegarde chargée (gardés dans le navigateur)
+  var saveDone = {}, saveMeta = null, saveHave = null;
+  try { var sv = JSON.parse(localStorage.getItem('neasied-save') || 'null'); if (sv && sv.have) { saveHave = {}; sv.have.forEach(function (k) { saveHave[k] = 1; }); saveMeta = sv.meta || null; } } catch (e) {}
+  function isDone(z, p) { var k = key(z, p); return !!(found[k] || saveDone[k]); }
+
+  // --- préparation des zones ---
+  ZONES.forEach(function (z) {
+    var n = z.bg.length / 3, pts = new Array(n), i;
+    var x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity, z0 = Infinity, z1 = -Infinity;
+    for (i = 0; i < n; i++) {
+      var p = { x: z.bg[i * 3] * CELL, y: z.bg[i * 3 + 1] * CELL, z: z.bg[i * 3 + 2] * ZCELL };
+      pts[i] = p;
+      if (p.x < x0) x0 = p.x; if (p.x > x1) x1 = p.x;
+      if (p.y < y0) y0 = p.y; if (p.y > y1) y1 = p.y;
+      if (p.z < z0) z0 = p.z; if (p.z > z1) z1 = p.z;
+    }
+    pts.sort(function (a, b) { return a.z - b.z; });
+    z.pois.forEach(function (p) { if (p[3] < z0) z0 = p[3]; if (p[3] > z1) z1 = p[3]; });
+    // cadrage : on ignore les 2 % de points les plus excentrés
+    var xs = pts.map(function (q) { return q.x; }).sort(function (a, b) { return a - b; });
+    var ys = pts.map(function (q) { return q.y; }).sort(function (a, b) { return a - b; });
+    if (n > 50) { x0 = xs[Math.floor(n * 0.02)]; x1 = xs[Math.floor(n * 0.98)]; y0 = ys[Math.floor(n * 0.02)]; y1 = ys[Math.floor(n * 0.98)]; }
+    z.pts = pts; z.b = { x0: x0, x1: x1, y0: y0, y1: y1, z0: Math.floor(z0 / 100) * 100, z1: Math.ceil(z1 / 100) * 100 };
+    z.pois.sort(function (a, b) { return a[3] - b[3]; });
+  });
+
+
+  // --- plan calculé à partir des modèles 3D (zones qui en ont un) ---
+  var planCv = document.createElement('canvas'), planTmp = document.createElement('canvas'), planReady = false, planTimer = 0;
+  function loadPlan(z) {
+    if (!z.plan || z.plan.loaded) return;
+    z.plan.loaded = true;
+    z.plan.bands.forEach(function (b) {
+      var im = new Image();
+      im.onload = function () { b.img = im; if (ZONES[S.zone] === z) schedulePlan(); };
+      im.src = z.plan.dir + b.f;
+    });
+  }
+  function schedulePlan() { clearTimeout(planTimer); planTimer = setTimeout(composePlan, 70); }
+  function composePlan() {
+    var z = ZONES[S.zone], pl = z.plan; planReady = false;
+    if (!pl) { draw(); return; }
+    planCv.width = planTmp.width = pl.w; planCv.height = planTmp.height = pl.h;
+    var c = planCv.getContext('2d'), t = planTmp.getContext('2d');
+    var sel = pl.bands.filter(function (b) { return b.img && b.z1 > S.zmin + 1 && b.z < S.zmax - 1; });
+    sel.forEach(function (b, i) {
+      // les étages du bas sont assombris pour que celui du haut ressorte
+      var strength = S.floor >= 0 ? 0.12 : 0.62;   // un étage choisi : le sol reste lumineux
+      var dim = sel.length > 1 ? strength * (1 - i / (sel.length - 1)) : 0;
+      t.globalCompositeOperation = 'copy'; t.globalAlpha = 1; t.drawImage(b.img, 0, 0);
+      if (dim > 0.01) { t.globalCompositeOperation = 'source-atop'; t.fillStyle = 'rgba(15,19,29,' + dim.toFixed(3) + ')'; t.fillRect(0, 0, pl.w, pl.h); }
+      c.drawImage(planTmp, 0, 0);
+    });
+    planReady = sel.length > 0; draw();
+  }
+
+  // --- interface ---
+  var zoneSel = $('zone');
+  ZONES.forEach(function (z, i) { var o = document.createElement('option'); o.value = i; o.textContent = z.label; zoneSel.appendChild(o); });
+  var catsEl = $('cats');
+  CATS.forEach(function (c) {
+    var li = document.createElement('li'), lab = document.createElement('label');
+    var cb = document.createElement('input'); cb.type = 'checkbox'; cb.id = 'cat-' + c.id; cb.checked = S.on[c.id];
+    cb.addEventListener('change', function () { S.on[c.id] = cb.checked; saveCats(); refresh(); });
+    var sw = document.createElement('span'); sw.className = 'sw'; sw.style.background = c.color;
+    var nm = document.createElement('span'); nm.textContent = c.label;
+    var ct = document.createElement('span'); ct.className = 'cnt'; ct.id = 'cnt-' + c.id;
+    lab.appendChild(cb); lab.appendChild(sw); lab.appendChild(nm); lab.appendChild(ct); li.appendChild(lab); catsEl.appendChild(li);
+    c.cb = cb; c.lab = lab; c.ct = ct;
+  });
+
+  // --- étages : colonne de boutons facon ascenseur, à gauche de la carte ---
+  var floorsEl = $('floors'), flistEl = $('flist');
+  function inFloor(fl, i, p) { return (p[3] >= fl[i].z0 || i === 0) && (p[3] < fl[i].z1 || i === fl.length - 1); }
+  function floorRange(i) {
+    var fl = ZONES[S.zone].plan.floors;
+    return fmtM(fl[i].z0) + ' à ' + fmtM(fl[i].z1);
+  }
+  function buildFloors(z) {
+    flistEl.innerHTML = ''; S.floor = -1;
+    var fl = z.plan && z.plan.floors, has = !!(fl && fl.length);
+    floorsEl.style.display = has ? 'flex' : 'none';
+    $('fine').open = !has; $('floorSub').hidden = !has;
+    if (!has) return;
+    var n = 0;
+    fl.forEach(function (f, i) { f.total = 0; f.btn = null; z.pois.forEach(function (p) { if (inFloor(fl, i, p)) f.total++; }); });
+    fl.forEach(function (f) { f.idx = f.total ? ++n : 0; });   // numéros fixes, du bas vers le haut
+    z.plan.nFloors = n;
+    for (var i = fl.length - 1; i >= 0; i--) {
+      if (!fl[i].total) continue;                               // étage sans rien dessus : jamais proposé
+      (function (f, i) {
+        var b = document.createElement('button');
+        b.type = 'button'; b.textContent = f.idx;
+        b.addEventListener('click', function () { setFloor(i); });
+        f.btn = b; flistEl.appendChild(b);
+      })(fl[i], i);
+    }
+  }
+  function refreshFloors() {
+    var z = ZONES[S.zone], fl = z.plan && z.plan.floors;
+    if (!fl) return;
+    fl.forEach(function (f, i) {
+      if (!f.btn) return;
+      var c = 0;
+      z.pois.forEach(function (p) { if (matches(p) && inFloor(fl, i, p)) c++; });
+      f.shown = c;
+      f.btn.hidden = !c && S.floor !== i;                       // masqué quand rien d'affiché n'y est
+      f.btn.title = 'Étage ' + f.idx + ' · ' + floorRange(i) + ' · ' + c + (c > 1 ? ' objets' : ' objet');
+      f.btn.setAttribute('aria-label', f.btn.title);
+      f.btn.setAttribute('aria-current', S.floor === i ? 'true' : 'false');
+    });
+    $('fall').setAttribute('aria-current', S.floor === -1 ? 'true' : 'false');
+  }
+  function setFloor(i) {
+    var z = ZONES[S.zone], fl = z.plan && z.plan.floors;
+    if (!fl) return;
+    S.floor = i < 0 ? -1 : Math.max(0, Math.min(fl.length - 1, i));
+    S.zmin = S.floor < 0 ? z.b.z0 : (S.floor === 0 ? Math.min(z.b.z0, fl[0].z0) : fl[S.floor].z0);
+    S.zmax = S.floor < 0 ? z.b.z1 : (S.floor === fl.length - 1 ? Math.max(z.b.z1, fl[S.floor].z1) : fl[S.floor].z1);
+    $('zmin').value = S.zmin; $('zmax').value = S.zmax;
+    $('floorSub').textContent = S.floor < 0 ? 'Vue d\'ensemble · les salles intérieures sont cachées'
+      : 'Étage ' + fl[S.floor].idx + ' sur ' + z.plan.nFloors + ' · ' + floorRange(S.floor);
+    if (S.sel && !visible(S.sel)) select(null);
+    refresh(); schedulePlan();
+  }
+  function customHeight() {
+    var fl = ZONES[S.zone].plan && ZONES[S.zone].plan.floors;
+    if (fl) { S.floor = -2; $('floorSub').textContent = 'Hauteur choisie à la main · ' + fmtM(S.zmin) + ' à ' + fmtM(S.zmax); }
+  }
+  function stepFloor(dir) {
+    var fl = ZONES[S.zone].plan && ZONES[S.zone].plan.floors;
+    if (!fl) return;
+    var i = S.floor < 0 ? (dir > 0 ? -1 : fl.length) : S.floor;
+    for (i += dir; i >= 0 && i < fl.length; i += dir) if (fl[i].btn && !fl[i].btn.hidden) { setFloor(i); return; }
+  }
+  $('fall').addEventListener('click', function () { setFloor(-1); });
+  window.addEventListener('keydown', function (e) {
+    if (!(ZONES[S.zone].plan || {}).floors || /INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) return;
+    if (e.key === 'PageUp') { e.preventDefault(); stepFloor(1); }
+    if (e.key === 'PageDown') { e.preventDefault(); stepFloor(-1); }
+  });
+
+  function setAll(v) { CATS.forEach(function (c) { S.on[c.id] = v; c.cb.checked = v; }); saveCats(); refresh(); }
+  $('all').addEventListener('click', function () { setAll(true); });
+  $('none').addEventListener('click', function () { setAll(false); });
+
+  function fmtM(u) { return (u / 100).toFixed(0) + ' m'; }
+  function setZone(i, keepHash) {
+    S.zone = (i + ZONES.length) % ZONES.length; S.sel = null; S.hover = null;
+    var z = ZONES[S.zone]; zoneSel.value = S.zone;
+    $('zoneSub').textContent = z.levels.join(' · ') + (z.plan ? ' · plan détaillé' : ' · relevé approximatif');
+    var zmin = $('zmin'), zmax = $('zmax');
+    if (z.plan && z.plan.floors) { z.b.z0 = Math.min(z.b.z0, z.plan.floors[0].z0); z.b.z1 = Math.max(z.b.z1, z.plan.floors[z.plan.floors.length - 1].z1); }
+    [zmin, zmax].forEach(function (r) { r.min = z.b.z0; r.max = z.b.z1; r.step = 50; });
+    S.zmin = z.b.z0; S.zmax = z.b.z1; zmin.value = S.zmin; zmax.value = S.zmax;
+    planReady = false; loadPlan(z); buildFloors(z); fit();
+    if (z.plan && z.plan.floors) {
+      var start = -1, sv = z.pois.filter(function (p) { return p[0] === 'save'; })[0];
+      z.plan.floors.forEach(function (f, i) { if (start < 0 && f.total) start = i; });
+      if (sv) z.plan.floors.forEach(function (f, i) { if (inFloor(z.plan.floors, i, sv)) start = i; });
+      if (z.plan.startAll) start = -1;   // zone en plein air : on ouvre sur la vue d'ensemble
+      setFloor(start);
+    } else { refresh(); schedulePlan(); }
+    if (!keepHash) { try { history.replaceState(null, '', '#' + z.id); } catch (e) { location.hash = z.id; } }
+  }
+  zoneSel.addEventListener('change', function () { setZone(+zoneSel.value); });
+  $('prev').addEventListener('click', function () { setZone(S.zone - 1); });
+  $('next').addEventListener('click', function () { setZone(S.zone + 1); });
+  $('zmin').addEventListener('input', function () { S.zmin = Math.min(+this.value, S.zmax); this.value = S.zmin; customHeight(); refresh(); schedulePlan(); });
+  $('zmax').addEventListener('input', function () { S.zmax = Math.max(+this.value, S.zmin); this.value = S.zmax; customHeight(); refresh(); schedulePlan(); });
+  $('zreset').addEventListener('click', function () { var z = ZONES[S.zone]; if (z.plan && z.plan.floors) { setFloor(-1); return; } S.zmin = z.b.z0; S.zmax = z.b.z1; $('zmin').value = S.zmin; $('zmax').value = S.zmax; refresh(); schedulePlan(); });
+  $('q').addEventListener('input', function () { S.q = this.value.trim().toLowerCase(); refresh(); });
+
+  function matches(p) {   // catégorie + recherche, sans tenir compte de la hauteur
+    if (!S.on[p[0]]) return false;
+    if (S.q && (p[4] + ' ' + p[6]).toLowerCase().indexOf(S.q) < 0) return false;
+    return true;
+  }
+  function visible(p) { return matches(p) && p[3] >= S.zmin && p[3] <= S.zmax && !(S.hideDone && isDone(ZONES[S.zone], p)); }
+  function refresh() {
+    var z = ZONES[S.zone], tot = {}, fnd = {}, shown = 0;
+    z.pois.forEach(function (p) {
+      tot[p[0]] = (tot[p[0]] || 0) + 1;
+      if (isDone(z, p)) fnd[p[0]] = (fnd[p[0]] || 0) + 1;
+      if (visible(p)) shown++;
+    });
+    CATS.forEach(function (c) {
+      var t = tot[c.id] || 0;
+      c.ct.textContent = t ? (fnd[c.id] || 0) + ' / ' + t : '0';
+      c.lab.className = t ? '' : 'empty';
+    });
+    $('shown').textContent = shown + ' affichés';
+    $('zminOut').textContent = fmtM(S.zmin); $('zmaxOut').textContent = fmtM(S.zmax);
+    refreshFloors();
+    draw();
+  }
+
+  // --- vue ---
+  var W = 0, H = 0, DPR = 1;
+  function resize() {
+    var r = canvas.getBoundingClientRect(); DPR = window.devicePixelRatio || 1;
+    W = r.width; H = r.height; canvas.width = Math.round(W * DPR); canvas.height = Math.round(H * DPR);
+    draw();
+  }
+  function fit() {
+    var z = ZONES[S.zone], b = z.b;
+    if (z.plan) b = { x0: z.plan.x0, x1: z.plan.x0 + z.plan.w * z.plan.px, y0: z.plan.y0, y1: z.plan.y0 + z.plan.h * z.plan.px };
+    var w = Math.max(b.x1 - b.x0, 2000), h = Math.max(b.y1 - b.y0, 2000);
+    S.view.cx = (b.x0 + b.x1) / 2; S.view.cy = (b.y0 + b.y1) / 2;
+    S.view.k = Math.min((W || 800) / w, (H || 600) / h) * (z.plan ? 0.95 : 0.82);
+  }
+  function sx(x) { return (x - S.view.cx) * S.view.k + W / 2; }
+  function sy(y) { return (y - S.view.cy) * S.view.k + H / 2; }
+  function zoomAt(f, px, py) {
+    var v = S.view, wx = (px - W / 2) / v.k + v.cx, wy = (py - H / 2) / v.k + v.cy;
+    v.k = Math.max(0.002, Math.min(1.5, v.k * f));
+    v.cx = wx - (px - W / 2) / v.k; v.cy = wy - (py - H / 2) / v.k; draw();
+  }
+  $('zin').addEventListener('click', function () { zoomAt(1.5, W / 2, H / 2); });
+  $('zout').addEventListener('click', function () { zoomAt(1 / 1.5, W / 2, H / 2); });
+  $('fit').addEventListener('click', function () { fit(); draw(); });
+
+  function shade(t, inBand) {
+    if (!inBand) return 'rgb(27,33,48)';
+    var r = Math.round(44 + t * 98), g = Math.round(56 + t * 104), b = Math.round(84 + t * 96);
+    return 'rgb(' + r + ',' + g + ',' + b + ')';
+  }
+  var raf = 0;
+  function draw() { if (!raf) raf = requestAnimationFrame(paint); }
+  function paint() {
+    raf = 0; if (!W) return;
+    var z = ZONES[S.zone], v = S.view, i, p;
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    ctx.fillStyle = '#0f131d'; ctx.fillRect(0, 0, W, H);
+    // quadrillage tous les 50 m
+    var step = 5000; while (step * v.k < 40) step *= 2;
+    ctx.strokeStyle = 'rgba(141,149,168,0.08)'; ctx.lineWidth = 1; ctx.beginPath();
+    var gx0 = Math.floor(((0 - W / 2) / v.k + v.cx) / step) * step, gy0 = Math.floor(((0 - H / 2) / v.k + v.cy) / step) * step;
+    for (var gx = gx0; sx(gx) < W; gx += step) { ctx.moveTo(Math.round(sx(gx)) + .5, 0); ctx.lineTo(Math.round(sx(gx)) + .5, H); }
+    for (var gy = gy0; sy(gy) < H; gy += step) { ctx.moveTo(0, Math.round(sy(gy)) + .5); ctx.lineTo(W, Math.round(sy(gy)) + .5); }
+    ctx.stroke();
+    // terrain
+    var s = Math.max(1.6, CELL * v.k), zr = Math.max(1, z.b.z1 - z.b.z0), last = '';
+    var usePlan = z.plan && planReady;
+    if (usePlan) {
+      ctx.imageSmoothingEnabled = v.k * z.plan.px < 1.5;
+      ctx.drawImage(planCv, sx(z.plan.x0), sy(z.plan.y0), z.plan.w * z.plan.px * v.k, z.plan.h * z.plan.px * v.k);
+    }
+    for (i = 0; !usePlan && i < z.pts.length; i++) {
+      p = z.pts[i]; var px = sx(p.x), py = sy(p.y);
+      if (px < -s || py < -s || px > W + s || py > H + s) continue;
+      var c = shade((p.z - z.b.z0) / zr, p.z >= S.zmin - ZCELL && p.z <= S.zmax + ZCELL);
+      if (c !== last) { ctx.fillStyle = c; last = c; }
+      ctx.fillRect(px - s / 2, py - s / 2, s, s);
+    }
+    // points d'intérêt
+    S.drawn = [];
+    for (i = 0; i < z.pois.length; i++) {
+      p = z.pois[i]; if (!visible(p)) continue;
+      var x = sx(p[1]), y = sy(p[2]); if (x < -10 || y < -10 || x > W + 10 || y > H + 10) continue;
+      S.drawn.push(p);
+      var cat = catById[p[0]], big = p[0] === 'save' || p[0] === 'tp' || p[0] === 'boss', r = big ? 6 : (p[0] === 'enemy' || p[0] === 'consum' ? 3 : 4.5);
+      var isFound = isDone(z, p);
+      ctx.beginPath();
+      if (big) { ctx.moveTo(x, y - r); ctx.lineTo(x + r, y); ctx.lineTo(x, y + r); ctx.lineTo(x - r, y); ctx.closePath(); }
+      else ctx.arc(x, y, r, 0, 6.2832);
+      ctx.lineWidth = 1.5;
+      if (isFound) {   // fait : couleur de la catégorie atténuée, contour coloré et coche
+        ctx.fillStyle = '#121722'; ctx.fill(); ctx.globalAlpha = 0.38; ctx.fillStyle = cat.color; ctx.fill(); ctx.globalAlpha = 1;
+        ctx.strokeStyle = cat.color; ctx.stroke();
+        if (r >= 4) { ctx.beginPath(); ctx.moveTo(x - r * 0.45, y + r * 0.05); ctx.lineTo(x - r * 0.1, y + r * 0.4); ctx.lineTo(x + r * 0.5, y - r * 0.35);
+          ctx.lineWidth = 1.6; ctx.strokeStyle = '#ffffff'; ctx.stroke(); }
+      }
+      else { ctx.fillStyle = cat.color; ctx.fill(); ctx.strokeStyle = 'rgba(8,10,16,0.9)'; ctx.stroke(); }
+    }
+    [S.hover, S.sel].forEach(function (q, n) {
+      if (!q || !visible(q)) return;
+      ctx.beginPath(); ctx.arc(sx(q[1]), sy(q[2]), n ? 11 : 9, 0, 6.2832);
+      ctx.strokeStyle = n ? '#e9b949' : '#e9e5d8'; ctx.lineWidth = n ? 2.5 : 1.5; ctx.stroke();
+    });
+    // échelle
+    var target = 120 / v.k, nice = [500, 1000, 2000, 5000, 10000, 20000, 50000, 100000], len = nice[0];
+    nice.forEach(function (m) { if (m <= target) len = m; });
+    $('scale').firstElementChild.style.width = Math.round(len * v.k) + 'px';
+    $('scale').lastElementChild.textContent = (len / 100) + ' m';
+  }
+
+  // --- pointeur ---
+  function pick(px, py) {
+    var best = null, bd = 13 * 13, d = S.drawn || [];
+    for (var i = d.length - 1; i >= 0; i--) {
+      var dx = sx(d[i][1]) - px, dy = sy(d[i][2]) - py, dd = dx * dx + dy * dy;
+      if (dd < bd) { bd = dd; best = d[i]; }
+    }
+    return best;
+  }
+  var ptrs = {}, moved = 0, pinch = 0;
+  function pos(e) { var r = canvas.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
+  canvas.addEventListener('pointerdown', function (e) {
+    canvas.setPointerCapture(e.pointerId); ptrs[e.pointerId] = pos(e); moved = 0; canvas.classList.add('drag');
+    var ids = Object.keys(ptrs); if (ids.length === 2) pinch = dist(ptrs[ids[0]], ptrs[ids[1]]);
+  });
+  function dist(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
+  canvas.addEventListener('pointermove', function (e) {
+    var p = pos(e), prev = ptrs[e.pointerId], ids = Object.keys(ptrs);
+    if (prev && ids.length === 1) {
+      S.view.cx -= (p.x - prev.x) / S.view.k; S.view.cy -= (p.y - prev.y) / S.view.k;
+      moved += Math.abs(p.x - prev.x) + Math.abs(p.y - prev.y); ptrs[e.pointerId] = p; draw();
+    } else if (prev && ids.length === 2) {
+      ptrs[e.pointerId] = p; var a = ptrs[ids[0]], b = ptrs[ids[1]], d = dist(a, b); moved = 99;
+      if (pinch > 0 && d > 0) zoomAt(d / pinch, (a.x + b.x) / 2, (a.y + b.y) / 2); pinch = d;
+    } else {
+      var h = pick(p.x, p.y), tip = $('tip');
+      if (h !== S.hover) { S.hover = h; draw(); }
+      if (h) { tip.textContent = h[4]; tip.style.display = 'block'; tip.style.left = Math.min(p.x, W - 220) + 'px'; tip.style.top = p.y + 'px'; }
+      else tip.style.display = 'none';
+      var v = S.view;
+      $('coord').textContent = 'X ' + Math.round(((p.x - W / 2) / v.k + v.cx) / 100) + ' m · Y ' + Math.round(((p.y - H / 2) / v.k + v.cy) / 100) + ' m';
+    }
+  });
+  function up(e) {
+    var p = pos(e), was = ptrs[e.pointerId]; delete ptrs[e.pointerId]; pinch = 0;
+    if (!Object.keys(ptrs).length) canvas.classList.remove('drag');
+    if (was && moved < 5) select(pick(p.x, p.y));
+  }
+  canvas.addEventListener('pointerup', up);
+  canvas.addEventListener('pointercancel', function (e) { delete ptrs[e.pointerId]; pinch = 0; canvas.classList.remove('drag'); });
+  canvas.addEventListener('pointerleave', function () { $('tip').style.display = 'none'; if (S.hover) { S.hover = null; draw(); } });
+  canvas.addEventListener('wheel', function (e) { e.preventDefault(); var p = pos(e); zoomAt(Math.exp(-e.deltaY * 0.0015), p.x, p.y); }, { passive: false });
+
+  // --- fiche ---
+  function select(p) {
+    S.sel = p; var card = $('card');
+    if (!p) { card.style.display = 'none'; draw(); return; }
+    var z = ZONES[S.zone];
+    $('cTitle').textContent = p[4]; $('cCat').textContent = catById[p[0]].label; $('cLvl').textContent = z.levels[p[5]];
+    $('cZ').textContent = fmtM(p[3]); $('cName').textContent = p[6];
+    var bySave = !!saveDone[key(z, p)];
+    $('cFound').checked = isDone(z, p); $('cFound').disabled = bySave;
+    $('cFoundTxt').textContent = bySave ? 'Fait (d\'après ta sauvegarde)' : 'Trouvé';
+    card.style.display = 'flex'; draw();
+  }
+  $('cClose').addEventListener('click', function () { select(null); });
+  $('cFound').addEventListener('change', function () {
+    if (!S.sel) return; var k = key(ZONES[S.zone], S.sel);
+    if (this.checked) found[k] = 1; else delete found[k];
+    saveFound(); refresh(); renderProg();
+  });
+
+  // --- lecture de World0.sav (format GVAS d'Unreal Engine 4) ---
+  function readSave(buf) {
+    var dv = new DataView(buf), u8 = new Uint8Array(buf), p = 0;
+    function i32() { var v = dv.getInt32(p, true); p += 4; return v; }
+    function fstr() {
+      var n = i32(), s = '';
+      if (n === 0) return '';
+      if (n < 0) { for (var i = 0; i < -n - 1; i++) s += String.fromCharCode(dv.getUint16(p + i * 2, true)); p += -n * 2; }
+      else { for (var j = 0; j < n - 1; j++) s += String.fromCharCode(u8[p + j]); p += n; }
+      return s;
+    }
+    if (String.fromCharCode(u8[0], u8[1], u8[2], u8[3]) !== 'GVAS') throw new Error('Ce fichier n\'est pas une sauvegarde Unreal (GVAS).');
+    p = 4; i32(); i32(); p += 10; fstr(); i32(); var nc = i32(); p += nc * 20; fstr();
+    var props = {};
+    for (var guard = 0; guard < 500; guard++) {
+      var name = fstr(); if (name === 'None' || name === '') break;
+      var typ = fstr(), size = dv.getUint32(p, true); p += 8;
+      var e = { type: typ };
+      if (typ === 'MapProperty') { fstr(); fstr(); p += 1; }
+      else if (typ === 'ArrayProperty' || typ === 'SetProperty') { fstr(); p += 1; }
+      else if (typ === 'StructProperty') { fstr(); p += 17; }
+      else if (typ === 'BoolProperty') { p += 2; }
+      else if (typ === 'ByteProperty' || typ === 'EnumProperty') { fstr(); p += 1; }
+      else p += 1;
+      e.off = p; p += size; props[name] = e;
+    }
+    var have = {};
+    var st = props.SavableActorStates;
+    if (!st) throw new Error('Pas de liste d\'objets dans ce fichier : est-ce bien World0.sav ?');
+    p = st.off + 4; var n = i32();
+    for (var a = 0; a < n; a++) {
+      var h = ''; for (var b = 0; b < 16; b++) h += (u8[p + b] < 16 ? '0' : '') + u8[p + b].toString(16);
+      p += 16; i32(); have['G' + h] = 1;
+    }
+    if (props.NamedSaveData) {
+      p = props.NamedSaveData.off + 4; n = i32();
+      for (a = 0; a < n; a++) { var k = fstr(), v = i32(); if (v) { have['N' + k] = 1; have['N' + k.toLowerCase()] = 1; } }
+    }
+    // objets possédés (inventaire, équipement, armes) : clés 'I<objet>'
+    ['InventoryContents', 'Equipment', 'WeaponLevels', 'WeaponXP', 'WeaponCharges'].forEach(function (nm) {
+      if (!props[nm]) return;
+      p = props[nm].off + 4; var c = i32();
+      for (var q = 0; q < c; q++) { var ip = fstr(); p += 4; have['I' + ip.slice(ip.lastIndexOf('.') + 1)] = 1; }
+    });
+    if (props.KilledEnemyCounts) {   // bestiaire : nombre de créatures tuées, par fiche
+      p = props.KilledEnemyCounts.off + 4; n = i32();
+      for (a = 0; a < n; a++) { var kp = fstr(), kc = i32(); if (kc > 0) have['K' + kp.slice(kp.lastIndexOf('.') + 1)] = 1; }
+    }
+    ['UnlockedTeleporters', 'SavePointsVisited'].forEach(function (nm) {
+      if (!props[nm]) return;
+      p = props[nm].off; var c = i32();
+      for (var q = 0; q < c; q++) { var path = fstr(); have['O' + path.slice(path.lastIndexOf('.') + 1)] = 1; }
+    });
+    return have;
+  }
+  function applySave(have, fileName, keep) {
+    var done = {}, nDone = 0, nAll = 0;
+    ZONES.forEach(function (z) {
+      z.pois.forEach(function (p) {
+        if (!p[7]) return;
+        nAll++;
+        for (var i = 0; i < p[7].length; i++) if (have[p[7][i]]) { done[key(z, p)] = 1; nDone++; break; }
+      });
+    });
+    saveDone = done; saveHave = have;
+    // on garde le contenu brut de la sauvegarde : une mise à jour du site le relit sans recharger le fichier
+    saveMeta = keep ? { file: keep.file, at: keep.at, done: nDone, all: nAll } : { file: fileName, at: new Date().toISOString(), done: nDone, all: nAll };
+    try { localStorage.setItem('neasied-save', JSON.stringify({ have: Object.keys(have), meta: saveMeta })); } catch (e) {}
+    showSaveInfo(); refresh(); if (S.sel) select(S.sel);
+    if (typeof renderProg === 'function') renderProg();
+  }
+  function showSaveInfo(err) {
+    var el = $('saveInfo');
+    if (err) { el.hidden = false; el.className = 'save-info err'; el.textContent = err; return; }
+    el.className = 'save-info';
+    if (!saveMeta) { el.hidden = true; $('saveClear').hidden = true; $('saveLoad').textContent = 'Charger ma sauvegarde'; return; }
+    var d = new Date(saveMeta.at);
+    el.hidden = false;
+    el.textContent = saveMeta.done + ' objets faits sur ' + saveMeta.all + ' · chargée le ' + d.toLocaleDateString('fr-FR') + ' à ' + d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    $('saveClear').hidden = false; $('saveLoad').textContent = 'Recharger';
+  }
+  function storeRaw(buf) {
+    try { var u = new Uint8Array(buf), s = '', CH = 0x8000;
+      for (var i = 0; i < u.length; i += CH) s += String.fromCharCode.apply(null, u.subarray(i, i + CH));
+      localStorage.setItem('neasied-save-raw', btoa(s)); } catch (e) { try { localStorage.removeItem('neasied-save-raw'); } catch (e2) {} }
+  }
+  function loadFile(f) {
+    if (!f) return;
+    var r = new FileReader();
+    r.onload = function () {
+      try { applySave(readSave(r.result), f.name); storeRaw(r.result); }
+      catch (e) { showSaveInfo('Lecture impossible : ' + e.message); }
+    };
+    r.readAsArrayBuffer(f);
+  }
+  $('saveLoad').addEventListener('click', function () { $('saveFile').click(); });
+  $('saveFile').addEventListener('change', function () { loadFile(this.files[0]); this.value = ''; });
+  $('saveClear').addEventListener('click', function () {
+    saveDone = {}; saveMeta = null; saveHave = null;
+    try { localStorage.removeItem('neasied-save'); localStorage.removeItem('neasied-save-raw'); } catch (e) {}
+    showSaveInfo(); refresh(); if (S.sel) select(S.sel); renderProg();
+  });
+  $('hideDone').addEventListener('change', function () { S.hideDone = this.checked; refresh(); });
+  var dragDepth = 0;
+  window.addEventListener('dragenter', function (e) { if (e.dataTransfer && [].indexOf.call(e.dataTransfer.types, 'Files') >= 0) { dragDepth++; document.body.classList.add('dropping'); } });
+  window.addEventListener('dragleave', function () { if (--dragDepth <= 0) { dragDepth = 0; document.body.classList.remove('dropping'); } });
+  window.addEventListener('dragover', function (e) { e.preventDefault(); });
+  window.addEventListener('drop', function (e) {
+    e.preventDefault(); dragDepth = 0; document.body.classList.remove('dropping');
+    if (e.dataTransfer.files.length) loadFile(e.dataTransfer.files[0]);
+  });
+  // le fichier lui-même est gardé dans le navigateur et relu à chaque visite : une correction du site
+  // s'applique donc sans avoir à recharger World0.sav
+  var rawOk = false;
+  try {
+    var raw = localStorage.getItem('neasied-save-raw');
+    if (raw) { var bin = atob(raw), u = new Uint8Array(bin.length); for (var bi = 0; bi < bin.length; bi++) u[bi] = bin.charCodeAt(bi);
+      saveHave = readSave(u.buffer); rawOk = true; }
+  } catch (e) {}
+  if (saveHave) { applySave(saveHave, saveMeta && saveMeta.file, saveMeta); if (!rawOk) showSaveInfo('Sauvegarde lue par une ancienne version du site : clique sur « Recharger » et choisis à nouveau ta sauvegarde pour corriger les objets mal reconnus.'); }
+  else showSaveInfo();
+
+  // --- progression : tous les mondes comparés à la sauvegarde ; un clic amène sur l'objet ---
+  var PROG_SKIP = { enemy: 1, npc: 1, consum: 1 }, progOpenZones = {};
+  try { $('progAll').checked = localStorage.getItem('neasied-prog-all') === '1'; $('progDone').checked = localStorage.getItem('neasied-prog-done') === '1'; } catch (e) {}
+  function progCounts() {
+    var all = $('progAll').checked, res = [], T = 0, D = 0;
+    ZONES.forEach(function (z, zi) {
+      var t = 0, d = 0, byCat = {};
+      z.pois.forEach(function (p) {
+        if (!all && PROG_SKIP[p[0]]) return;
+        var dn = isDone(z, p); t++; if (dn) d++;
+        (byCat[p[0]] = byCat[p[0]] || []).push({ p: p, done: dn });
+      });
+      T += t; D += d; res.push({ z: z, zi: zi, t: t, d: d, byCat: byCat });
+    });
+    return { zones: res, T: T, D: D };
+  }
+  function pct(d, t) { return t ? Math.floor(d / t * 100) : 100; }
+  function renderProgShort() {
+    if (!PROG_SKIP) return;   // appelé avant la fin du démarrage
+    var c = progCounts();
+    $('progShort').textContent = (saveMeta || Object.keys(found).length) ? pct(c.D, c.T) + ' %' : '';
+  }
+  function renderProg() {
+    if (!PROG_SKIP) return;
+    renderProgShort();
+    if ($('prog').hidden) return;
+    var c = progCounts(), showDone = $('progDone').checked, list = $('progList');
+    $('progTot').innerHTML = '<b>' + c.D + ' / ' + c.T + '</b> faits sur tout le jeu · ' + pct(c.D, c.T) + ' %';
+    $('progBar').style.width = pct(c.D, c.T) + '%';
+    $('progHint').textContent = saveMeta ? 'Clique sur un objet pour aller le voir sur la carte.'
+      : 'Charge ton World0.sav (panneau de gauche) pour comparer avec ta partie. Sans sauvegarde, seuls les objets cochés « Trouvé » comptent.';
+    var keepScroll = list.scrollTop; list.innerHTML = '';
+    c.zones.forEach(function (r) {
+      if (!r.t) return;
+      var det = document.createElement('details'); det.className = 'pz' + (r.d === r.t ? ' full' : '');
+      det.open = !!progOpenZones[r.z.id];
+      det.addEventListener('toggle', function () { progOpenZones[r.z.id] = det.open; });
+      var sm = document.createElement('summary');
+      sm.innerHTML = '<span class="n"></span><span class="c"></span><div class="bar"><i></i></div>';
+      sm.querySelector('.n').textContent = r.z.label;
+      sm.querySelector('.c').textContent = r.d + ' / ' + r.t;
+      sm.querySelector('.bar i').style.width = pct(r.d, r.t) + '%';
+      det.appendChild(sm);
+      var body = document.createElement('div'); body.className = 'pc';
+      var any = false;
+      CATS.forEach(function (cat) {
+        var L = r.byCat[cat.id]; if (!L) return;
+        var nd = L.filter(function (x) { return x.done; }).length;
+        var items = showDone ? L : L.filter(function (x) { return !x.done; });
+        if (!items.length) return;
+        any = true;
+        var h = document.createElement('h3');
+        h.innerHTML = '<span><span class="sw"></span><span class="t"></span></span><span class="k"></span>';
+        h.querySelector('.sw').style.background = cat.color; h.querySelector('.t').textContent = cat.label;
+        h.querySelector('.k').textContent = nd + ' / ' + L.length;
+        body.appendChild(h);
+        var ul = document.createElement('ul');
+        items.slice().sort(function (a, b) { return a.done - b.done || (a.p[4] < b.p[4] ? -1 : 1); }).forEach(function (x) {
+          var li = document.createElement('li'); if (x.done) li.className = 'done';
+          var bt = document.createElement('button'); bt.type = 'button';
+          bt.innerHTML = '<span class="nm"></span><span class="go">Voir ›</span>';
+          bt.querySelector('.nm').textContent = x.p[4];
+          bt.title = r.z.levels[x.p[5]] + ' · ' + fmtM(x.p[3]);
+          bt.addEventListener('click', function () { goToPoi(r.zi, x.p); });
+          li.appendChild(bt); ul.appendChild(li);
+        });
+        body.appendChild(ul);
+      });
+      if (!any) { var ok = document.createElement('p'); ok.className = 'all-done'; ok.textContent = 'Tout est fait dans ce monde.'; body.appendChild(ok); }
+      det.appendChild(body); list.appendChild(det);
+    });
+    list.scrollTop = keepScroll;
+  }
+  function goToPoi(zi, p) {
+    if (zi !== S.zone) setZone(zi);
+    var z = ZONES[S.zone];
+    if (!S.on[p[0]]) { S.on[p[0]] = true; CATS.forEach(function (c) { if (c.id === p[0]) c.cb.checked = true; }); saveCats(); }
+    if (S.q && !matches(p)) { S.q = ''; $('q').value = ''; }
+    var fl = z.plan && z.plan.floors;
+    if (fl) { var fi = -1; fl.forEach(function (f, i) { if (fi < 0 && inFloor(fl, i, p)) fi = i; }); setFloor(fi); }
+    else { if (p[3] < S.zmin || p[3] > S.zmax) { S.zmin = z.b.z0; S.zmax = z.b.z1; $('zmin').value = S.zmin; $('zmax').value = S.zmax; } refresh(); schedulePlan(); }
+    var v = S.view; v.k = Math.max(v.k, Math.min(W, H) / 9000);
+    var panelW = $('prog').hidden ? 0 : $('prog').offsetWidth + 12;
+    v.cx = p[1] + (panelW / 2) / v.k; v.cy = p[2];   // l'objet au centre de la partie visible, à gauche du panneau
+    select(p);
+  }
+  function openProg(open) {
+    $('prog').hidden = !open;
+    if (open) renderProg();
+  }
+  $('progOpen').addEventListener('click', function () { openProg($('prog').hidden); });
+  $('progClose').addEventListener('click', function () { openProg(false); });
+  $('progDone').addEventListener('change', function () { try { localStorage.setItem('neasied-prog-done', this.checked ? '1' : '0'); } catch (e) {} renderProg(); });
+  $('progAll').addEventListener('change', function () { try { localStorage.setItem('neasied-prog-all', this.checked ? '1' : '0'); } catch (e) {} renderProg(); });
+  window.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('prog').hidden) openProg(false); });
+
+  // bascule vers la vue 3D de la zone affichée
+  $('to3d').addEventListener('click', function (e) { e.preventDefault(); location.href = '3d.html#' + ZONES[S.zone].id; });
+
+  // --- démarrage ---
+  function fromHash() {
+    var h = (location.hash || '').replace('#', ''), i = 0;
+    ZONES.forEach(function (z, n) { if (z.id === h) i = n; });
+    return i;
+  }
+  window.addEventListener('hashchange', function () { var i = fromHash(); if (i !== S.zone) setZone(i, true); });
+  window.addEventListener('resize', function () { resize(); });
+  resize(); setZone(fromHash(), true);
+  renderProgShort();
+  if (/progression/.test(location.hash)) openProg(true);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
+})();
+</script>
+</body>
+</html>
