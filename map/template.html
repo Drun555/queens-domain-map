@@ -9,6 +9,11 @@
 <link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/">
 <link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/en.html">
 <link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/en.html">
+<script>/* langue choisie par le visiteur : on y revient s'il arrive sur la page de l'autre langue */
+try { var _l = localStorage.getItem('neasied-lang'), _h = document.documentElement.lang;
+  if (_l && _l !== _h && !/[?&]lang=/.test(location.search)) { var _a = document.querySelector('link[rel="alternate"][hreflang="' + _l + '"]');
+    if (_a) location.replace((_a.getAttribute('href').replace(/^https?:\/\/[^/]+\//, '') || './') + location.hash); } } catch (e) {}
+</script>
 <meta name="robots" content="index, follow">
 <meta name="theme-color" content="#0f131d">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -225,7 +230,7 @@ canvas.drag { cursor: grabbing; }
 <aside>
   <div class="head">
     <h1>Neasied</h1>
-    <a class="lang" href="en.html" hreflang="en" lang="en" onclick="location.href=this.getAttribute('href')+location.hash;return false">English</a>
+    <a class="lang" href="en.html" hreflang="en" lang="en" onclick="try{localStorage.setItem('neasied-lang',this.getAttribute('lang'))}catch(e){}location.href=this.getAttribute('href')+location.hash;return false">English</a>
     <p>Carte non officielle de Queen's Domain</p>
     <div class="mode"><span>Vue 2D</span><a id="to3d" href="3d.html">Vue 3D</a></div>
     <button class="progbtn" id="progOpen" type="button"><b>Progression du jeu</b><span id="progShort"></span></button>

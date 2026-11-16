@@ -9,6 +9,11 @@
 <link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/3d.html">
 <link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/3d-en.html">
 <link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/3d-en.html">
+<script>/* langue choisie par le visiteur : on y revient s'il arrive sur la page de l'autre langue */
+try { var _l = localStorage.getItem('neasied-lang'), _h = document.documentElement.lang;
+  if (_l && _l !== _h && !/[?&]lang=/.test(location.search)) { var _a = document.querySelector('link[rel="alternate"][hreflang="' + _l + '"]');
+    if (_a) location.replace((_a.getAttribute('href').replace(/^https?:\/\/[^/]+\//, '') || './') + location.hash); } } catch (e) {}
+</script>
 <meta name="robots" content="index, follow">
 <meta name="theme-color" content="#0f131d">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -149,7 +154,7 @@ body.dropping #view::after { content: 'Dépose ta sauvegarde (World0.sav, World1
 <aside>
   <div class="head">
     <h1>Neasied</h1>
-    <a class="lang" href="3d-en.html" hreflang="en" lang="en" onclick="location.href=this.getAttribute('href')+location.hash;return false">English</a>
+    <a class="lang" href="3d-en.html" hreflang="en" lang="en" onclick="try{localStorage.setItem('neasied-lang',this.getAttribute('lang'))}catch(e){}location.href=this.getAttribute('href')+location.hash;return false">English</a>
     <p>Carte non officielle de Queen's Domain</p>
     <div class="mode"><a id="to2d" href="index.html">Vue 2D</a><span>Vue 3D</span></div>
     <a class="progbtn" id="toProg" href="index.html#progression"><b>Progression du jeu</b><span>›</span></a>
@@ -208,7 +213,7 @@ const zi = ZLIST.findIndex(z => z.id === zid);
 $('zprev').addEventListener('click', () => goZone(ZLIST[(zi - 1 + ZLIST.length) % ZLIST.length].id));
 $('znext').addEventListener('click', () => goZone(ZLIST[(zi + 1) % ZLIST.length].id));
 addEventListener('hashchange', () => { const h = location.hash.slice(1); if (h && h !== zid) location.reload(); });
-$('to2d').href = 'index.html#' + zid;
+$('to2d').href = $('to2d').getAttribute('href').split('#')[0] + '#' + zid;   // garde la langue de la page
 const DIR = 'tiles3d/' + zid + '/';
 const zone = await (await fetch(DIR + 'zone.json')).json();
 /*__L10N_APPLY__*/
