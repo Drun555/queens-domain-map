@@ -97,5 +97,17 @@ for z in d['zones']:
                     keys += [k for k in dict.fromkeys(trigger_keys(bb, p[6])) if k not in keys]
         if keys: p.append(keys); c[p[0]] += 1
         else: c[p[0] + ' (sans clé)'] += 1
+# téléporteurs sans LocationData : les utiliser n'écrit rien dans la sauvegarde, on les déduit d'indices qui, eux, y sont
+P = {(z['id'], p[6]): p for z in d['zones'] for p in z['pois']}
+def ks(zid, *names): return [k for n in names for k in (P[(zid, n)][7] if len(P.get((zid, n), [])) > 7 else [])]
+# mini-téléporteur entre le Jardin de pierre et la zone finale : fait dès qu'on est allé dans la zone finale,
+# ou qu'on a ouvert le mur secret qui cache le pad du Jardin
+fs_tp = ks('zone-finale', 'PigeonFossil_Pickup', 'SecretWall4_2', 'SkullKeyRelic_BP_2') + ks('jardin-de-pierre', 'SecretWall3')
+TP_FIX = {('marchand', 'ShopTeleportDestination_2'): ['OGR_ShopIsland_Save', 'NShopUnlockFinished'],   # arrivée sur l'île du marchand
+          ('jardin-de-pierre', 'MiniTeleporter2'): fs_tp, ('zone-finale', 'MiniTeleporter_2'): fs_tp}
+for (zid, n), keys in TP_FIX.items():
+    p = P.get((zid, n))
+    if p is not None and keys and len(p) == 7:
+        p.append(list(dict.fromkeys(keys))); c[p[0]] += 1; c[p[0] + ' (sans clé)'] -= 1
 json.dump(d, open('data.json', 'w', encoding='utf-8'), ensure_ascii=False)
 for k, v in sorted(c.items()): print(k, v)

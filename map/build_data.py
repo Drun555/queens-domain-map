@@ -58,6 +58,8 @@ def cat(t,p):
     if re.search(r'BookKey|Key_|_key_|KeyTrident|DoorKey|KnightsKey|SwordShrineKey|TowerDoor_Key',t) and not re.search(r'Recepticle|Receptacle|Slot',t): return 'key'
     if re.search(r'Pickup|SecretSword_Item|Dek_Egg',t): return 'unique'
     return None
+# objets retirés de la carte : rien à trouver pour le joueur (zone, nom interne)
+EXCLURE={('jardin-de-pierre','SecretTeleporterDestination2_2')}
 def pretty(t):
     s=re.sub(r'_C$','',t); s=re.sub(r'(_BP\d*|_Bp|_PickupBP|_Pickup\d*|_ItemBP|_Item_BP|_Item_Bp|_Item|_Spawner_BP|_Spawner|_NPC|_Data|_Inspect)(?=_|$)','',s)
     s=re.sub(r'_BP\d*$','',s); s=s.replace('_',' ')
@@ -105,6 +107,7 @@ for zid,zl,zs,levels in ZONES:
             if x==0 and y==0: continue
             x+=ox;y+=oy;z+=oz
             c=cat(a['t'],a.get('p',{}))
+            if (zid,a['n']) in EXCLURE: continue
             if c:
                 lab=label(a,c)
                 if a['n'] in inchest and c!='chest': lab+=' (dans un coffre)'
