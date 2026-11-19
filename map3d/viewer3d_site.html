@@ -414,6 +414,32 @@ if (zone.water != null) {
   sea.rotation.x = -Math.PI / 2; sea.position.set((lo.x + hi.x) / 2, zone.water, (lo.z + hi.z) / 2); scene.add(sea);
 }
 
+// --- lave : zones dont le liquide est de la lave tant qu'on ne les a pas nettoyées (il devient de l'eau ensuite) ---
+// le jeu n'exporte pas de texture pour ces surfaces : on dessine une lave procédurale, animée lentement
+const LAVA = { marais: /^(eau|mpswamp_)/ };
+let lavaTex = null;
+function lavaTexture() {
+  const S = 256, cv = document.createElement('canvas'); cv.width = cv.height = S;
+  const x = cv.getContext('2d'); let seed = 7;
+  const rnd = () => (seed = seed * 16807 % 2147483647) / 2147483647;
+  const blob = (px, py, r, c0, c1) => { for (const dx of [-S, 0, S]) for (const dy of [-S, 0, S]) {   // motif raccordable
+    const g = x.createRadialGradient(px + dx, py + dy, 0, px + dx, py + dy, r); g.addColorStop(0, c0); g.addColorStop(1, c1);
+    x.fillStyle = g; x.fillRect(px + dx - r, py + dy - r, r * 2, r * 2); } };
+  x.fillStyle = '#6a1505'; x.fillRect(0, 0, S, S);
+  for (let i = 0; i < 160; i++) blob(rnd() * S, rnd() * S, 8 + rnd() * 30, rnd() > 0.7 ? 'rgba(255,220,110,0.85)' : 'rgba(255,110,20,0.7)', 'rgba(255,70,0,0)');
+  for (let i = 0; i < 70; i++) blob(rnd() * S, rnd() * S, 6 + rnd() * 20, 'rgba(28,6,3,0.6)', 'rgba(28,6,3,0)');   // croûte sombre
+  const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; return t;
+}
+function makeLava(o) {
+  const g = o.geometry, P = g.attributes.position, uv = new Float32Array(P.count * 2);
+  for (let i = 0; i < P.count; i++) { uv[i * 2] = P.getX(i) / 7; uv[i * 2 + 1] = P.getZ(i) / 7; }   // coordonnées tirées de la position : motif régulier partout
+  g.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+  if (!g.attributes.normal) g.computeVertexNormals();
+  lavaTex = lavaTex || lavaTexture();
+  o.material = new THREE.MeshStandardMaterial({ name: 'lave', map: lavaTex, emissive: 0xffffff, emissiveMap: lavaTex, emissiveIntensity: 0.7,
+    roughness: 0.85, metalness: 0, side: THREE.DoubleSide, clippingPlanes: [cutPlane, secPlane] });
+}
+
 // --- modèle : morceaux base64 recollés ---
 let modelBox = new THREE.Box3(lo, hi);
 (async () => {
@@ -435,6 +461,7 @@ let modelBox = new THREE.Box3(lo, hi);
   new GLTFLoader().parse(buf, '', g => {
     g.scene.traverse(o => {
       if (!o.isMesh) return;
+      if (LAVA[zid] && LAVA[zid].test(o.material.name)) { makeLava(o); return; }
       // matériau par défaut d'Unreal : surfaces de blocage invisibles en jeu (ex. le mur courbe du cimetière de l'île)
       if (o.material.name === 'WorldGridMaterial') { o.visible = false; return; }
       if (!o.geometry.attributes.normal) o.geometry.computeVertexNormals();
@@ -776,7 +803,7 @@ addEventListener('keydown', ev => { if (ev.key === 'Shift') keys.shift = true; }
 addEventListener('keyup', ev => { if (ev.key === 'Shift') keys.shift = false; });
 function resize() { const v = $('view'), w = v.clientWidth || innerWidth, h = v.clientHeight || innerHeight; renderer.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix(); }
 addEventListener('resize', resize); resize();
-renderer.setAnimationLoop(() => { stepFly(); stepKeys(); controls.update(); updateSection(); renderer.render(scene, camera); });
+renderer.setAnimationLoop(() => { if (lavaTex) lavaTex.offset.set(performance.now() * 0.000012, performance.now() * 0.000007); stepFly(); stepKeys(); controls.update(); updateSection(); renderer.render(scene, camera); });
 </script>
 </body>
 </html>
