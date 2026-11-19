@@ -47,7 +47,8 @@ ZONES = {
   'ros': dict(levels=['760_SZ_AUT', '070_UpperShell'], level_filter={'070_UpperShell': r'^Ros_Exterior_SM$'},
               exclude=EXS, px=15.0, samp=3.5, min_sep=900, merge_gap=1200, start_all=True),
   'marais': dict(levels=['770_SZ_Swamp', '070_UpperShell'], level_filter={'070_UpperShell': r'^(SZ_Part_S1_SwampZone_SM|SZ_Part_S1_SwampEntree_SM|SZ_Swamp_SipehaShrine_SM)$'},
-              exclude=EXS, px=20.0, samp=4.5, min_sep=1000, merge_gap=1200, start_all=True),
+              exclude=EXS, px=20.0, samp=4.5, min_sep=1000, merge_gap=1200, start_all=True,
+              lava=r'^mpswamp_'),   # liquide en lave tant que la zone n'est pas nettoyée : l'eau et ces surfaces sont peintes en lave
   'jigeki': dict(levels=['775_JigekiTemple', '070_UpperShell'], level_filter={'070_UpperShell': r'^SZ_Part_S1_SwampZone_SM$'},
               exclude=EXS, px=8.0, samp=2.0, min_sep=600, merge_gap=900, start_all=True, pad=2500),
   'jardin-de-pierre': dict(levels=['790_SG'], exclude=EXS, px=15.0, samp=3.5, min_sep=800, merge_gap=1000, start_all=True),
@@ -78,6 +79,25 @@ WATERMAT = re.compile(r'water|ocean', re.I)
 WATER_RGB = np.array([54, 93, 107], np.float32)      # teinte moyenne de RS_CalmWater1, la texture d'eau du jeu
 # matériau par défaut d'Unreal : surfaces de blocage invisibles en jeu (ex. le mur courbe du cimetière de l'île)
 TECHMAT = re.compile(r'WorldGridMaterial', re.I)
+def lava_tex(S=256, seed=7):
+    """Lave procédurale, même dessin que la vue 3D (viewer3d_site.html) : le jeu n'exporte pas de texture de lave."""
+    st = [seed]
+    def rnd():
+        st[0] = st[0] * 16807 % 2147483647; return st[0] / 2147483647
+    img = np.zeros((S, S, 3), np.float32); img[:] = (106, 21, 5)
+    yy, xx = np.mgrid[0:S, 0:S].astype(np.float32)
+    def blob(px, py, r, rgb, a0):
+        dx = np.abs(xx - px); dx = np.minimum(dx, S - dx); dy = np.abs(yy - py); dy = np.minimum(dy, S - dy)
+        a = np.clip(1 - np.sqrt(dx * dx + dy * dy) / r, 0, 1) * a0
+        img[:] = img * (1 - a[..., None]) + np.array(rgb, np.float32) * a[..., None]
+    for _ in range(160):
+        px, py, r, hot = rnd() * S, rnd() * S, 8 + rnd() * 30, rnd()
+        blob(px, py, r, (255, 220, 110) if hot > 0.7 else (255, 110, 20), 0.85 if hot > 0.7 else 0.7)
+    for _ in range(70):
+        px, py, r = rnd() * S, rnd() * S, 6 + rnd() * 20
+        blob(px, py, r, (28, 6, 3), 0.6)
+    return np.clip(img, 0, 255).astype(np.uint8)
+LAVA_TEX = lava_tex()
 TECH = re.compile(r'(AudioOcclusion|ShadowBox|FogCard|^Cylinder$|decalPlane|NoWalk|WorldGrid|Blocker|_PPC_?\d*$|PPC$|Volume)', re.I)
 
 zid = sys.argv[1]; Z = ZONES[zid]
@@ -97,6 +117,7 @@ for R in ROOTS:
         if isinstance(d, dict) and 'Textures' in d: mats.setdefault(os.path.splitext(os.path.basename(f))[0], d['Textures'])
 tcache = {}
 def texture(mat):
+    if Z.get('lava') and re.search(Z['lava'], mat): return LAVA_TEX
     if mat in tcache: return tcache[mat]
     img = None; T = mats.get(mat)
     if T:
@@ -202,6 +223,12 @@ if wt:
     ripple = np.clip(0.85 + 0.15 * tw[gy[:, None], gx[None, :]], 0.7, 1.25)
 else:
     ripple = np.ones((H, W), np.float32)
+if Z.get('lava'):   # lave à la place de l'eau, calée sur les coordonnées du monde ; deux échelles mélangées pour casser la répétition
+    def _lava(m_per_tile, ox, oy):
+        gx = ((np.arange(W) * PX + X0) / m_per_tile * 256 + ox).astype(np.int64) % 256
+        gy = ((np.arange(H) * PX + Y0) / m_per_tile * 256 + oy).astype(np.int64) % 256
+        return LAVA_TEX[gy[:, None], gx[None, :]].astype(np.float32)
+    LAVA_W = _lava(1400.0, 0, 0) * 0.6 + _lava(2300.0, 97, 41) * 0.4
 log(len(wtris), "triangles d'eau,", int((wz > -1e8).sum() // (SS * SS)), 'pixels couverts')
 log(len(groups), 'groupes,', sum(len(g['a']) for g in groups), 'triangles,', ntex, 'groupes texturés')
 
@@ -280,11 +307,14 @@ for bi in range(len(edges) - 1):
     S = S * (1 - 0.55 * np.clip((gr - 12) / 120, 0, 1) * cov)
     out = C * S[..., None]
     alpha = np.where(cov, 255.0, 0.0)
-    wcol = WATER_RGB[None, None, :] * ripple[..., None]
+    wcol = LAVA_W if Z.get('lava') else WATER_RGB[None, None, :] * ripple[..., None]
     under = wmask & cov & (Zb < wz - 3)                     # fond visible sous l'eau
     deep = wmask & ~cov                                     # eau sans fond dans cette tranche
-    out[under] = out[under] * 0.4 + wcol[under] * 0.6
-    out[deep] = wcol[deep]; alpha[deep] = 215
+    if Z.get('lava'):                                       # la lave est opaque
+        out[under] = wcol[under]; out[deep] = wcol[deep]; alpha[deep] = 255
+    else:
+        out[under] = out[under] * 0.4 + wcol[under] * 0.6
+        out[deep] = wcol[deep]; alpha[deep] = 215
     img = np.zeros((H, W, 4), np.uint8)
     img[..., :3] = np.clip(out, 0, 255); img[..., 3] = alpha.astype(np.uint8)
     fn = 'b%03d.webp' % bi
