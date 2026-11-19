@@ -219,9 +219,8 @@ canvas.drag { cursor: grabbing; }
 @media (max-width: 760px) {
   body { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); }
   aside { border-right: 0; border-bottom: 1px solid var(--line); max-height: 46vh; }
-  .head { padding: 10px 16px 8px; display: flex; align-items: baseline; gap: 12px; }
+  .head { padding: 10px 16px 8px; }   /* titre, boutons et progression empilés, comme la vue 3D */
   h1 { font-size: 32px; }
-  .head p { margin: 0; }
   .scroll { padding: 10px 16px 14px; gap: 14px; }
 }
 </style>
