@@ -188,7 +188,7 @@ body.dropping #view::after { content: 'Dépose ta sauvegarde (World0.sav, World1
       <div class="btns"><button id="reset" type="button">Recentrer</button><button id="top" type="button">Vue de dessus</button></div>
     </div>
     <div class="foot"><p><b>Souris</b> : clic gauche tourner · clic droit déplacer · molette zoom · clic sur un point : vue de dessus sur l'objet<br>
-  <b>Clavier</b> : ZQSD ou flèches se déplacer · A / E tourner · R / F zoom · Maj accélère · Espace vue de dessus<span id="fhelp"> · Page préc. / suiv. changer d'étage · Échap tout voir</span></p></div>
+  <b>Clavier</b> : ZQSD (WASD en QWERTY) ou flèches se déplacer · A / E tourner (Q / E en QWERTY) · R / F zoom · Maj accélère · Espace vue de dessus<span id="fhelp"> · Page préc. / suiv. changer d'étage · Échap tout voir</span></p></div>
     <div class="support"><p>Un problème ou une idée&nbsp;? Contacte <b>Leny15</b> sur Discord&nbsp;:</p><a href="https://discord.gg/guKx9kJjmt" target="_blank" rel="noopener">Rejoindre le Discord</a><a class="gh" href="https://github.com/Pivix15/queens-domain-map" target="_blank" rel="noopener">Code source sur GitHub</a></div>
   </div>
 </aside>
@@ -311,6 +311,14 @@ addEventListener('dragleave', () => { if (--dragDepth <= 0) { dragDepth = 0; doc
 addEventListener('dragover', e => e.preventDefault());
 addEventListener('drop', e => { e.preventDefault(); dragDepth = 0; document.body.classList.remove('dropping'); if (e.dataTransfer.files.length) loadSaveFile(e.dataTransfer.files[0]); });
 const isDone = p => !!(found[p.id] || (saveHave && p.k && p.k.some(k => saveHave.has(k))));
+// sauvegarde chargée depuis la 3D : seule la carte 2D connaît le total de tout le jeu, on affiche donc celui de la zone
+try { const sv = JSON.parse(localStorage.getItem('neasied-save') || 'null');
+  if (saveHave && sv && sv.meta && !sv.meta.all && $('saveInfo').className !== 'err') {
+    const P = zone.pois.filter(p => p.k && p.k.length), nd = P.filter(p => p.k.some(k => saveHave.has(k))).length;
+    const d = sv.meta.at ? new Date(sv.meta.at) : null;
+    const when = d ? 'chargée le ' + d.toLocaleDateString('fr-FR') + ' à ' + d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : 'chargée';
+    $('saveInfo').textContent = nd + ' objets faits sur ' + P.length + ' dans cette zone · ' + when;
+  } } catch (e) {}
 
 // --- scène ---
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -583,36 +591,39 @@ renderer.domElement.addEventListener('pointerup', ev => {
 $('cx').addEventListener('click', () => selectMarker(null));
 controls.addEventListener('start', () => { fly = null; });
 
-// --- clavier : ZQSD / flèches pour se déplacer, A / E pour tourner, R / F pour le zoom ---
+// --- clavier : ZQSD (WASD) / flèches pour se déplacer, A / E (Q / E) pour tourner, R / F pour le zoom ---
 const keys = {};
+// touches physiques : ZQSD + A / E en AZERTY = WASD + Q / E en QWERTY
+const KEYMAP = { KeyW: 'fwd', ArrowUp: 'fwd', KeyS: 'back', ArrowDown: 'back', KeyA: 'left', ArrowLeft: 'left', KeyD: 'right', ArrowRight: 'right',
+  KeyQ: 'rotl', KeyE: 'rotr', KeyR: 'zin', KeyF: 'zout' };
 addEventListener('keydown', ev => {
   if (ev.target.tagName === 'INPUT') { if (ev.key === 'Escape') ev.target.blur(); return; }
-  const k = ev.key.toLowerCase();
+  const k = ev.key.toLowerCase(), c = KEYMAP[ev.code];
   if (k === ' ') { ev.preventDefault(); $('top').click(); return; }
   if (k === 'pageup') { ev.preventDefault(); floorStep(1); return; }
   if (k === 'pagedown') { ev.preventDefault(); floorStep(-1); return; }
   if (k === 'escape') { if (yMax < 1e8) $('fall').click(); else selectMarker(null); return; }
-  if (['z', 'w', 'q', 's', 'd', 'a', 'e', 'r', 'f', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(k)) { keys[k] = true; ev.preventDefault(); fly = null; }
+  if (c && !ev.ctrlKey && !ev.metaKey && !ev.altKey) { keys[c] = true; ev.preventDefault(); fly = null; }
 });
-addEventListener('keyup', ev => { keys[ev.key.toLowerCase()] = false; });
+addEventListener('keyup', ev => { const c = KEYMAP[ev.code]; if (c) keys[c] = false; });
 addEventListener('blur', () => { for (const k in keys) keys[k] = false; });
 let lastT = performance.now();
 function stepKeys() {
   const now = performance.now(), dt = Math.min(0.05, (now - lastT) / 1000); lastT = now;
-  const k = keys; if (!Object.values(k).some(Boolean)) return;
+  const k = keys; if (!['fwd', 'back', 'left', 'right', 'rotl', 'rotr', 'zin', 'zout'].some(n => k[n])) return;
   const off = new THREE.Vector3().subVectors(camera.position, controls.target), dist = off.length();
   const sp = Math.max(6, dist * 0.9) * dt * (k.shift ? 2.5 : 1);
   const fwd = new THREE.Vector3().subVectors(controls.target, camera.position); fwd.y = 0;
   if (fwd.lengthSq() < 1e-6) fwd.set(0, 0, -1).applyQuaternion(camera.quaternion), fwd.y = 0;
   fwd.normalize(); const right = new THREE.Vector3(-fwd.z, 0, fwd.x);
   const mv = new THREE.Vector3();
-  if (k.z || k.w || k.arrowup) mv.add(fwd);
-  if (k.s || k.arrowdown) mv.sub(fwd);
-  if (k.d || k.arrowright) mv.add(right);
-  if (k.q || k.arrowleft) mv.sub(right);
+  if (k.fwd) mv.add(fwd);
+  if (k.back) mv.sub(fwd);
+  if (k.right) mv.add(right);
+  if (k.left) mv.sub(right);
   if (mv.lengthSq()) { mv.normalize().multiplyScalar(sp); controls.target.add(mv); camera.position.add(mv); }
-  if (k.a || k.e) { const ang = (k.a ? 1 : -1) * 1.6 * dt; off.applyAxisAngle(new THREE.Vector3(0, 1, 0), ang); camera.position.copy(controls.target).add(off); }
-  if (k.r || k.f) { const f = k.r ? Math.pow(0.35, dt) : Math.pow(1 / 0.35, dt); off.multiplyScalar(f); if (off.length() > 2) camera.position.copy(controls.target).add(off); }
+  if (k.rotl || k.rotr) { const ang = (k.rotl ? 1 : -1) * 1.6 * dt; off.applyAxisAngle(new THREE.Vector3(0, 1, 0), ang); camera.position.copy(controls.target).add(off); }
+  if (k.zin || k.zout) { const f = k.zin ? Math.pow(0.35, dt) : Math.pow(1 / 0.35, dt); off.multiplyScalar(f); if (off.length() > 2) camera.position.copy(controls.target).add(off); }
 }
 addEventListener('keydown', ev => { if (ev.key === 'Shift') keys.shift = true; });
 addEventListener('keyup', ev => { if (ev.key === 'Shift') keys.shift = false; });

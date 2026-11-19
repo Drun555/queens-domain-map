@@ -20,7 +20,7 @@ Carte interactive non officielle de **Queen's Domain** : tous les mondes en 2D e
 - **Vue 3D** (three.js) :
   - étages et plan de coupe ;
   - clic sur un objet pour une vue de dessus ;
-  - déplacement au clavier (ZQSD, A/E, R/F).
+  - déplacement au clavier (ZQSD ou WASD, A/E ou Q/E, R/F).
 - Recherche, filtres par catégorie et option « Masquer ce qui est déjà fait ». Les réglages sont gardés d'une zone à l'autre.
 - **En français et en anglais** : `index.html` / `3d.html` et `en.html` / `3d-en.html`.
 
