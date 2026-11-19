@@ -15,7 +15,7 @@ ZONES = {
 CATS = {
     'save': 'Save crystals', 'tp': 'Teleporters', 'chest': 'Chests', 'unique': 'Unique weapons & items',
     'key': 'Keys & books', 'sci': "Scientist's parts", 'upgrade': 'Upgrades', 'skull': 'Silver skulls (Skull Key Relic)',
-    'collect': 'Collectibles', 'energy': 'Energy cells', 'bestiaire': 'Bestiary (1 per creature)', 'npc': 'NPCs',
+    'collect': 'Collectibles', 'egg': 'Eggs', 'energy': 'Energy cells', 'bestiaire': 'Bestiary (1 per creature)', 'npc': 'NPCs',
     'note': 'Notes & tablets', 'flesh': 'Flesh walls', 'secret': 'Secret walls', 'boss': 'Bosses & unique enemies',
     'challenge': 'Challenge zones', 'consum': 'Consumables & coins', 'enemy': 'Enemies',
 }

@@ -30,7 +30,7 @@ OFFSET={'900_SipehaWorld':(28000,-35000,20000)}
 CATS=[ # id,label,color,default
  ('save','Cristaux de sauvegarde','#7fe3ff',1),('tp','Téléporteurs','#b79bff',1),('chest','Coffres','#ffc24a',1),
  ('unique','Armes et objets uniques','#ff7a59',1),('key','Clés et livres','#f2e36b',1),('sci','Pièces du scientifique','#4f8cff',1),('upgrade','Améliorations','#6fe08c',1),
- ('skull','Crânes argentés (Skull Key Relic)','#c9d2de',1),('collect','Collectibles','#ff9ad5',1),('npc','PNJ','#ffffff',1),('note','Notes et tablettes','#c9b48a',1),
+ ('skull','Crânes argentés (Skull Key Relic)','#c9d2de',1),('collect','Collectibles','#ff9ad5',1),('egg','Œufs','#ffb38a',1),('npc','PNJ','#ffffff',1),('note','Notes et tablettes','#c9b48a',1),
  ('flesh','Murs de chair','#e0527a',1),('secret','Murs secrets','#5fd0b8',0),('boss','Boss et ennemis uniques','#ff3b3b',0),
  ('challenge','Zones de défi','#9fb4ff',0),('consum','Consommables et pièces','#b8a24a',0),
  ('enemy','Ennemis','#a05a5a',0),
@@ -54,7 +54,8 @@ def cat(t,p):
     if 'WeaponUpgradeUnlock' in t: return 'sci'
     if re.search(r'Upgrade_?Pedestal|UpgradePedestal|Upgrade_?Pickup|UpgradePickup|WeaponUpgradeUnlock|FlyingSwordChargeRelic|FlyingSwordUltraMoveRelic|HPIncreaseNecklace|WeaponUpgradeMachine',t): return 'upgrade'
     if 'SkullKeyRelic' in t: return 'skull'
-    if re.search(r'SkullKeyRelic|FishWife_Egg|CrystalFragment|TeleporterFragment|EnergyCell|RaiderNecklace',t): return 'collect'
+    if 'FishWife_Egg' in t: return 'egg'          # œufs de la femme-poisson : catégorie à part
+    if re.search(r'SkullKeyRelic|CrystalFragment|TeleporterFragment|EnergyCell|RaiderNecklace',t): return 'collect'
     if re.search(r'BookKey|Key_|_key_|KeyTrident|DoorKey|KnightsKey|SwordShrineKey|TowerDoor_Key',t) and not re.search(r'Recepticle|Receptacle|Slot',t): return 'key'
     if re.search(r'Pickup|SecretSword_Item|Dek_Egg',t): return 'unique'
     return None

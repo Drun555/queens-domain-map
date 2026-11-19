@@ -34,7 +34,7 @@ for z in d['zones']:
         L = json.load(open(MAPS + b + '.json', encoding='utf-8-sig'))
         lv[b] = {o['Name']: o for o in L if (o.get('Outer') or {}).get('ObjectName', '').endswith("PersistentLevel'")}
 cats = [c for c in d['cats'] if c['id'] not in ('bestiaire', 'energy')]
-i = [c['id'] for c in cats].index('collect') + 1
+ids = [c['id'] for c in cats]; i = ids.index('egg' if 'egg' in ids else 'collect') + 1   # après les œufs, qui suivent les collectibles
 cats[i:i] = [{'id': 'energy', 'label': "Cellules d'énergie", 'color': '#22d3ee', 'on': 1},
              {'id': 'bestiaire', 'label': 'Bestiaire (1 par créature)', 'color': '#a78bfa', 'on': 0}]
 d['cats'] = cats
