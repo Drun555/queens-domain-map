@@ -74,6 +74,46 @@ button:hover { border-color: var(--dim); }
 .progbtn:hover { border-color: var(--dim); }
 .progbtn b { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .progbtn span { color: var(--dim); white-space: nowrap; }
+button.progbtn { width: 100%; text-align: left; }
+.progbtn span { font-variant-numeric: tabular-nums; }
+/* --- progression : tous les mondes, comparés à la sauvegarde (même panneau que la carte 2D) --- */
+.prog { position: absolute; top: 12px; right: 12px; bottom: 12px; width: min(380px, calc(100% - 24px)); z-index: 6;
+  background: var(--chart); border: 1px solid var(--line); border-radius: 6px; display: flex; flex-direction: column; min-height: 0;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.45); }
+.prog .ph { padding: 14px 16px 12px; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 8px; }
+.prog .ph .row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.prog h2 { margin: 0; font: 600 18px var(--font-body); }
+.prog .tot { font-size: 13.5px; color: var(--dim); font-variant-numeric: tabular-nums; }
+.prog .tot b { color: var(--ink); font-weight: 600; }
+.prog .hint { font-size: 12.5px; color: var(--dim); margin: 0; }
+.prog .opts { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--dim); }
+.prog .opts label { display: flex; gap: 6px; align-items: center; cursor: pointer; }
+.prog .opts input { accent-color: var(--gold); margin: 0; }
+.prog .pl { overflow-y: auto; min-height: 0; padding: 6px 0 10px; }
+.bar { height: 5px; border-radius: 3px; background: var(--chart-2); overflow: hidden; }
+.bar i { display: block; height: 100%; width: 0; background: #6fbf8a; }
+.pz { border-bottom: 1px solid var(--line); }
+.pz > summary { list-style: none; cursor: pointer; padding: 9px 16px; display: grid; grid-template-columns: 14px 1fr auto; gap: 4px 8px; align-items: center; }
+.pz > summary::-webkit-details-marker { display: none; }
+.pz > summary::before { content: '›'; color: var(--dim); transition: transform .15s; display: inline-block; }
+.pz[open] > summary::before { transform: rotate(90deg); }
+.pz > summary .n { font-weight: 600; }
+.pz.cur > summary .n { color: var(--gold); }
+.pz > summary .c { color: var(--dim); font-size: 13px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pz > summary .bar { grid-column: 2 / 4; }
+.pz.full > summary .n::after { content: ' ✓'; color: #6fbf8a; }
+.pc { padding: 2px 16px 8px 38px; }
+.pc h3 { margin: 8px 0 3px; font: 600 12px var(--font-body); letter-spacing: 0.06em; text-transform: uppercase; color: var(--dim);
+  display: flex; justify-content: space-between; gap: 8px; }
+.pc h3 .sw { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: 1px; }
+.pc li button { width: 100%; text-align: left; background: none; border: 0; border-radius: 3px; padding: 4px 6px; font-size: 14px; color: var(--ink);
+  display: flex; justify-content: space-between; gap: 8px; }
+.pc li button:hover, .pc li button:focus-visible { background: var(--chart-2); }
+.pc li button .go { color: var(--dim); font-size: 12.5px; white-space: nowrap; }
+.pc li.done button { color: var(--dim); }
+.pc li.done button .nm::before { content: '✓ '; color: #6fbf8a; }
+.pc .all-done { color: #6fbf8a; font-size: 13.5px; margin: 6px 0; }
+body.prog-open #card { right: calc(min(380px, 100vw - 336px) + 24px); }
 .zrow { display: grid; grid-template-columns: 34px 1fr 34px; gap: 6px; }
 .btns { display: flex; gap: 6px; }
 .btns button { flex: 1; padding: 4px 6px; font-size: 13px; }
@@ -149,7 +189,19 @@ body.dropping #view::after { content: 'Dépose ta sauvegarde (World0.sav, World1
 </script>
 </head>
 <body>
-<div id="view"></div>
+<div id="view"><section class="prog" id="prog" hidden aria-label="Progression de tous les mondes">
+  <div class="ph">
+    <div class="row"><h2>Progression</h2><button id="progClose" type="button" aria-label="Fermer">×</button></div>
+    <div class="tot" id="progTot"></div>
+    <div class="bar"><i id="progBar"></i></div>
+    <p class="hint" id="progHint"></p>
+    <div class="opts">
+      <label><input id="progDone" type="checkbox"> Montrer aussi ce qui est déjà fait</label>
+      <label><input id="progAll" type="checkbox"> Compter les ennemis, PNJ et consommables</label>
+    </div>
+  </div>
+  <div class="pl" id="progList"></div>
+</section></div>
 <div id="load">Chargement…</div>
 <aside>
   <div class="head">
@@ -157,7 +209,7 @@ body.dropping #view::after { content: 'Dépose ta sauvegarde (World0.sav, World1
     <a class="lang" href="3d-en.html" hreflang="en" lang="en" onclick="try{localStorage.setItem('neasied-lang',this.getAttribute('lang'))}catch(e){}location.href=this.getAttribute('href')+location.hash;return false">English</a>
     <p>Carte non officielle de Queen's Domain</p>
     <div class="mode"><a id="to2d" href="index.html">Vue 2D</a><span>Vue 3D</span></div>
-    <a class="progbtn" id="toProg" href="index.html#progression"><b>Progression du jeu</b><span>›</span></a>
+    <button class="progbtn" id="progOpen" type="button"><b>Progression du jeu</b><span id="progShort"></span></button>
   </div>
   <div class="scroll">
     <div class="group">
@@ -393,7 +445,7 @@ let modelBox = new THREE.Box3(lo, hi);
     scene.add(g.scene);
     modelBox = new THREE.Box3().setFromObject(g.scene);
     $('load').style.display = 'none';
-    frame();
+    frame(); modelReady();
   }, e => { $('load').textContent = 'Le modèle n\'a pas pu être chargé.'; console.error(e); });
 })();
 
@@ -563,6 +615,98 @@ $('reset').addEventListener('click', () => frame(false));
 $('top').addEventListener('click', () => { const s = modelBox.getSize(new THREE.Vector3()); topView(controls.target.clone(), yMax < 1e8 ? Math.max(s.x, s.z) * 0.9 : Math.max(s.x, s.z) * 1.6); });
 frame();
 
+// --- progression : tous les mondes comparés à la sauvegarde, sans quitter la vue 3D ---
+// les autres mondes sont lus dans leur zone.json ; un clic sur un objet ouvre son monde en 3D et vole jusqu'à lui
+const PROG_SKIP = { enemy: 1, npc: 1, consum: 1 }, progOpenZones = { [zid]: true }, allZones = { [zid]: zone };
+let allLoaded = false, allLoading = null;
+const trName = n => typeof L10N !== 'undefined' ? L10N.poi.reduce((s, [a, b]) => s.replace(new RegExp(a), b), n) : n;
+function loadAllZones() {
+  return allLoading || (allLoading = Promise.all(ZLIST.map(async z => {
+    if (allZones[z.id]) return;
+    try { const j = await (await fetch('tiles3d/' + z.id + '/zone.json')).json(); j.pois.forEach(p => { p.n = trName(p.n); }); allZones[z.id] = j; } catch (e) {}
+  })).then(() => { allLoaded = true; renderProg(); }));
+}
+try { $('progAll').checked = localStorage.getItem('neasied-prog-all') === '1'; $('progDone').checked = localStorage.getItem('neasied-prog-done') === '1'; } catch (e) {}
+const hasProgress = () => !!(saveHave || Object.keys(found).length);
+const pct = (d, t) => t ? Math.floor(d / t * 100) : 100;
+function progCounts() {
+  const all = $('progAll').checked; let T = 0, D = 0;
+  const zones = ZLIST.map(zl => {
+    const z = allZones[zl.id], byCat = {}; let t = 0, d = 0;
+    if (z) z.pois.forEach(p => { if (!all && PROG_SKIP[p.c]) return; const dn = isDone(p); t++; if (dn) d++; (byCat[p.c] = byCat[p.c] || []).push({ p, done: dn }); });
+    T += t; D += d; return { zl, t, d, byCat };
+  });
+  return { zones, T, D };
+}
+function renderProg() {
+  if (!allLoaded) { $('progShort').textContent = ''; if (!$('prog').hidden) { $('progTot').textContent = 'Chargement de tous les mondes…'; loadAllZones(); } return; }
+  const c = progCounts();
+  $('progShort').textContent = hasProgress() ? pct(c.D, c.T) + ' %' : '';
+  if ($('prog').hidden) return;
+  const showDone = $('progDone').checked, list = $('progList');
+  $('progTot').innerHTML = '<b>' + c.D + ' / ' + c.T + '</b> faits sur tout le jeu · ' + pct(c.D, c.T) + ' %';
+  $('progBar').style.width = pct(c.D, c.T) + '%';
+  $('progHint').textContent = saveHave ? 'Clique sur un objet pour aller le voir sur la carte.'
+    : 'Charge ton World0.sav (panneau de gauche) pour comparer avec ta partie. Sans sauvegarde, seuls les objets cochés « Trouvé » comptent.';
+  const keepScroll = list.scrollTop; list.innerHTML = '';
+  c.zones.forEach(r => {
+    if (!r.t) return;
+    const det = document.createElement('details'); det.className = 'pz' + (r.d === r.t ? ' full' : '') + (r.zl.id === zid ? ' cur' : '');
+    det.open = !!progOpenZones[r.zl.id];
+    det.addEventListener('toggle', () => { progOpenZones[r.zl.id] = det.open; });
+    const sm = document.createElement('summary');
+    sm.innerHTML = '<span class="n"></span><span class="c"></span><div class="bar"><i></i></div>';
+    sm.querySelector('.n').textContent = r.zl.label; sm.querySelector('.c').textContent = r.d + ' / ' + r.t;
+    sm.querySelector('.bar i').style.width = pct(r.d, r.t) + '%';
+    det.appendChild(sm);
+    const body = document.createElement('div'); body.className = 'pc'; let any = false;
+    zone.cats.forEach(cat => {
+      const L = r.byCat[cat.id]; if (!L) return;
+      const nd = L.filter(x => x.done).length, items = showDone ? L : L.filter(x => !x.done);
+      if (!items.length) return;
+      any = true;
+      const h = document.createElement('h3');
+      h.innerHTML = '<span><span class="sw"></span><span class="t"></span></span><span class="k"></span>';
+      h.querySelector('.sw').style.background = cat.color; h.querySelector('.t').textContent = cat.label;
+      h.querySelector('.k').textContent = nd + ' / ' + L.length; body.appendChild(h);
+      const ul = document.createElement('ul');
+      items.slice().sort((a, b) => a.done - b.done || (a.p.n < b.p.n ? -1 : 1)).forEach(x => {
+        const li = document.createElement('li'); if (x.done) li.className = 'done';
+        const bt = document.createElement('button'); bt.type = 'button';
+        bt.innerHTML = '<span class="nm"></span><span class="go">Voir ›</span>';
+        bt.querySelector('.nm').textContent = x.p.n; bt.title = Math.round(x.p.y) + ' m';
+        bt.addEventListener('click', () => progGoTo(r.zl.id, x.p));
+        li.appendChild(bt); ul.appendChild(li);
+      });
+      body.appendChild(ul);
+    });
+    if (!any) { const ok = document.createElement('p'); ok.className = 'all-done'; ok.textContent = 'Tout est fait dans ce monde.'; body.appendChild(ok); }
+    det.appendChild(body); list.appendChild(det);
+  });
+  list.scrollTop = keepScroll;
+}
+function progGoTo(id, p) {
+  if (id === zid) { const m = markers.find(m => m.userData.id === p.id); if (m) goTo(m); return; }
+  try { sessionStorage.setItem('neasied-goto', p.id); } catch (e) {}
+  goZone(id);   // la page se recharge sur l'autre monde ; le panneau reste ouvert et la caméra va sur l'objet
+}
+function openProg(open) {
+  $('prog').hidden = !open; document.body.classList.toggle('prog-open', open);
+  try { sessionStorage.setItem('neasied-prog3d', open ? '1' : '0'); } catch (e) {}
+  renderProg();
+}
+$('progOpen').addEventListener('click', () => openProg($('prog').hidden));
+$('progClose').addEventListener('click', () => openProg(false));
+$('progDone').addEventListener('change', function () { try { localStorage.setItem('neasied-prog-done', this.checked ? '1' : '0'); } catch (e) {} renderProg(); });
+$('progAll').addEventListener('change', function () { try { localStorage.setItem('neasied-prog-all', this.checked ? '1' : '0'); } catch (e) {} renderProg(); });
+// objet demandé depuis le panneau d'un autre monde : on y va une fois le modèle chargé (le cadrage initial passe avant)
+function modelReady() {
+  let g = null; try { g = sessionStorage.getItem('neasied-goto'); sessionStorage.removeItem('neasied-goto'); } catch (e) {}
+  const m = g && markers.find(m => m.userData.id === g); if (m) goTo(m);
+}
+if (/progression/.test(location.search) || (() => { try { return sessionStorage.getItem('neasied-prog3d') === '1'; } catch (e) { return false; } })()) openProg(true);
+else if (hasProgress()) loadAllZones();
+
 // --- survol et clic ---
 function pick(ev) {
   const r = renderer.domElement.getBoundingClientRect();
@@ -597,7 +741,8 @@ const keys = {};
 const KEYMAP = { KeyW: 'fwd', ArrowUp: 'fwd', KeyS: 'back', ArrowDown: 'back', KeyA: 'left', ArrowLeft: 'left', KeyD: 'right', ArrowRight: 'right',
   KeyQ: 'rotl', KeyE: 'rotr', KeyR: 'zin', KeyF: 'zout' };
 addEventListener('keydown', ev => {
-  if (ev.target.tagName === 'INPUT') { if (ev.key === 'Escape') ev.target.blur(); return; }
+  if (ev.key === 'Escape' && !$('prog').hidden) { openProg(false); return; }
+  if (ev.target.tagName === 'INPUT' || ev.target.closest('#prog')) { if (ev.key === 'Escape') ev.target.blur(); return; }
   const k = ev.key.toLowerCase(), c = KEYMAP[ev.code];
   if (k === ' ') { ev.preventDefault(); $('top').click(); return; }
   if (k === 'pageup') { ev.preventDefault(); floorStep(1); return; }
