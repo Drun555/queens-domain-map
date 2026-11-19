@@ -17,6 +17,7 @@ sys.argv = ['render_zone.py', zid]
 G = {'__name__': 'r3d'}
 exec(compile(src, 'render_zone.py', 'exec'), G)
 Z, pl, prims, texture, TECH, exclude, WATERMAT = G['Z'], G['pl'], G['prims'], G['texture'], G['TECH'], G['exclude'], G['WATERMAT']
+TECHMAT = G['TECHMAT']
 
 # cadre : points d'intérêt de la zone + marge
 dd = json.load(open(ROOT + '/map/data.json', encoding='utf-8'))
@@ -41,6 +42,7 @@ CLUTTER = re.compile(r'(gd_plant|gd_pots|gd_grass|gd_moss|gd_vine|Rubble|Lib_Boo
 for n, M, T, kind in pl:
     if TECH.search(n) or (exclude and exclude.search(n)) or CLUTTER.search(n): continue
     for pr in prims(n):
+        if TECHMAT.search(pr['mat']): continue      # surfaces de blocage invisibles en jeu
         V = pr['pos'] @ M.T + T
         mn, mx = V.min(0), V.max(0)
         if (mx < lo).any() or (mn > hi).any(): continue

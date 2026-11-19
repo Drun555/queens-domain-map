@@ -435,6 +435,8 @@ let modelBox = new THREE.Box3(lo, hi);
   new GLTFLoader().parse(buf, '', g => {
     g.scene.traverse(o => {
       if (!o.isMesh) return;
+      // matériau par défaut d'Unreal : surfaces de blocage invisibles en jeu (ex. le mur courbe du cimetière de l'île)
+      if (o.material.name === 'WorldGridMaterial') { o.visible = false; return; }
       if (!o.geometry.attributes.normal) o.geometry.computeVertexNormals();
       // le côté visible des surfaces du jeu est le dos des faces du modèle (symétrie Unreal -> three.js) :
       // on n'affiche que ce côté, comme dans le jeu. Un plafond de grotte vu d'en haut disparaît, les sols restent.

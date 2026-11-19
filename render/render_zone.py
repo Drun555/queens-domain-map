@@ -76,6 +76,8 @@ ZONES = {
 }
 WATERMAT = re.compile(r'water|ocean', re.I)
 WATER_RGB = np.array([54, 93, 107], np.float32)      # teinte moyenne de RS_CalmWater1, la texture d'eau du jeu
+# matériau par défaut d'Unreal : surfaces de blocage invisibles en jeu (ex. le mur courbe du cimetière de l'île)
+TECHMAT = re.compile(r'WorldGridMaterial', re.I)
 TECH = re.compile(r'(AudioOcclusion|ShadowBox|FogCard|^Cylinder$|decalPlane|NoWalk|WorldGrid|Blocker|_PPC_?\d*$|PPC$|Volume)', re.I)
 
 zid = sys.argv[1]; Z = ZONES[zid]
@@ -138,6 +140,7 @@ for n, M, T, kind in pl:
     if TECH.search(n) or (exclude and exclude.search(n)): skipped += 1; continue
     for pr in prims(n):
         if kind == 'a' and texture(pr['mat']) is None: continue      # meubles sans texture : ignorés
+        if TECHMAT.search(pr['mat']): continue
         V = (pr['pos'] @ M.T + T).astype(np.float32)
         vmin, vmax = V.min(0), V.max(0)
         if vmax[0] < lo[0] or vmin[0] > hi[0] or vmax[1] < lo[1] or vmin[1] > hi[1]: continue
