@@ -827,6 +827,9 @@ canvas.drag { cursor: grabbing; }
   else showSaveInfo();
 
   // --- progression : tous les mondes comparés à la sauvegarde ; un clic amène sur l'objet ---
+  // absents du 100 % du jeu, jamais comptés dans la progression : les notes (tous les mondes) et, par monde,
+// des catégories ou des objets (par nom interne)
+  var PROG_NEVER = { note: 1 }, PROG_SKIP_ZONE = {};
   var PROG_SKIP = { enemy: 1, npc: 1, consum: 1 }, progOpenZones = {};
   try { $('progAll').checked = localStorage.getItem('neasied-prog-all') === '1'; $('progDone').checked = localStorage.getItem('neasied-prog-done') === '1'; } catch (e) {}
   function progCounts() {
@@ -834,7 +837,7 @@ canvas.drag { cursor: grabbing; }
     ZONES.forEach(function (z, zi) {
       var t = 0, d = 0, byCat = {};
       z.pois.forEach(function (p) {
-        if (!all && PROG_SKIP[p[0]]) return;
+        if ((!all && PROG_SKIP[p[0]]) || PROG_NEVER[p[0]] || (PROG_SKIP_ZONE[z.id] || {})[p[0]] || (PROG_SKIP_ZONE[z.id] || {})[p[6]]) return;
         var dn = isDone(z, p); t++; if (dn) d++;
         (byCat[p[0]] = byCat[p[0]] || []).push({ p: p, done: dn });
       });

@@ -109,5 +109,22 @@ for (zid, n), keys in TP_FIX.items():
     p = P.get((zid, n))
     if p is not None and keys and len(p) == 7:
         p.append(list(dict.fromkeys(keys))); c[p[0]] += 1; c[p[0] + ' (sans clé)'] -= 1
+# objets sans GUID : le jeu enregistre leur état sous un nom (NamedSaveData), dans le bestiaire, ou on le déduit
+# - Executioner : sa mort est notée sous ExecutionerKilled et dans le bestiaire
+# - œuf de Dekanima (Registre du péché) : l'activer lance l'évènement Dekanima (DekanimaEventState) et ouvre le monde
+#   de Dekanima ; y avoir ramassé un objet prouve aussi qu'on l'a activé (GUID seulement : rien qui s'obtienne ailleurs)
+dek = [k for k in ks('dekanima', 'SkullKeyRelic_BP23_2', 'SkullKeyRelic_BP2_5', 'OtherWorldSpear_Pickup_2', 'PlasmaRifle_Pickup_2') if k[0] == 'G']
+KEY_FIX = {('tour-du-savoir', 'ExecutionerMiniboss_Spawner', 'boss'): ['NExecutionerKilled', 'KBoner_ExecutionerMiniboss_Data'],
+           ('ros', 'Dekanima_Egg', 'unique'): ['NDekanimaEventState'] + dek,
+           # zone finale : la porte aux crânes et le rituel sont notés quand on les termine
+           ('zone-finale', 'SecretSkullDoor_NPC_BP_2', 'secret'): ['NSkullDoorQuestDone'],
+           ('zone-finale', 'SecretSkullRitual_BP_2', 'secret'): ['NSkullRitualCompleted'],
+           # Monde antique : la machine d'amélioration des armes, notée dès la première arme améliorée
+           ('automne', 'LabMachine_2', 'upgrade'): ['NHasEverUpgradedWeapon', 'NTotalWeaponsUpgraded']}
+for z in d['zones']:
+    for p in z['pois']:
+        keys = KEY_FIX.get((z['id'], p[6], p[0]))
+        if keys and len(p) == 7:
+            p.append(list(dict.fromkeys(keys))); c[p[0]] += 1; c[p[0] + ' (sans clé)'] -= 1
 json.dump(d, open('data.json', 'w', encoding='utf-8'), ensure_ascii=False)
 for k, v in sorted(c.items()): print(k, v)

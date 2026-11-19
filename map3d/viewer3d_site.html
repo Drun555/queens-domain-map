@@ -646,6 +646,9 @@ frame();
 
 // --- progression : tous les mondes comparés à la sauvegarde, sans quitter la vue 3D ---
 // les autres mondes sont lus dans leur zone.json ; un clic sur un objet ouvre son monde en 3D et vole jusqu'à lui
+// absents du 100 % du jeu, jamais comptés dans la progression : les notes (tous les mondes) et, par monde,
+// des catégories ou des objets (par nom interne)
+const PROG_NEVER = { note: 1 }, PROG_SKIP_ZONE = {};
 const PROG_SKIP = { enemy: 1, npc: 1, consum: 1 }, progOpenZones = { [zid]: true }, allZones = { [zid]: zone };
 let allLoaded = false, allLoading = null;
 const trName = n => typeof L10N !== 'undefined' ? L10N.poi.reduce((s, [a, b]) => s.replace(new RegExp(a), b), n) : n;
@@ -662,7 +665,7 @@ function progCounts() {
   const all = $('progAll').checked; let T = 0, D = 0;
   const zones = ZLIST.map(zl => {
     const z = allZones[zl.id], byCat = {}; let t = 0, d = 0;
-    if (z) z.pois.forEach(p => { if (!all && PROG_SKIP[p.c]) return; const dn = isDone(p); t++; if (dn) d++; (byCat[p.c] = byCat[p.c] || []).push({ p, done: dn }); });
+    if (z) z.pois.forEach(p => { if ((!all && PROG_SKIP[p.c]) || PROG_NEVER[p.c] || (PROG_SKIP_ZONE[zl.id] || {})[p.c] || (PROG_SKIP_ZONE[zl.id] || {})[p.id.split('/').pop()]) return; const dn = isDone(p); t++; if (dn) d++; (byCat[p.c] = byCat[p.c] || []).push({ p, done: dn }); });
     T += t; D += d; return { zl, t, d, byCat };
   });
   return { zones, T, D };
