@@ -349,16 +349,23 @@ function loadSaveFile(f) {
     try {
       const have = readSave(r.result);
       localStorage.setItem('neasied-save', JSON.stringify({ have: Object.keys(have), meta: { file: f.name, at: new Date().toISOString() } }));
+      localStorage.removeItem('neasied-unfound');   // charger une sauvegarde efface les corrections à la main
       try { const u = new Uint8Array(r.result); let s = ''; for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000));
         localStorage.setItem('neasied-save-raw', btoa(s)); } catch (e) { try { localStorage.removeItem('neasied-save-raw'); } catch (e2) {} }
-      location.reload();
+      // coches à la main des objets que la sauvegarde sait suivre, dans tous les mondes : retirées (elle redevient la référence) ;
+      // les objets sans aucune trace dans la sauvegarde gardent leur coche
+      loadAllZones().then(() => {
+        ZLIST.forEach(z => ((allZones[z.id] || {}).pois || []).forEach(p => { if (p.k && p.k.length) delete found[p.id]; }));
+        try { localStorage.setItem('neasied-found', JSON.stringify(found)); } catch (e) {}
+        location.reload();
+      });
     } catch (e) { $('saveInfo').className = 'err'; $('saveInfo').textContent = 'Lecture impossible : ' + e.message; }
   };
   r.readAsArrayBuffer(f);
 }
 $('saveLoad').addEventListener('click', () => $('saveFile').click());
 $('saveFile').addEventListener('change', function () { loadSaveFile(this.files[0]); this.value = ''; });
-$('saveClear').addEventListener('click', () => { try { localStorage.removeItem('neasied-save'); localStorage.removeItem('neasied-save-raw'); } catch (e) {} location.reload(); });
+$('saveClear').addEventListener('click', () => { try { localStorage.removeItem('neasied-save'); localStorage.removeItem('neasied-save-raw'); localStorage.removeItem('neasied-unfound'); } catch (e) {} location.reload(); });
 // relit le fichier gardé : une correction du site s'applique sans recharger World0.sav
 try { const raw = localStorage.getItem('neasied-save-raw');
   if (raw) { const bin = atob(raw), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); saveHave = new Set(Object.keys(readSave(u.buffer))); }

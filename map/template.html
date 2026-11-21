@@ -812,7 +812,13 @@ canvas.drag { cursor: grabbing; }
     if (!f) return;
     var r = new FileReader();
     r.onload = function () {
-      try { applySave(readSave(r.result), f.name); storeRaw(r.result); }
+      // charger une sauvegarde (bouton ou glisser-déposer) efface les corrections à la main : elle redevient la référence,
+      // dans les deux sens. Les objets sans aucune trace dans la sauvegarde gardent leur coche (seul moyen de les suivre).
+      try {
+        var hv = readSave(r.result); unfound = {}; saveUnfound();
+        ZONES.forEach(function (z) { z.pois.forEach(function (p) { if (p[7] && p[7].length) delete found[key(z, p)]; }); }); saveFound();
+        applySave(hv, f.name); storeRaw(r.result);
+      }
       catch (e) { showSaveInfo('Lecture impossible : ' + e.message); }
     };
     r.readAsArrayBuffer(f);
@@ -820,7 +826,7 @@ canvas.drag { cursor: grabbing; }
   $('saveLoad').addEventListener('click', function () { $('saveFile').click(); });
   $('saveFile').addEventListener('change', function () { loadFile(this.files[0]); this.value = ''; });
   $('saveClear').addEventListener('click', function () {
-    saveDone = {}; saveMeta = null; saveHave = null;
+    saveDone = {}; saveMeta = null; saveHave = null; unfound = {}; saveUnfound();
     try { localStorage.removeItem('neasied-save'); localStorage.removeItem('neasied-save-raw'); } catch (e) {}
     showSaveInfo(); refresh(); if (S.sel) select(S.sel); renderProg();
   });
