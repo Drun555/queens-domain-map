@@ -171,6 +171,7 @@ body.dropping #view::after { content: 'Dépose ta sauvegarde (World0.sav, World1
 #card dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 3px 10px; font-size: 13px; }
 #card dt { color: var(--dim); }
 #card dd { margin: 0; }
+#card .chk { margin-top: 10px; }
 #load { position: fixed; top: 0; bottom: 0; left: 312px; right: 0; display: grid; place-items: center; color: var(--dim); font-size: 15px; pointer-events: none; }
 @media (max-width: 760px) {
   body { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); }
@@ -249,7 +250,8 @@ body.dropping #view::after { content: 'Dépose ta sauvegarde (World0.sav, World1
 <div id="floors"><div class="t">Étage</div><button id="fall" type="button" class="on">Tout</button></div>
 <div id="tip"></div>
 <div id="card"><button class="x" id="cx" type="button" aria-label="Fermer">×</button><h2 id="cn"></h2>
-  <dl><dt>Catégorie</dt><dd id="cc"></dd><dt>Hauteur</dt><dd id="ch"></dd></dl></div>
+  <dl><dt>Catégorie</dt><dd id="cc"></dd><dt>Hauteur</dt><dd id="ch"></dd></dl>
+  <label class="chk"><input id="cf" type="checkbox"> <span id="cft">Trouvé</span></label></div>
 
 <script type="module">
 import * as THREE from 'three';
@@ -280,6 +282,9 @@ try { const sv = JSON.parse(localStorage.getItem('neasied-save') || 'null'); if 
   $('saveInfo').textContent = sv.meta && sv.meta.all ? sv.meta.done + ' objets faits sur ' + sv.meta.all + ' · ' + when : 'Sauvegarde ' + when;
   $('saveClear').hidden = false; $('saveLoad').textContent = 'Recharger'; } } catch (e) {}
 try { found = JSON.parse(localStorage.getItem('neasied-found') || '{}') || {}; } catch (e) {}
+// objets décochés à la main alors que la sauvegarde les donne faits (faux positifs) : partagés avec la carte 2D
+let unfound = {};
+try { unfound = JSON.parse(localStorage.getItem('neasied-unfound') || '{}') || {}; } catch (e) {}
 // sans sauvegarde : le texte d'aide du panneau suffit (comme en 2D)
 // --- lecture de World0.sav : même lecteur que la carte 2D ; le résultat est partagé avec elle ---
   function readSave(buf) {
@@ -364,7 +369,8 @@ addEventListener('dragenter', e => { if (e.dataTransfer && [...e.dataTransfer.ty
 addEventListener('dragleave', () => { if (--dragDepth <= 0) { dragDepth = 0; document.body.classList.remove('dropping'); } });
 addEventListener('dragover', e => e.preventDefault());
 addEventListener('drop', e => { e.preventDefault(); dragDepth = 0; document.body.classList.remove('dropping'); if (e.dataTransfer.files.length) loadSaveFile(e.dataTransfer.files[0]); });
-const isDone = p => !!(found[p.id] || (saveHave && p.k && p.k.some(k => saveHave.has(k))));
+const bySave = p => !!(saveHave && p.k && p.k.some(k => saveHave.has(k)));
+const isDone = p => !unfound[p.id] && !!(found[p.id] || bySave(p));
 // sauvegarde chargée depuis la 3D : seule la carte 2D connaît le total de tout le jeu, on affiche donc celui de la zone
 try { const sv = JSON.parse(localStorage.getItem('neasied-save') || 'null');
   if (saveHave && sv && sv.meta && !sv.meta.all && $('saveInfo').className !== 'err') {
@@ -502,10 +508,11 @@ function dot(color, done) {
   const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; return t;
 }
 const texByCat = {}, markers = [];
+const markerTex = p => { const done = isDone(p), key = p.c + (done ? '_done' : ''); p.done = done;
+  return texByCat[key] || (texByCat[key] = dot(cats[p.c].color, done)); };
 zone.pois.forEach(p => {
   const c = cats[p.c]; if (!c) return;
-  const done = isDone(p), key = p.c + (done ? '_done' : '');
-  const tex = texByCat[key] || (texByCat[key] = dot(c.color, done)); p.done = done;
+  const tex = markerTex(p);
   const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthTest: false, sizeAttenuation: false }));
   s.scale.set(0.024, 0.024, 1); s.position.set(p.x, p.y + 0.5, p.z); s.renderOrder = 10; s.userData = p;
   scene.add(s); markers.push(s);
@@ -522,8 +529,19 @@ function selectMarker(m) {
   m.scale.set(0.036, 0.036, 1); halo.position.copy(m.position); halo.visible = m.visible;
   const p = m.userData;
   $('cn').textContent = p.n + (p.done ? ' ✓' : ''); $('cc').textContent = cats[p.c].label + (p.done ? ' · déjà fait' : ''); $('ch').textContent = Math.round(p.y) + ' m' + (floorOf(p) >= 0 ? ' · étage ' + (floorOf(p) + 1) : '');
+  $('cf').checked = p.done;
+  $('cft').textContent = bySave(p) ? (unfound[p.id] ? 'Pas fait (corrigé à la main)' : 'Fait (d\'après ta sauvegarde)') : 'Trouvé';
   $('card').style.display = 'block';
 }
+// case « Trouvé » : coche un objet à la main, ou décoche un objet que la sauvegarde donne fait à tort
+$('cf').addEventListener('change', () => {
+  const m = selected; if (!m) return; const p = m.userData;
+  if ($('cf').checked) { delete unfound[p.id]; if (!bySave(p)) found[p.id] = 1; }
+  else { delete found[p.id]; if (bySave(p)) unfound[p.id] = 1; }
+  try { localStorage.setItem('neasied-found', JSON.stringify(found)); localStorage.setItem('neasied-unfound', JSON.stringify(unfound)); } catch (e) {}
+  m.material.map = markerTex(p); m.material.needsUpdate = true;
+  updateCounts(); refresh(); renderProg(); selectMarker(m);
+});
 let yMin = -1e9, yMax = 1e9;     // tranche de hauteur affichée (étage choisi)
 function matches(p) { const q = $('q').value.trim().toLowerCase(); return on[p.c] && (!q || p.n.toLowerCase().includes(q)); }
 function refresh() {
@@ -545,7 +563,9 @@ function refresh() {
   });
 }
 
-const counts = {}, cbs = {}; zone.pois.forEach(p => counts[p.c] = (counts[p.c] || 0) + 1);
+const counts = {}, cbs = {}, cnts = {}; zone.pois.forEach(p => counts[p.c] = (counts[p.c] || 0) + 1);
+function updateCounts() { zone.cats.forEach(c => { if (!cnts[c.id]) return; const nd = zone.pois.filter(p => p.c === c.id && isDone(p)).length;
+  cnts[c.id].textContent = (saveHave || nd ? nd + ' / ' : '') + counts[c.id]; }); }
 zone.cats.forEach(c => {
   if (!counts[c.id]) return;
   const li = document.createElement('li'), lab = document.createElement('label');
@@ -553,10 +573,10 @@ zone.cats.forEach(c => {
   cb.addEventListener('change', () => { on[c.id] = cb.checked; saveCats(); refresh(); });
   const sw = document.createElement('span'); sw.className = 'sw'; sw.style.background = c.color;
   const nm = document.createElement('span'); nm.textContent = c.label;
-  const nd = zone.pois.filter(p => p.c === c.id && isDone(p)).length;
-  const ct = document.createElement('span'); ct.className = 'cnt'; ct.textContent = (saveHave || nd ? nd + ' / ' : '') + counts[c.id];
+  const ct = document.createElement('span'); ct.className = 'cnt'; cnts[c.id] = ct;
   lab.append(cb, sw, nm, ct); li.appendChild(lab); $('cats').appendChild(li);
 });
+updateCounts();
 $('q').addEventListener('input', refresh);
 try { $('hideDone').checked = localStorage.getItem('neasied-hide3d') === '1'; } catch (e) {}
 $('hideDone').addEventListener('change', () => { try { localStorage.setItem('neasied-hide3d', $('hideDone').checked ? '1' : '0'); } catch (e) {} refresh(); });

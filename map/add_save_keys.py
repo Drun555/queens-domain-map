@@ -51,9 +51,10 @@ def trigger_keys(b, n, depth=0):
         keys += ['G' + g2hex(g) for g in sp.get('GUIDs', [])]
         if depth < 3: keys += trigger_keys(b, src, depth + 1)
     return keys
-# objets uniques : on regarde aussi l'inventaire (clés 'I<objet>'), certains ramassages ne sont pas enregistrés
+# objets uniques sans trace de ramassage : on regarde l'inventaire (clés 'I<objet>'). Seulement pour eux : beaucoup d'armes
+# s'achètent aussi en boutique ou tombent d'ennemis, et l'inventaire cocherait alors l'exemplaire d'un monde jamais visité
 ITEMS = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'item_names.json')))
-ITEM_FIX = {'Knifebelt': ['KnifeBelt_KeyItem'], 'Knight Rusty Sword Pickup': ['RustySword_Item', '!NRustySwordKnightGaveSword'],
+ITEM_FIX = {'Knifebelt': ['KnifeBelt_KeyItem'], 'Knight Rusty Sword Pickup': ['!NRustySwordKnightGaveSword'],
             'Skullrod': ['SkullRod_Item'], 'Slashgun': ['SlashGun_ItemData'], 'Wing Crystal': []}
 THROWN = re.compile(r'Dagger|Throwing|Spike Ball|Chakram|Needle', re.I)
 _ST = {'pickup', 'item', 'data', 'bp', 'dans', 'un', 'coffre', 'the', 'of', '00', 'treasure', 'keyitem', 'key'}
@@ -91,7 +92,7 @@ for z in d['zones']:
                 keys = ['G' + g2hex(g) for g in pr.get('GUIDs', [])]
                 keys += next((inchest[(b, p[6])] for b in z['levels'] if (b, p[6]) in inchest), [])
                 if p[0] == 'note' and pr.get('ImportKey'): keys.append('NReadNote_' + pr['ImportKey'])
-                if p[0] == 'unique': keys += [k for k in item_keys(p[4]) if k not in keys]
+                if p[0] == 'unique' and not keys: keys = item_keys(p[4])
                 if p[0] in ('secret', 'mech') and (pr.get('ActivatableMode') or not keys):
                     bb = next(b for b in z['levels'] if (b, p[6]) in lv)
                     keys += [k for k in dict.fromkeys(trigger_keys(bb, p[6])) if k not in keys]

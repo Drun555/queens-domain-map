@@ -356,11 +356,15 @@ canvas.drag { cursor: grabbing; }
   var found = {};
   try { found = JSON.parse(localStorage.getItem('neasied-found') || '{}') || {}; } catch (e) { found = {}; }
   function saveFound() { try { localStorage.setItem('neasied-found', JSON.stringify(found)); } catch (e) {} }
+  // objets décochés à la main alors que la sauvegarde les donne faits (faux positifs) : partagés avec la vue 3D
+  var unfound = {};
+  try { unfound = JSON.parse(localStorage.getItem('neasied-unfound') || '{}') || {}; } catch (e) { unfound = {}; }
+  function saveUnfound() { try { localStorage.setItem('neasied-unfound', JSON.stringify(unfound)); } catch (e) {} }
   function key(z, p) { return z.levels[p[5]] + '/' + p[6]; }
   // objets faits d'après la sauvegarde chargée (gardés dans le navigateur)
   var saveDone = {}, saveMeta = null, saveHave = null;
   try { var sv = JSON.parse(localStorage.getItem('neasied-save') || 'null'); if (sv && sv.have) { saveHave = {}; sv.have.forEach(function (k) { saveHave[k] = 1; }); saveMeta = sv.meta || null; } } catch (e) {}
-  function isDone(z, p) { var k = key(z, p); return !!(found[k] || saveDone[k]); }
+  function isDone(z, p) { var k = key(z, p); return !unfound[k] && !!(found[k] || saveDone[k]); }
 
   // --- préparation des zones ---
   ZONES.forEach(function (z) {
@@ -695,15 +699,16 @@ canvas.drag { cursor: grabbing; }
     $('cTitle').textContent = p[4]; $('cCat').textContent = catById[p[0]].label; $('cLvl').textContent = z.levels[p[5]];
     $('cZ').textContent = fmtM(p[3]); $('cName').textContent = p[6];
     var bySave = !!saveDone[key(z, p)];
-    $('cFound').checked = isDone(z, p); $('cFound').disabled = bySave;
-    $('cFoundTxt').textContent = bySave ? 'Fait (d\'après ta sauvegarde)' : 'Trouvé';
+    $('cFound').checked = isDone(z, p); $('cFound').disabled = false;   // décochable même si la sauvegarde le donne fait
+    $('cFoundTxt').textContent = bySave ? (unfound[key(z, p)] ? 'Pas fait (corrigé à la main)' : 'Fait (d\'après ta sauvegarde)') : 'Trouvé';
     card.style.display = 'flex'; draw();
   }
   $('cClose').addEventListener('click', function () { select(null); });
   $('cFound').addEventListener('change', function () {
     if (!S.sel) return; var k = key(ZONES[S.zone], S.sel);
-    if (this.checked) found[k] = 1; else delete found[k];
-    saveFound(); refresh(); renderProg();
+    if (this.checked) { delete unfound[k]; if (!saveDone[k]) found[k] = 1; }
+    else { delete found[k]; if (saveDone[k]) unfound[k] = 1; }
+    saveFound(); saveUnfound(); refresh(); renderProg(); select(S.sel);
   });
 
   // --- lecture de World0.sav (format GVAS d'Unreal Engine 4) ---
