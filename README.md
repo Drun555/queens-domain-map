@@ -52,7 +52,7 @@ map3d/
   place3d.py           range les modèles 3D et ajoute objets et étages → map/site/tiles3d/
   make_3d_html.py      génère map/site/3d.html et 3d-en.html
 input/                 fichiers à fournir soi-même (voir input/README.md)
-deploy/                .htaccess (https, cache), favicon.svg, robots.txt, sitemap.xml
+deploy/                .htaccess (https, cache), favicon.svg, favicon.ico, apple-touch-icon*.png, robots.txt, sitemap.xml
 ```
 
 ### Comment la sauvegarde est lue

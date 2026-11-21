@@ -14,6 +14,8 @@ map3d/ovh/
 *.bin
 *.webp
 *.png
+# icônes du site (pas des images du jeu)
+!deploy/*.png
 *.jpg
 
 # Sauvegardes du jeu (contiennent l'identifiant Steam)
