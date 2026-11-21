@@ -707,7 +707,7 @@ canvas.drag { cursor: grabbing; }
   $('cFound').addEventListener('change', function () {
     if (!S.sel) return; var k = key(ZONES[S.zone], S.sel);
     if (this.checked) { delete unfound[k]; if (!saveDone[k]) found[k] = 1; }
-    else { delete found[k]; if (saveDone[k]) unfound[k] = 1; }
+    else { delete found[k]; if (saveDone[k]) unfound[k] = (S.sel[7] || []).filter(function (x) { return saveHave && saveHave[x]; }); }
     saveFound(); saveUnfound(); refresh(); renderProg(); select(S.sel);
   });
 
@@ -768,6 +768,17 @@ canvas.drag { cursor: grabbing; }
   }
   function applySave(have, fileName, keep) {
     var done = {}, nDone = 0, nAll = 0;
+    // objets décochés à la main : ils se recochent tout seuls dès que la sauvegarde contient une trace nouvelle
+    // (l'objectif a vraiment été rempli depuis) ; avec les mêmes traces qu'au décochage, le faux positif reste corrigé
+    var unChanged = false;
+    ZONES.forEach(function (z) {
+      z.pois.forEach(function (p) {
+        var k = key(z, p), was = unfound[k]; if (!was) return;
+        var now = (p[7] || []).filter(function (x) { return have[x]; });
+        if (!(Array.isArray(was) && now.length && now.every(function (x) { return was.indexOf(x) >= 0; }))) { delete unfound[k]; unChanged = true; }
+      });
+    });
+    if (unChanged) saveUnfound();
     ZONES.forEach(function (z) {
       z.pois.forEach(function (p) {
         if (!p[7]) return;

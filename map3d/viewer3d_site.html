@@ -371,6 +371,17 @@ addEventListener('dragover', e => e.preventDefault());
 addEventListener('drop', e => { e.preventDefault(); dragDepth = 0; document.body.classList.remove('dropping'); if (e.dataTransfer.files.length) loadSaveFile(e.dataTransfer.files[0]); });
 const bySave = p => !!(saveHave && p.k && p.k.some(k => saveHave.has(k)));
 const isDone = p => !unfound[p.id] && !!(found[p.id] || bySave(p));
+// objets décochés à la main : ils se recochent tout seuls dès que la sauvegarde contient une trace nouvelle
+// (l'objectif a vraiment été rempli depuis) ; avec les mêmes traces qu'au décochage, le faux positif reste corrigé
+if (saveHave) {
+  let changed = false;
+  zone.pois.forEach(p => {
+    const was = unfound[p.id]; if (!was) return;
+    const now = (p.k || []).filter(k => saveHave.has(k));
+    if (!(Array.isArray(was) && now.length && now.every(k => was.includes(k)))) { delete unfound[p.id]; changed = true; }
+  });
+  if (changed) try { localStorage.setItem('neasied-unfound', JSON.stringify(unfound)); } catch (e) {}
+}
 // sauvegarde chargée depuis la 3D : seule la carte 2D connaît le total de tout le jeu, on affiche donc celui de la zone
 try { const sv = JSON.parse(localStorage.getItem('neasied-save') || 'null');
   if (saveHave && sv && sv.meta && !sv.meta.all && $('saveInfo').className !== 'err') {
@@ -537,7 +548,7 @@ function selectMarker(m) {
 $('cf').addEventListener('change', () => {
   const m = selected; if (!m) return; const p = m.userData;
   if ($('cf').checked) { delete unfound[p.id]; if (!bySave(p)) found[p.id] = 1; }
-  else { delete found[p.id]; if (bySave(p)) unfound[p.id] = 1; }
+  else { delete found[p.id]; if (bySave(p)) unfound[p.id] = p.k.filter(k => saveHave.has(k)); }
   try { localStorage.setItem('neasied-found', JSON.stringify(found)); localStorage.setItem('neasied-unfound', JSON.stringify(unfound)); } catch (e) {}
   m.material.map = markerTex(p); m.material.needsUpdate = true;
   updateCounts(); refresh(); renderProg(); selectMarker(m);
