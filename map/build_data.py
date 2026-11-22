@@ -31,7 +31,7 @@ CATS=[ # id,label,color,default
  ('save','Cristaux de sauvegarde','#7fe3ff',1),('tp','Téléporteurs','#b79bff',1),('chest','Coffres','#ffc24a',1),
  ('unique','Armes et objets uniques','#ff7a59',1),('key','Clés et livres','#f2e36b',1),('sci','Pièces du scientifique','#4f8cff',1),('upgrade','Améliorations','#6fe08c',1),('ticket','Tickets resto','#b5f23d',1),
  ('skull','Crânes argentés (Skull Key Relic)','#c9d2de',1),('collect','Collectibles','#ff9ad5',1),('egg','Œufs','#ffb38a',1),('npc','PNJ','#ffffff',1),('note','Notes et tablettes','#c9b48a',1),('rune','Runes des dieux','#e64cf5',1),
- ('flesh','Murs de chair','#e0527a',1),('secret','Murs secrets','#5fd0b8',0),('boss','Boss et ennemis uniques','#ff3b3b',0),
+ ('flesh','Murs de chair','#e0527a',1),('secret','Murs et portes secrets','#5fd0b8',1),('boss','Boss et ennemis uniques','#ff3b3b',0),
  ('challenge','Zones de défi','#9fb4ff',0),('consum','Consommables et pièces','#b8a24a',0),
  ('enemy','Ennemis','#a05a5a',0),
 ]
@@ -75,6 +75,12 @@ def cat(t,p):
     return None
 # objets retirés de la carte : rien à trouver pour le joueur (zone, nom interne)
 EXCLURE={('jardin-de-pierre','SecretTeleporterDestination2_2')}
+# portes secrètes qui demandent plusieurs activations : le nom dit lesquelles (niveau, nom interne)
+PORTES={('420_MAUS_mid','SecretWall22'):'Porte secrète (runes des 4 dieux)',
+        ('790_SG','SecretWall_2'):'Porte secrète (runes des 4 dieux)',
+        ('450_MAUS_darkmaze','SecretWall30'):'Porte secrète (6 runes de Puwema)',
+        ('450_MAUS_darkmaze','SuperCubePuzzleDoor'):'Porte secrète (3 cibles)',
+        ('300_LIB','SecretWall12'):'Porte secrète (2 gargouilles)'}
 def pretty(t):
     s=re.sub(r'_C$','',t); s=re.sub(r'(_BP\d*|_Bp|_PickupBP|_Pickup\d*|_ItemBP|_Item_BP|_Item_Bp|_Item|_Spawner_BP|_Spawner|_NPC|_Data|_Inspect)(?=_|$)','',s)
     s=re.sub(r'_BP\d*$','',s); s=s.replace('_',' ')
@@ -127,7 +133,7 @@ for zid,zl,zs,levels in ZONES:
             c=cat(a['t'],a.get('p',{}))
             if (zid,a['n']) in EXCLURE: continue
             if c:
-                lab=label(a,c)
+                lab=PORTES.get((ln,a['n'])) or label(a,c)
                 if a['n'] in inchest and c!='chest': lab+=' (dans un coffre)'
                 # copies inutilisées laissées par les développeurs : jamais ramassables (absentes d'une sauvegarde à 100 %)
                 if c in ('unique','upgrade','collect') and (ln, a['n']) in DEV_LEFTOVERS: continue

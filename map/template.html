@@ -359,6 +359,8 @@ canvas.drag { cursor: grabbing; }
   // objets décochés à la main alors que la sauvegarde les donne faits (faux positifs) : partagés avec la vue 3D
   var unfound = {};
   try { unfound = JSON.parse(localStorage.getItem('neasied-unfound') || '{}') || {}; } catch (e) { unfound = {}; }
+  // une clé 'A&B&C' demande toutes ses parties (porte qui s'ouvre avec plusieurs runes)
+  function hasKey(have, k) { return k.indexOf('&') < 0 ? !!have[k] : k.split('&').every(function (x) { return !!have[x]; }); }
   function saveUnfound() { try { localStorage.setItem('neasied-unfound', JSON.stringify(unfound)); } catch (e) {} }
   function key(z, p) { return z.levels[p[5]] + '/' + p[6]; }
   // objets faits d'après la sauvegarde chargée (gardés dans le navigateur)
@@ -707,7 +709,7 @@ canvas.drag { cursor: grabbing; }
   $('cFound').addEventListener('change', function () {
     if (!S.sel) return; var k = key(ZONES[S.zone], S.sel);
     if (this.checked) { delete unfound[k]; if (!saveDone[k]) found[k] = 1; }
-    else { delete found[k]; if (saveDone[k]) unfound[k] = (S.sel[7] || []).filter(function (x) { return saveHave && saveHave[x]; }); }
+    else { delete found[k]; if (saveDone[k]) unfound[k] = (S.sel[7] || []).filter(function (x) { return saveHave && hasKey(saveHave, x); }); }
     saveFound(); saveUnfound(); refresh(); renderProg(); select(S.sel);
   });
 
@@ -774,7 +776,7 @@ canvas.drag { cursor: grabbing; }
     ZONES.forEach(function (z) {
       z.pois.forEach(function (p) {
         var k = key(z, p), was = unfound[k]; if (!was) return;
-        var now = (p[7] || []).filter(function (x) { return have[x]; });
+        var now = (p[7] || []).filter(function (x) { return hasKey(have, x); });
         if (!(Array.isArray(was) && now.length && now.every(function (x) { return was.indexOf(x) >= 0; }))) { delete unfound[k]; unChanged = true; }
       });
     });
@@ -783,7 +785,7 @@ canvas.drag { cursor: grabbing; }
       z.pois.forEach(function (p) {
         if (!p[7]) return;
         nAll++;
-        for (var i = 0; i < p[7].length; i++) if (have[p[7][i]]) { done[key(z, p)] = 1; nDone++; break; }
+        for (var i = 0; i < p[7].length; i++) if (hasKey(have, p[7][i])) { done[key(z, p)] = 1; nDone++; break; }
       });
     });
     saveDone = done; saveHave = have;

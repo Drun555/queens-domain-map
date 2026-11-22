@@ -308,6 +308,8 @@ const zone = await (await fetch(DIR + 'zone.json')).json();
 document.title = zone.zone + ' — 3D · Carte de Neasied';
 // sauvegarde chargée sur la carte 2D (même navigateur) + objets cochés « trouvé »
 let saveHave = null, found = {};
+// une clé 'A&B&C' demande toutes ses parties (porte qui s'ouvre avec plusieurs runes)
+const hasKey = k => k.includes('&') ? k.split('&').every(x => saveHave.has(x)) : saveHave.has(k);
 try { const sv = JSON.parse(localStorage.getItem('neasied-save') || 'null'); if (sv && sv.have) { saveHave = new Set(sv.have);
   const d = sv.meta && sv.meta.at ? new Date(sv.meta.at) : null;
   const when = d ? 'chargée le ' + d.toLocaleDateString('fr-FR') + ' à ' + d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : 'chargée';
@@ -408,7 +410,7 @@ addEventListener('dragenter', e => { if (e.dataTransfer && [...e.dataTransfer.ty
 addEventListener('dragleave', () => { if (--dragDepth <= 0) { dragDepth = 0; document.body.classList.remove('dropping'); } });
 addEventListener('dragover', e => e.preventDefault());
 addEventListener('drop', e => { e.preventDefault(); dragDepth = 0; document.body.classList.remove('dropping'); if (e.dataTransfer.files.length) loadSaveFile(e.dataTransfer.files[0]); });
-const bySave = p => !!(saveHave && p.k && p.k.some(k => saveHave.has(k)));
+const bySave = p => !!(saveHave && p.k && p.k.some(hasKey));
 const isDone = p => !unfound[p.id] && !!(found[p.id] || bySave(p));
 // objets décochés à la main : ils se recochent tout seuls dès que la sauvegarde contient une trace nouvelle
 // (l'objectif a vraiment été rempli depuis) ; avec les mêmes traces qu'au décochage, le faux positif reste corrigé
@@ -416,7 +418,7 @@ if (saveHave) {
   let changed = false;
   zone.pois.forEach(p => {
     const was = unfound[p.id]; if (!was) return;
-    const now = (p.k || []).filter(k => saveHave.has(k));
+    const now = (p.k || []).filter(hasKey);
     if (!(Array.isArray(was) && now.length && now.every(k => was.includes(k)))) { delete unfound[p.id]; changed = true; }
   });
   if (changed) try { localStorage.setItem('neasied-unfound', JSON.stringify(unfound)); } catch (e) {}
@@ -424,7 +426,7 @@ if (saveHave) {
 // sauvegarde chargée depuis la 3D : seule la carte 2D connaît le total de tout le jeu, on affiche donc celui de la zone
 try { const sv = JSON.parse(localStorage.getItem('neasied-save') || 'null');
   if (saveHave && sv && sv.meta && !sv.meta.all && $('saveInfo').className !== 'err') {
-    const P = zone.pois.filter(p => p.k && p.k.length), nd = P.filter(p => p.k.some(k => saveHave.has(k))).length;
+    const P = zone.pois.filter(p => p.k && p.k.length), nd = P.filter(p => p.k.some(hasKey)).length;
     const d = sv.meta.at ? new Date(sv.meta.at) : null;
     const when = d ? 'chargée le ' + d.toLocaleDateString('fr-FR') + ' à ' + d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : 'chargée';
     $('saveInfo').textContent = nd + ' objets faits sur ' + P.length + ' dans cette zone · ' + when;
@@ -589,7 +591,7 @@ function selectMarker(m) {
 $('cf').addEventListener('change', () => {
   const m = selected; if (!m) return; const p = m.userData;
   if ($('cf').checked) { delete unfound[p.id]; if (!bySave(p)) found[p.id] = 1; }
-  else { delete found[p.id]; if (bySave(p)) unfound[p.id] = p.k.filter(k => saveHave.has(k)); }
+  else { delete found[p.id]; if (bySave(p)) unfound[p.id] = p.k.filter(hasKey); }
   try { localStorage.setItem('neasied-found', JSON.stringify(found)); localStorage.setItem('neasied-unfound', JSON.stringify(unfound)); } catch (e) {}
   m.material.map = markerTex(p); m.material.needsUpdate = true;
   updateCounts(); refresh(); renderProg(); selectMarker(m);

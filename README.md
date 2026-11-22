@@ -14,7 +14,7 @@ Carte interactive non officielle de **Queen's Domain** : tous les mondes en 2D e
 - **Les objets** rangés par catégorie :
   - coffres, armes et objets uniques, clés et livres ;
   - améliorations, tickets resto, crânes argentés, collectibles, pièces du scientifique, cellules d'énergie ;
-  - murs secrets, boss, bestiaire, notes, runes des dieux, zones de défi, téléporteurs.
+  - murs et portes secrets, boss, bestiaire, notes, runes des dieux, zones de défi, téléporteurs.
 - **Lecture de la sauvegarde** (`World0.sav`, `World1.sav`…) : ce que tu as déjà fait est coché automatiquement. Le fichier est lu dans le navigateur et n'est envoyé nulle part.
 - **Progression du jeu** : la liste de tous les mondes avec ce qui est fait et ce qui manque. Un clic sur un objet manquant ouvre la carte sur lui.
 - **Vue 3D** (three.js) :
@@ -69,7 +69,7 @@ deploy/                .htaccess (https, cache), favicon.svg, favicon.ico, apple
 | `KilledEnemyCounts` | `K<fiche>` | bestiaire |
 | `UnlockedTeleporters`, `SavePointsVisited` | `O<nom>` | téléporteurs et cristaux de sauvegarde |
 
-Un objet est « fait » si **une** de ses clés est présente dans la sauvegarde.
+Un objet est « fait » si **une** de ses clés est présente dans la sauvegarde. Une clé composée `A&B&C` n'est présente que si **toutes** ses parties le sont : une porte qui demande 4 runes n'est pas cochée avec une seule.
 
 ## Régénérer la carte
 
@@ -129,7 +129,7 @@ Unofficial interactive map of **Queen's Domain**: every world in 2D and 3D, more
 ### Features
 
 - **Every world**, each with a textured 2D floor-by-floor map and a 3D view.
-- **Items by category**: chests, unique weapons and items, keys, upgrades, meal tickets, silver skulls, collectibles, the scientist's parts, energy cells, secret walls, bosses, bestiary, notes, god runes, challenge zones, teleporters.
+- **Items by category**: chests, unique weapons and items, keys, upgrades, meal tickets, silver skulls, collectibles, the scientist's parts, energy cells, secret walls and doors, bosses, bestiary, notes, god runes, challenge zones, teleporters.
 - **Save file reading** (`World0.sav`, `World1.sav`…): everything you've already done is checked automatically. The file is read in your browser and never uploaded.
 - **Game progress panel**: every world with what's done and what's missing. Click a missing item to jump to it on the map.
 - **3D view** (three.js): floors, cutting plane, neighbouring worlds at their real position (14 worlds, where it stays readable; not on phones) (click one to fly there), click an item for a top-down view, keyboard movement.

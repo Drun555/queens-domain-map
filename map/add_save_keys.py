@@ -2,7 +2,8 @@
 """Ajoute à chaque objet de data.json (champ 8) les clés qui permettent de le retrouver dans World0.sav :
    'G<hex>'  GUID de SavableActorStates (objet ramassé, coffre ouvert, mur cassé, boss vaincu…)
    'N<nom>'  entrée de NamedSaveData (défis réussis, pièces remises au scientifique)
-   'O<nom>'  cristal de sauvegarde visité / téléporteur débloqué."""
+   'O<nom>'  cristal de sauvegarde visité / téléporteur débloqué.
+   Une seule clé de la liste suffit ; une clé 'A&B&C' demande A, B et C (porte qui s'ouvre avec plusieurs runes)."""
 import os as _os
 ROOT = _os.environ.get('QD_ROOT', _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))  # dossier du dépôt
 import json, glob, os, struct, re, collections
@@ -51,6 +52,29 @@ def trigger_keys(b, n, depth=0):
         keys += ['G' + g2hex(g) for g in sp.get('GUIDs', [])]
         if depth < 3: keys += trigger_keys(b, src, depth + 1)
     return keys
+# portes qui demandent plusieurs activations (ActivationCountRequirement, ou le compte d'un ActivationTrigger) : toutes
+# leurs clés à la fois. Seuls les liens d'activation comptent : la porte d'entrée d'un boss (FrontDoor) ne l'ouvre pas.
+activators = collections.defaultdict(set)
+for (b, n), o in lv.items():
+    for k, v in (o.get('Properties') or {}).items():
+        if k not in ('ActivatableTargets', 'ActivationTargets', 'ThingsToActivate'): continue
+        out = set(); _refs(v, out)
+        for t in out:
+            if t != n: activators[(b, t)].add(n)
+def needed(pr): return int(pr.get('ActivationCountRequirement') or pr.get('Required Activation Count') or 1)
+def condition(b, n, depth=0):
+    """Clés d'ouverture si plusieurs activations sont requises quelque part en amont, sinon None."""
+    need = needed((lv.get((b, n)) or {}).get('Properties') or {})
+    parts, several = [], need > 1
+    for src in sorted(activators.get((b, n), ())):
+        sp = (lv.get((b, src)) or {}).get('Properties') or {}
+        sub = condition(b, src, depth + 1) if depth < 3 and needed(sp) > 1 else None
+        if sub: parts += sub; several = True
+        elif sp.get('GUIDs'): parts.append('G' + g2hex(sp['GUIDs'][0]))
+    if not several: return None
+    if need == 1: return parts
+    if len(parts) != need: raise ValueError('%s/%s : %d déclencheurs pour %d activations' % (b, n, len(parts), need))
+    return ['&'.join(parts)]
 # objets uniques sans trace de ramassage : on regarde l'inventaire (clés 'I<objet>'). Seulement pour eux : beaucoup d'armes
 # s'achètent aussi en boutique ou tombent d'ennemis, et l'inventaire cocherait alors l'exemplaire d'un monde jamais visité
 ITEMS = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'item_names.json')))
@@ -84,19 +108,20 @@ for z in d['zones']:
         elif p[0] == 'challenge':
             keys = ['N' + p[4].lower()]
         else:
-            o = next((lv[(b, p[6])] for b in z['levels'] if (b, p[6]) in lv), None)
+            level = z['levels'][p[5]]                     # deux niveaux d'une zone peuvent avoir un objet de même nom
+            o = lv.get((level, p[6]))
             pr = (o or {}).get('Properties') or {}
             if p[0] in ('save', 'tp'):
                 ld = pr.get('LocationData')
                 if isinstance(ld, dict): keys = ['O' + ld['ObjectName'].split("'")[1]]
             else:
                 keys = ['G' + g2hex(g) for g in pr.get('GUIDs', [])]
-                keys += next((inchest[(b, p[6])] for b in z['levels'] if (b, p[6]) in inchest), [])
+                keys += inchest.get((level, p[6]), [])
                 if p[0] == 'note' and pr.get('ImportKey'): keys.append('NReadNote_' + pr['ImportKey'])
                 if p[0] == 'unique' and not keys: keys = item_keys(p[4])
                 if p[0] in ('secret', 'mech') and (pr.get('ActivatableMode') or not keys):
-                    bb = next(b for b in z['levels'] if (b, p[6]) in lv)
-                    keys += [k for k in dict.fromkeys(trigger_keys(bb, p[6])) if k not in keys]
+                    opening = condition(level, p[6]) or trigger_keys(level, p[6])
+                    keys += [k for k in dict.fromkeys(opening) if k not in keys]
         if keys: p.append(keys); c[p[0]] += 1
         else: c[p[0] + ' (sans clé)'] += 1
 # téléporteurs sans LocationData : les utiliser n'écrit rien dans la sauvegarde, on les déduit d'indices qui, eux, y sont

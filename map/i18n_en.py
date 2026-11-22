@@ -16,13 +16,17 @@ CATS = {
     'save': 'Save crystals', 'tp': 'Teleporters', 'chest': 'Chests', 'unique': 'Unique weapons & items',
     'key': 'Keys & books', 'sci': "Scientist's parts", 'upgrade': 'Upgrades', 'ticket': 'Meal tickets', 'skull': 'Silver skulls (Skull Key Relic)',
     'collect': 'Collectibles', 'egg': 'Eggs', 'energy': 'Energy cells', 'bestiaire': 'Bestiary (1 per creature)', 'npc': 'NPCs',
-    'note': 'Notes & tablets', 'rune': 'God runes', 'flesh': 'Flesh walls', 'secret': 'Secret walls', 'boss': 'Bosses & unique enemies',
+    'note': 'Notes & tablets', 'rune': 'God runes', 'flesh': 'Flesh walls', 'secret': 'Secret walls & doors', 'boss': 'Bosses & unique enemies',
     'challenge': 'Challenge zones', 'consum': 'Consumables & coins', 'enemy': 'Enemies',
 }
 POI = [  # noms d'objets : seules quelques étiquettes ajoutées par le site sont en français
     (r' \(dans un coffre\)', ' (in a chest)'), (r'^Coffre : ', 'Chest: '), (r' \(piège\)', ' (trap)'),
     (r' \(fantôme\)', ' (ghost)'), (r'^Mur secret', 'Secret wall'), (r'^Mur de chair', 'Flesh wall'),
     (r'^Crâne argenté \(Skull Key Relic\)', 'Silver skull (Skull Key Relic)'),
+    (r'^Porte secrète \(runes des 4 dieux\)', 'Secret door (4 god runes)'),
+    (r'^Porte secrète \(6 runes de Puwema\)', 'Secret door (6 Puwema runes)'),
+    (r'^Porte secrète \(3 cibles\)', 'Secret door (3 targets)'),
+    (r'^Porte secrète \(2 gargouilles\)', 'Secret door (2 gargoyles)'),
     (r"^Noix mystique de l'arbre blanc", 'Mystical Nut of the White Tree'),
     (r'^Ticket resto', 'Meal ticket'),
     (r'^Rune de Jigeki', 'Jigeki rune'), (r'^Rune de Puwema', 'Puwema rune'),
