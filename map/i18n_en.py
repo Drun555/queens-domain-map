@@ -159,6 +159,8 @@ PAGE_3D = [
     ('>Chargement…<', '>Loading…<'), ('<span>Couper à</span>', '<span>Cut at</span>'), ('aria-label="Hauteur de coupe"', 'aria-label="Cut height"'),
     ('>Recentrer<', '>Recenter<'), ('>Vue de dessus<', '>Top view<'),
     ('>Tout afficher<', '>Show all<'), ('>Tout masquer<', '>Hide all<'),
+    ('>Cacher les mondes voisins<', '>Hide neighbouring worlds<'), ('>Afficher les mondes voisins<', '>Show neighbouring worlds<'),
+    ("' — clique pour y aller'", "' — click to go there'"),
     ('aria-label="Boussole"', 'aria-label="Compass"'), ('data-dir="o">O<', 'data-dir="o">W<'),
     ("<b>Souris</b> : clic gauche tourner · clic droit déplacer · molette zoom · clic sur un point : vue de dessus sur l'objet",
      '<b>Mouse</b>: left click rotate · right click pan · wheel zoom · click a marker: top view of the item'),

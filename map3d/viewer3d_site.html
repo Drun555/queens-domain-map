@@ -167,6 +167,20 @@ body.dropping #view::after { content: 'Dépose ta sauvegarde (World0.sav, World1
 #compass { position: absolute; right: 14px; bottom: 14px; width: 88px; height: 88px; z-index: 2; pointer-events: none; }
 #compass text { font: 700 13px var(--font-body); fill: var(--ink); text-anchor: middle; dominant-baseline: central; }
 #compass text.n { fill: var(--gold); }
+#nbOn { position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 2; flex: none; width: auto; display: flex; align-items: center; gap: 8px;
+  white-space: nowrap; padding: 8px 14px; border-radius: 4px; background: rgba(15,19,29,0.88); font-weight: 600; }
+#nbOn[hidden] { display: none; }
+#nbOn:hover, #nbOn:focus-visible { border-color: var(--gold); }
+#nbOn svg { width: 17px; height: 17px; flex: none; fill: none; stroke: var(--gold); stroke-width: 2; stroke-linecap: round; }
+#nbOn[aria-pressed="true"] .show, #nbOn:not([aria-pressed="true"]) .hide { display: none; }
+#nbLabels { position: absolute; inset: 0; z-index: 1; overflow: hidden; pointer-events: none; }
+#nbLabels button { position: absolute; left: 0; top: 0; flex: none; width: auto; pointer-events: auto; display: flex; align-items: baseline; gap: 8px; white-space: nowrap;
+  padding: 5px 11px; border: 1px solid var(--line); border-radius: 4px; background: rgba(15,19,29,0.88); color: var(--ink); font: 600 14px var(--font-body); cursor: pointer; }
+#nbLabels button[hidden], #nbLabels[hidden] { display: none; }
+#nbLabels button:hover, #nbLabels button.hot, #nbLabels button:focus-visible { border-color: var(--gold); }
+#nbLabels small { font: 400 13px var(--font-body); color: var(--dim); }
+#nbLabels small:empty { display: none; }
+#nbLabels i { font-style: normal; color: var(--gold); }
 #tip { position: fixed; pointer-events: none; background: rgba(15,19,29,.95); border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; font-size: 13px; display: none; white-space: nowrap; }
 #card { position: fixed; right: 12px; top: 12px; width: 260px; background: var(--chart); border: 1px solid var(--line); border-radius: 6px; padding: 12px 14px; display: none; }
 #card h2 { font: 600 16px var(--font-body); margin: 0 26px 6px 0; }
@@ -185,6 +199,7 @@ body.dropping #view::after { content: 'Dépose ta sauvegarde (World0.sav, World1
   .scroll { padding: 10px 16px 14px; gap: 14px; }
   #load { left: 0; }
   #compass { left: 10px; right: auto; bottom: 10px; width: 68px; height: 68px; }
+  #nbOn { top: 10px; bottom: auto; padding: 8px 12px; font-size: 13px; }   /* fenêtre étroite : en bas, il y a la boussole et les étages */
   #floors { left: auto; right: 12px; top: auto; bottom: 12px; max-height: 40%; }
 }
 </style>
@@ -196,7 +211,7 @@ body.dropping #view::after { content: 'Dépose ta sauvegarde (World0.sav, World1
 </script>
 </head>
 <body>
-<div id="view"><svg id="compass" viewBox="-50 -50 100 100" role="img" aria-label="Boussole"><circle r="47" fill="rgba(15,19,29,.82)" stroke="var(--line)"/><g id="rose"><path d="M0-23 7 0H-7Z" fill="var(--gold)"/><path d="M0 23 7 0H-7Z" fill="var(--dim)"/><text class="n" x="0" y="-34" data-dir="n">N</text><text x="34" y="0" data-dir="e">E</text><text x="0" y="34" data-dir="s">S</text><text x="-34" y="0" data-dir="o">O</text></g></svg><section class="prog" id="prog" hidden aria-label="Progression de tous les mondes">
+<div id="view"><div id="nbLabels"></div><button id="nbOn" type="button" aria-pressed="false" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/><path class="hide" d="M4 20 20 4"/></svg><span class="hide">Cacher les mondes voisins</span><span class="show">Afficher les mondes voisins</span></button><svg id="compass" viewBox="-50 -50 100 100" role="img" aria-label="Boussole"><circle r="47" fill="rgba(15,19,29,.82)" stroke="var(--line)"/><g id="rose"><path d="M0-23 7 0H-7Z" fill="var(--gold)"/><path d="M0 23 7 0H-7Z" fill="var(--dim)"/><text class="n" x="0" y="-34" data-dir="n">N</text><text x="34" y="0" data-dir="e">E</text><text x="0" y="34" data-dir="s">S</text><text x="-34" y="0" data-dir="o">O</text></g></svg><section class="prog" id="prog" hidden aria-label="Progression de tous les mondes">
   <div class="ph">
     <div class="row"><h2>Progression</h2><button id="progClose" type="button" aria-label="Fermer">×</button></div>
     <div class="tot" id="progTot"></div>
@@ -275,6 +290,18 @@ $('zprev').addEventListener('click', () => goZone(ZLIST[(zi - 1 + ZLIST.length) 
 $('znext').addEventListener('click', () => goZone(ZLIST[(zi + 1) % ZLIST.length].id));
 addEventListener('hashchange', () => { const h = location.hash.slice(1); if (h && h !== zid) location.reload(); });
 $('to2d').href = $('to2d').getAttribute('href').split('#')[0] + '#' + zid;   // garde la langue de la page
+const SURFACE = ['ile', 'marchand', 'aquatique', 'tour-du-savoir'];   // mondes de surface, visibles les uns depuis les autres
+// souterrains : des paires que le jeu charge ensemble, qui se touchent et qui restent lisibles côte à côte
+// (les mondes imbriqués l'un dans l'autre feraient un amas : pas de voisins)
+const UNDER = [['automne', 'chateau'], ['foret', 'marais'], ['foret', 'jardin-de-pierre'], ['marais', 'jardin-de-pierre'], ['jardin-de-pierre', 'zone-finale'],
+  ['prison', 'sz-ruines'], ['prison', 'sz-tour'], ['prison', 'hod']];
+// sur téléphone (portrait ou paysage) : ni voisins, ni bouton, ni téléchargement. Un ordinateur en fenêtre étroite les garde.
+const PHONE = matchMedia('(pointer: coarse) and (max-width: 760px), (pointer: coarse) and (max-height: 500px)').matches;
+const NEXT = PHONE ? [] : SURFACE.includes(zid) ? SURFACE.filter(id => id !== zid) : UNDER.filter(p => p.includes(zid)).map(p => p[0] === zid ? p[1] : p[0]);
+// on arrive d'un monde voisin : la caméra reprend la vue où le vol s'est arrêté
+let arrival = null;
+try { const a = JSON.parse(sessionStorage.getItem('neasied-arrive') || 'null'); sessionStorage.removeItem('neasied-arrive');
+  if (a && NEXT.length && a.id === zid && Date.now() - a.at < 30000) arrival = a; } catch (e) {}
 const DIR = 'tiles3d/' + zid + '/';
 const zone = await (await fetch(DIR + 'zone.json')).json();
 /*__L10N_APPLY__*/
@@ -505,7 +532,9 @@ let modelBox = new THREE.Box3(lo, hi);
     scene.add(g.scene);
     modelBox = new THREE.Box3().setFromObject(g.scene);
     $('load').style.display = 'none';
-    frame(); modelReady();
+    if (!arrival) frame();
+    modelReady();
+    if (neighbours) neighbours.ready(g.scene);
   }, e => { $('load').textContent = 'Le modèle n\'a pas pu être chargé.'; console.error(e); });
 })();
 
@@ -646,10 +675,10 @@ refresh();
 
 // --- caméra ---
 let fly = null;
-function flyTo(target, pos) { fly = { t0: performance.now(), a: controls.target.clone(), b: target, pa: camera.position.clone(), pb: pos }; }
+function flyTo(target, pos, ms = 700) { fly = { ms, t0: performance.now(), a: controls.target.clone(), b: target, pa: camera.position.clone(), pb: pos }; }
 function stepFly() {
   if (!fly) return;
-  const k = Math.min(1, (performance.now() - fly.t0) / 700), e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+  const k = Math.min(1, (performance.now() - fly.t0) / fly.ms), e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
   controls.target.lerpVectors(fly.a, fly.b, e); camera.position.lerpVectors(fly.pa, fly.pb, e);
   if (k >= 1) fly = null;
 }
@@ -671,13 +700,14 @@ function goTo(m) {
   refresh(); selectMarker(m);
 }
 // cadrage sur les points d'intérêt (2e-98e centile) : l'océan autour d'une île ne compte pas
-const poiBox = (() => {
-  const P = zone.pois; if (P.length < 3) return null;
+function boxOfPois(P) {
+  if (P.length < 3) return null;
   const q = (arr, t) => { const a = arr.slice().sort((x, y) => x - y); return a[Math.floor(t * (a.length - 1))]; };
   const xs = P.map(p => p.x), ys = P.map(p => p.y), zs = P.map(p => p.z);
   const b = new THREE.Box3(new THREE.Vector3(q(xs, .02), q(ys, .02), q(zs, .02)), new THREE.Vector3(q(xs, .98), q(ys, .98), q(zs, .98)));
   b.expandByScalar(15); return b;
-})();
+}
+const poiBox = boxOfPois(zone.pois);
 function frame(top) {
   const fb = poiBox ? poiBox.clone().intersect(modelBox) : modelBox;
   const box = (fb.isEmpty() ? modelBox : fb);
@@ -803,14 +833,20 @@ function pick(ev) {
 renderer.domElement.addEventListener('pointermove', ev => {
   const m = pick(ev), tip = $('tip');
   if (m) { tip.textContent = m.userData.n; tip.style.left = (ev.clientX + 12) + 'px'; tip.style.top = (ev.clientY + 12) + 'px'; tip.style.display = 'block'; renderer.domElement.style.cursor = 'pointer'; }
-  else { tip.style.display = 'none'; renderer.domElement.style.cursor = ''; }
+  else {
+    const t = neighbours && neighbours.move(ev);
+    if (t) { tip.textContent = t; tip.style.left = (ev.clientX + 12) + 'px'; tip.style.top = (ev.clientY + 12) + 'px'; }
+    tip.style.display = t ? 'block' : 'none'; renderer.domElement.style.cursor = t ? 'pointer' : '';
+  }
 });
+renderer.domElement.addEventListener('pointerleave', () => { $('tip').style.display = 'none'; if (neighbours) neighbours.leave(); });
 let downAt = null;
 renderer.domElement.addEventListener('pointerdown', ev => { downAt = [ev.clientX, ev.clientY]; });
 renderer.domElement.addEventListener('pointerup', ev => {
   if (!downAt || Math.hypot(ev.clientX - downAt[0], ev.clientY - downAt[1]) > 4) return;
   const m = pick(ev);
-  goTo(m);
+  if (m) goTo(m);
+  else if (neighbours && ev.button === 0) neighbours.click(ev);
 });
 $('cx').addEventListener('click', () => selectMarker(null));
 controls.addEventListener('start', () => { fly = null; });
@@ -824,6 +860,7 @@ addEventListener('keydown', ev => {
   if (ev.key === 'Escape' && !$('prog').hidden) { openProg(false); return; }
   if (ev.target.tagName === 'INPUT' || ev.target.closest('#prog')) { if (ev.key === 'Escape') ev.target.blur(); return; }
   const k = ev.key.toLowerCase(), c = KEYMAP[ev.code];
+  if (k === ' ' && ev.target.closest && ev.target.closest('#nbOn, #nbLabels')) return;   // Espace actionne le bouton qui a le focus
   if (k === ' ') { ev.preventDefault(); $('top').click(); return; }
   if (k === 'pageup') { ev.preventDefault(); floorStep(1); return; }
   if (k === 'pagedown') { ev.preventDefault(); floorStep(-1); return; }
@@ -852,6 +889,222 @@ function stepKeys() {
 }
 addEventListener('keydown', ev => { if (ev.key === 'Shift') keys.shift = true; });
 addEventListener('keyup', ev => { if (ev.key === 'Shift') keys.shift = false; });
+// --- mondes voisins : tous les mondes partagent le repère du jeu, on montre autour de celui affiché ceux qui le touchent ---
+// modèles allégés (tiles3d/<monde>/voisin.glb, map3d/make_neighbours.py) ; un clic y vole puis ouvre ce monde
+function initNeighbours() {
+  const ids = NEXT.filter(id => ZLIST.some(z => z.id === id)), deep = !SURFACE.includes(zid);
+  // sous terre, les voisins ont leur scène, dessinée avant : le monde affiché reste toujours devant eux
+  const back = deep ? new THREE.Scene() : scene;
+  if (deep) {
+    back.background = scene.background.clone(); back.fog = new THREE.Fog(0x0f131d, 1100, 3400);
+    back.add(new THREE.HemisphereLight(0xdfe8ff, 0x3a3326, 1.5));
+    const s = new THREE.DirectionalLight(0xfff1dd, 1.8); s.position.copy(sun.position); back.add(s);
+  }
+  const SEA_Y = -1.1;                                    // niveau de la mer du jeu
+  const below = new THREE.Plane(new THREE.Vector3(0, 1, 0), 4);   // rien de profond sous l'eau
+  const tint = new THREE.Color(deep ? 0x46597a : 0x36566a), worlds = [], labels = $('nbLabels'), toggle = $('nbOn'), fog0 = [scene.fog.near, scene.fog.far];
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const ray = new THREE.Raycaster(), v = new THREE.Vector3();
+  let main = null, ghost = null, started = false, shown = false, hover = null, leaving = false, hoverT = 0;
+
+  // affichés par défaut sur ordinateur, à la demande sur tablette, en fenêtre étroite ou en économie de données
+  let pref = null;
+  try { pref = localStorage.getItem('neasied-voisins'); } catch (e) {}
+  let wanted = pref ? pref === '1' : !matchMedia('(max-width: 760px), (pointer: coarse)').matches && !(navigator.connection || {}).saveData;
+  toggle.setAttribute('aria-pressed', String(wanted));
+
+  // la mer : une seule nappe qui se fond au loin, à la place des nappes découpées de chaque monde
+  const cv = document.createElement('canvas'); cv.width = cv.height = 512;
+  const cx = cv.getContext('2d'), g = cx.createRadialGradient(256, 256, 0, 256, 256, 256);
+  g.addColorStop(0, '#39606f'); g.addColorStop(0.4, '#2e5161'); g.addColorStop(0.72, 'rgba(30,56,70,0.75)'); g.addColorStop(1, 'rgba(15,19,29,0)');
+  cx.fillStyle = g; cx.fillRect(0, 0, 512, 512);
+  const seaTex = new THREE.CanvasTexture(cv); seaTex.colorSpace = THREE.SRGBColorSpace;
+  const ownSea = zid === 'ile' || zid === 'marchand';    // les deux autres n'ont pas de mer : plus claire, pour voir leurs sous-sols
+  const sea = new THREE.Mesh(new THREE.PlaneGeometry(2100, 2100), new THREE.MeshBasicMaterial({ map: seaTex, transparent: true,
+    opacity: ownSea ? 0.9 : 0.72, depthWrite: false, fog: false, toneMapped: false }));
+  sea.rotation.x = -Math.PI / 2; sea.position.set(60, SEA_Y, 50); sea.renderOrder = 1; sea.visible = false; scene.add(sea);
+
+  async function loadLight(id, mix) {
+    const obj = (await new GLTFLoader().loadAsync('tiles3d/' + id + '/voisin.glb')).scene, meshes = [];
+    obj.updateMatrixWorld(true);
+    obj.traverse(o => {
+      if (!o.isMesh) return;
+      const m = o.material;
+      o.geometry.computeVertexNormals();
+      m.side = THREE.BackSide; m.clippingPlanes = deep ? [] : [below];
+      // monde voisin : désaturé, assombri, bleuté ; moins quand on le survole
+      m.onBeforeCompile = s => {
+        s.uniforms.uTint = { value: tint }; s.uniforms.uMix = mix;
+        s.fragmentShader = 'uniform vec3 uTint;\nuniform float uMix;\n' + s.fragmentShader.replace('#include <dithering_fragment>',
+          '#include <dithering_fragment>\nfloat nbGrey = dot(gl_FragColor.rgb, vec3(0.299, 0.587, 0.114));\n' +
+          'gl_FragColor.rgb = mix(gl_FragColor.rgb, mix(mix(gl_FragColor.rgb, vec3(nbGrey), 0.35) * 0.85, uTint, 0.4), uMix);');
+      };
+      meshes.push(o);
+    });
+    return { obj, meshes };
+  }
+
+  function addLabel(w) {
+    const b = document.createElement('button'); b.type = 'button'; b.hidden = true;
+    const n = document.createElement('span'); n.textContent = w.name;
+    w.pc = document.createElement('small');
+    const a = document.createElement('i'); a.textContent = '›'; a.setAttribute('aria-hidden', 'true');
+    b.append(n, w.pc, a);
+    b.addEventListener('click', () => travel(w));
+    b.addEventListener('pointerenter', () => setHover(w));
+    b.addEventListener('pointerleave', () => setHover(null));
+    labels.appendChild(b); w.el = b;
+  }
+  function labelProgress() {
+    if (!hasProgress() || !allLoaded) return;
+    const zones = progCounts().zones;
+    for (const w of worlds) { const c = zones.find(c => c.zl.id === w.id); if (c && c.t) w.pc.textContent = pct(c.d, c.t) + ' %'; }
+  }
+  function start() {
+    if (started || !wanted) return;
+    started = true;
+    ids.forEach(async id => {
+      try {
+        const mix = { value: 1 }, l = await loadLight(id, mix), b = new THREE.Box3().setFromObject(l.obj);
+        if (deep) {                                      // cadré comme frame() le fera dans ce monde : sur ses objets
+          const pb = boxOfPois((await (await fetch('tiles3d/' + id + '/zone.json')).json()).pois);
+          if (pb) { pb.intersect(b); if (!pb.isEmpty()) b.copy(pb); }
+        } else b.min.y = Math.max(b.min.y, SEA_Y);
+        const c = b.getCenter(new THREE.Vector3());
+        const w = { id, mix, box: b, obj: l.obj, meshes: l.meshes, name: ZLIST.find(z => z.id === id).label,
+          at: new THREE.Vector3(c.x, b.min.y + (b.max.y - b.min.y) * 0.55, c.z) };
+        l.obj.visible = shown; back.add(l.obj); worlds.push(w); addLabel(w);
+        if (hasProgress()) loadAllZones().then(labelProgress);
+      } catch (e) { console.warn('monde voisin non chargé : ' + id, e); }
+    });
+  }
+
+  function show(on) {
+    if (on === shown) return;
+    shown = on;
+    sea.visible = on && !deep;
+    worlds.forEach(w => { w.obj.visible = on; });
+    if (main && ownSea) main.traverse(o => { if (o.isMesh && o.material.name === 'eau') o.visible = !on; });
+    scene.fog.near = on ? Math.max(fog0[0], 1400) : fog0[0];
+    scene.fog.far = on ? Math.max(fog0[1], 3600) : fog0[1];
+    if (!on) setHover(null);
+  }
+  function setHover(w) {
+    if (hover === w || leaving) return;
+    if (hover) { hover.mix.value = 1; hover.el.classList.remove('hot'); }
+    hover = w;
+    if (w) { w.mix.value = 0.35; w.el.classList.add('hot'); }
+  }
+  // monde voisin sous le pointeur, si le monde affiché ne le cache pas
+  function worldAt(ev) {
+    if (!shown || leaving || !worlds.length) return null;
+    const r = renderer.domElement.getBoundingClientRect();
+    ray.setFromCamera(new THREE.Vector2((ev.clientX - r.left) / r.width * 2 - 1, 1 - (ev.clientY - r.top) / r.height * 2), camera);
+    let best = null;
+    for (const w of worlds) {
+      const h = ray.intersectObjects(w.meshes, false).find(h => deep || h.point.y > SEA_Y);
+      if (h && (!best || h.distance < best.d)) best = { w, d: h.distance };
+    }
+    if (!best) return null;
+    if (main) {
+      if (!deep) ray.far = best.d;                         // sous terre il est dessiné devant, quelle que soit la distance
+      const solid = []; main.traverse(o => { if (o.isMesh && o.visible && o.material.name !== 'eau') solid.push(o); });
+      const hidden = ray.intersectObjects(solid, false).length > 0;
+      ray.far = Infinity;
+      if (hidden) return null;
+    }
+    return best.w;
+  }
+
+  // on vole jusqu'au voisin sans changer de cap, puis sa page reprend exactement la même vue
+  function travel(w) {
+    if (leaving) return;
+    setHover(null);
+    leaving = true; controls.enabled = false;
+    for (const k in keys) keys[k] = false;
+    $('tip').style.display = 'none'; labels.hidden = true; selectMarker(null);
+    w.mix.value = 0;
+    if (deep) scene.add(w.obj);                          // le monde visé passe au premier plan pendant le vol
+    const s = w.box.getSize(new THREE.Vector3()), c = w.box.getCenter(new THREE.Vector3()), r = Math.max(s.x, s.z, s.y * (deep ? 0.8 : 1.05)) * 0.75;   // plus de recul que frame() : une tour tient en entier
+    const az = new THREE.Vector3().subVectors(camera.position, controls.target); az.y = 0;
+    if (az.lengthSq() < 1e-6) az.set(-0.7, 0, 1.1); az.normalize();
+    const pos = c.clone().addScaledVector(az, r * 1.3).add(new THREE.Vector3(0, r * 0.8, 0)), ms = still ? 1 : 1300;
+    flyTo(c.clone(), pos, ms);
+    setTimeout(() => {
+      try { sessionStorage.setItem('neasied-arrive', JSON.stringify({ id: w.id, p: pos.toArray(), t: c.toArray(), at: Date.now() })); } catch (e) {}
+      goZone(w.id);
+    }, ms + 80);
+  }
+
+  // à l'arrivée : le modèle allégé, déjà en cache, tient la place pendant que le modèle complet se charge
+  if (arrival) {
+    camera.position.fromArray(arrival.p); controls.target.fromArray(arrival.t); controls.update();
+    loadLight(zid, { value: 0 }).then(l => { if (!main) { ghost = l.obj; scene.add(ghost); } }).catch(() => {});
+    start();
+  }
+
+  toggle.addEventListener('click', ev => {
+    wanted = !wanted;
+    toggle.setAttribute('aria-pressed', String(wanted));
+    if (ev.detail) toggle.blur();                        // cliqué à la souris : Espace reste le raccourci de la vue de dessus
+    try { localStorage.setItem('neasied-voisins', wanted ? '1' : '0'); } catch (e) {}
+    if (wanted && (main || arrival)) start();
+  });
+
+  const taken = [];
+  return {
+    ready(obj) {                                         // le monde affiché d'abord, ses voisins ensuite
+      main = obj;
+      if (ghost) { scene.remove(ghost); ghost = null; }
+      if (shown) { shown = false; show(true); }          // sa mer découpée vient d'arriver : on la masque aussi
+      start();
+    },
+    click(ev) { const w = worldAt(ev); if (w) travel(w); },
+    move(ev) {
+      if (ev.pointerType !== 'mouse' || ev.buttons) return null;
+      if (performance.now() - hoverT > 90) { hoverT = performance.now(); setHover(worldAt(ev)); }
+      return hover ? hover.name + ' — clique pour y aller' : null;
+    },
+    leave() { setHover(null); },
+    render() {
+      if (!deep || !shown) { renderer.render(scene, camera); return; }
+      const sky = scene.background;
+      renderer.render(back, camera);
+      renderer.autoClear = false; scene.background = null;
+      renderer.clearDepth(); renderer.render(scene, camera);
+      renderer.autoClear = true; scene.background = sky;
+    },
+    update() {
+      // en vue d'ensemble seulement : ni sur un étage, ni coupé en hauteur, ni sous l'eau
+      const overview = yMax >= 1e8 && cutPlane.constant >= 1e5, noButton = leaving || !overview;
+      if (toggle.hidden !== noButton) toggle.hidden = noButton;   // sur un étage ou en coupe, il n'y a rien à cacher
+      show(leaving || (wanted && overview && worlds.length > 0 && (deep || camera.position.y > SEA_Y + 1)));
+      if (!shown || leaving) { worlds.forEach(w => { if (!w.el.hidden) w.el.hidden = true; }); return; }
+      const W = renderer.domElement.clientWidth, H = renderer.domElement.clientHeight;
+      taken.length = 0;
+      const V = renderer.domElement.getBoundingClientRect(), F = $('floors').getBoundingClientRect(), C = $('compass').getBoundingClientRect(), T = toggle.getBoundingClientRect();   // étages, boussole et bouton restent dégagés
+      for (const w of worlds) {
+        v.copy(w.at).project(camera);
+        const behind = v.z > 1;                         // derrière la caméra : la projection est inversée
+        const x = (behind ? 1 - v.x : v.x + 1) / 2 * W, half = (w.el.offsetWidth || 170) / 2 + 4;
+        let y = behind ? H - 22 : (1 - v.y) / 2 * H;
+        y = Math.max(22, Math.min(H - 22, y));           // le nom d'un voisin hors champ reste au bord de l'écran
+        if (w.el.hidden) w.el.hidden = false;
+        let X = Math.max(half, Math.min(W - half, x));
+        const fl0 = F.left - V.left, fl1 = F.right - V.left;
+        if (F.width && y > F.top - V.top - 44 && y < F.bottom - V.top + 22 && X + half > fl0 && X - half < fl1) X = fl0 > W / 2 ? fl0 - half - 4 : fl1 + half + 4;
+        const c0 = C.left - V.left, c1 = C.right - V.left;
+        if (y > C.top - V.top - 20 && X + half > c0 && X - half < c1) X = c0 > W / 2 ? c0 - half - 4 : c1 + half + 4;
+        const t0 = T.top - V.top, t1 = T.bottom - V.top;
+        if (T.width && y > t0 - 20 && y < t1 + 20 && X + half > T.left - V.left && X - half < T.right - V.left) y = t0 > H / 2 ? t0 - 22 : t1 + 22;
+        for (const t of taken) if (Math.abs(t[0] - X) < t[2] + half && Math.abs(t[1] - y) < 34) y = t[1] + (t[1] > H / 2 ? -36 : 36);
+        taken.push([X, y, half]);
+        w.el.style.transform = `translate(${X.toFixed(1)}px, ${y.toFixed(1)}px) translate(-50%, -50%)`;
+      }
+    },
+  };
+}
+const neighbours = NEXT.length ? initNeighbours() : null;
 function resize() { const v = $('view'), w = v.clientWidth || innerWidth, h = v.clientHeight || innerHeight; renderer.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix(); }
 addEventListener('resize', resize); resize();
 // boussole du jeu : le nord est l'axe +X, l'est l'axe +Z (l'entrée du mausolée est à l'est du camp de départ).
@@ -863,7 +1116,7 @@ function updateCompass() {
   lastTurn = turn; rose.setAttribute('transform', 'rotate(' + turn + ')');
   rose.querySelectorAll('text').forEach(t => t.setAttribute('transform', 'rotate(' + -turn + ' ' + t.getAttribute('x') + ' ' + t.getAttribute('y') + ')'));
 }
-renderer.setAnimationLoop(() => { if (lavaTex) lavaTex.offset.set(performance.now() * 0.000012, performance.now() * 0.000007); stepFly(); stepKeys(); controls.update(); updateSection(); renderer.render(scene, camera); updateCompass(); });
+renderer.setAnimationLoop(() => { if (lavaTex) lavaTex.offset.set(performance.now() * 0.000012, performance.now() * 0.000007); stepFly(); stepKeys(); controls.update(); updateSection(); if (neighbours) { neighbours.update(); neighbours.render(); } else renderer.render(scene, camera); updateCompass(); });
 </script>
 </body>
 </html>

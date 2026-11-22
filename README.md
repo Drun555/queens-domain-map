@@ -19,6 +19,7 @@ Carte interactive non officielle de **Queen's Domain** : tous les mondes en 2D e
 - **Progression du jeu** : la liste de tous les mondes avec ce qui est fait et ce qui manque. Un clic sur un objet manquant ouvre la carte sur lui.
 - **Vue 3D** (three.js) :
   - étages et plan de coupe ;
+  - mondes voisins à leur vraie place (14 mondes, là où ça reste lisible ; pas sur téléphone) : un clic y vole et l'ouvre ;
   - clic sur un objet pour une vue de dessus ;
   - déplacement au clavier (ZQSD ou WASD, A/E ou Q/E, R/F).
 - Recherche, filtres par catégorie et option « Masquer ce qui est déjà fait ». Les réglages sont gardés d'une zone à l'autre.
@@ -50,6 +51,7 @@ render/
 map3d/
   viewer3d_site.html   vue 3D (three.js)
   place3d.py           range les modèles 3D et ajoute objets et étages → map/site/tiles3d/
+  make_neighbours.py   modèles allégés des mondes, montrés autour du monde affiché → voisin.glb
   make_3d_html.py      génère map/site/3d.html et 3d-en.html
 input/                 fichiers à fournir soi-même (voir input/README.md)
 deploy/                .htaccess (https, cache), favicon.svg, favicon.ico, apple-touch-icon*.png, robots.txt, sitemap.xml
@@ -94,6 +96,7 @@ Prérequis : Node.js, Python 3.10+ et `pip install -r requirements.txt`.
    ```bash
    python3 render/build3d.py ile map3d/z/ile
    python3 map3d/place3d.py
+   python3 map3d/make_neighbours.py   # après place3d.py, qui vide les dossiers des mondes
    python3 map3d/make_3d_html.py
    ```
 
@@ -129,7 +132,7 @@ Unofficial interactive map of **Queen's Domain**: every world in 2D and 3D, more
 - **Items by category**: chests, unique weapons and items, keys, upgrades, meal tickets, silver skulls, collectibles, the scientist's parts, energy cells, secret walls, bosses, bestiary, notes, god runes, challenge zones, teleporters.
 - **Save file reading** (`World0.sav`, `World1.sav`…): everything you've already done is checked automatically. The file is read in your browser and never uploaded.
 - **Game progress panel**: every world with what's done and what's missing. Click a missing item to jump to it on the map.
-- **3D view** (three.js): floors, cutting plane, click an item for a top-down view, keyboard movement.
+- **3D view** (three.js): floors, cutting plane, neighbouring worlds at their real position (14 worlds, where it stays readable; not on phones) (click one to fly there), click an item for a top-down view, keyboard movement.
 
 Save location on PC: `%LOCALAPPDATA%\QueensDomain\Saved\SaveGames\<your Steam ID>\`.
 
