@@ -361,6 +361,8 @@ canvas.drag { cursor: grabbing; }
   try { unfound = JSON.parse(localStorage.getItem('neasied-unfound') || '{}') || {}; } catch (e) { unfound = {}; }
   // une clé 'A&B&C' demande toutes ses parties (porte qui s'ouvre avec plusieurs runes)
   function hasKey(have, k) { return k.indexOf('&') < 0 ? !!have[k] : k.split('&').every(function (x) { return !!have[x]; }); }
+  // un défi a plusieurs zones de fin sur la carte : elles se cochent ensemble et comptent une fois
+  function twins(z, p) { return p[0] === 'challenge' ? z.pois.filter(function (q) { return q[0] === p[0] && q[4] === p[4]; }) : [p]; }
   function saveUnfound() { try { localStorage.setItem('neasied-unfound', JSON.stringify(unfound)); } catch (e) {} }
   function key(z, p) { return z.levels[p[5]] + '/' + p[6]; }
   // objets faits d'après la sauvegarde chargée (gardés dans le navigateur)
@@ -707,9 +709,12 @@ canvas.drag { cursor: grabbing; }
   }
   $('cClose').addEventListener('click', function () { select(null); });
   $('cFound').addEventListener('change', function () {
-    if (!S.sel) return; var k = key(ZONES[S.zone], S.sel);
-    if (this.checked) { delete unfound[k]; if (!saveDone[k]) found[k] = 1; }
-    else { delete found[k]; if (saveDone[k]) unfound[k] = (S.sel[7] || []).filter(function (x) { return saveHave && hasKey(saveHave, x); }); }
+    if (!S.sel) return; var z = ZONES[S.zone], on = this.checked;
+    twins(z, S.sel).forEach(function (p) {
+      var k = key(z, p);
+      if (on) { delete unfound[k]; if (!saveDone[k]) found[k] = 1; }
+      else { delete found[k]; if (saveDone[k]) unfound[k] = (p[7] || []).filter(function (x) { return saveHave && hasKey(saveHave, x); }); }
+    });
     saveFound(); saveUnfound(); refresh(); renderProg(); select(S.sel);
   });
 
@@ -870,10 +875,11 @@ canvas.drag { cursor: grabbing; }
   function progCounts() {
     var all = $('progAll').checked, res = [], T = 0, D = 0;
     ZONES.forEach(function (z, zi) {
-      var t = 0, d = 0, byCat = {};
+      var t = 0, d = 0, byCat = {}, seen = {};
       z.pois.forEach(function (p) {
         if ((!all && PROG_SKIP[p[0]]) || PROG_NEVER[p[0]] || PROG_NEVER_ID[key(z, p)] || (PROG_SKIP_ZONE[z.id] || {})[p[0]] || (PROG_SKIP_ZONE[z.id] || {})[p[6]]) return;
-        var dn = isDone(z, p); t++; if (dn) d++;
+        if (p[0] === 'challenge') { if (seen[p[4]]) return; seen[p[4]] = 1; }
+        var dn = twins(z, p).some(function (q) { return isDone(z, q); }); t++; if (dn) d++;
         (byCat[p[0]] = byCat[p[0]] || []).push({ p: p, done: dn });
       });
       T += t; D += d; res.push({ z: z, zi: zi, t: t, d: d, byCat: byCat });

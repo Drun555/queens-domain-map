@@ -20,7 +20,7 @@ CATS = {
     'challenge': 'Challenge zones', 'consum': 'Consumables & coins', 'enemy': 'Enemies',
 }
 POI = [  # noms d'objets : seules quelques étiquettes ajoutées par le site sont en français
-    (r' \(dans un coffre\)', ' (in a chest)'), (r'^Coffre : ', 'Chest: '), (r' \(piège\)', ' (trap)'),
+    (r' \(dans un coffre\)', ' (in a chest)'), (r'^Coffre : ', 'Chest: '), (r'^Coffre$', 'Chest'), (r' \(piège\)', ' (trap)'),
     (r' \(fantôme\)', ' (ghost)'), (r'^Mur secret', 'Secret wall'), (r'^Mur de chair', 'Flesh wall'),
     (r'^Crâne argenté \(Skull Key Relic\)', 'Silver skull (Skull Key Relic)'),
     (r'^Porte secrète \(runes des 4 dieux\)', 'Secret door (4 god runes)'),

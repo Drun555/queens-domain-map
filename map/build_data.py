@@ -19,13 +19,16 @@ ZONES=[ # id, label, sous-titre, niveaux
  ('sz-mausolee','Mausolée profond','750_SZ_MAUS2',['750_SZ_MAUS2']),
  ('dekanima','Dekanima','760_Dekanima',['760_Dekanima']),
  ('ros','Registre du péché','760_SZ_AUT',['760_SZ_AUT']),
- ('marais','Caverne pourrissante','770_SZ_Swamp',['770_SZ_Swamp']),
+ ('marais','Caverne pourrissante','770_SZ_Swamp',['770_SZ_Swamp','070_UpperShell']),
  ('jigeki','Temple de Jigeki','775_JigekiTemple',['775_JigekiTemple']),
  ('foret','Val verdoyant','780_SZ_Depths',['780_SZ_Depths']),
  ('jardin-de-pierre','Jardin pétrifié','790_SG',['790_SG']),
  ('zone-finale','Zone finale','800_FinalZone',['800_FinalZone']),
  ('sipeha','Monde de Sipeha','900_SipehaWorld',['900_SipehaWorld']),
 ]
+# la coque extérieure des souterrains contient quelques objets de la Caverne pourrissante : fins du défi, note,
+# consommables. Son décor couvre tout le jeu : il ne sert pas au relevé approximatif de la zone
+SANS_DECOR={'070_UpperShell'}
 OFFSET={'900_SipehaWorld':(28000,-35000,20000)}
 CATS=[ # id,label,color,default
  ('save','Cristaux de sauvegarde','#7fe3ff',1),('tp','Téléporteurs','#b79bff',1),('chest','Coffres','#ffc24a',1),
@@ -138,7 +141,7 @@ for zid,zl,zs,levels in ZONES:
                 # copies inutilisées laissées par les développeurs : jamais ramassables (absentes d'une sauvegarde à 100 %)
                 if c in ('unique','upgrade','collect') and (ln, a['n']) in DEV_LEFTOVERS: continue
                 pois.append([c,round(x),round(y),round(z),lab,li,a['n']]); tot[c]+=1
-            bg.add((round(x/150),round(y/150),round(z/300)))
+            if ln not in SANS_DECOR: bg.add((round(x/150),round(y/150),round(z/300)))
     # clip outliers for bg using percentiles
     xs=sorted(b[0] for b in bg); ys=sorted(b[1] for b in bg); zs_=sorted(b[2] for b in bg)
     def rng(v): n=len(v); lo,hi=v[int(n*0.01)],v[min(n-1,int(n*0.99))]; pad=(hi-lo)*0.6+20; return lo-pad,hi+pad

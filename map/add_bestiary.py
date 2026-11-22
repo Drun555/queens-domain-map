@@ -25,7 +25,10 @@ def fiche(label):
     if label in FIX: return FIX[label]
     lt = set(toks(label))
     return sorted(killed_names, key=lambda nm: (-len(lt & set(toks(nm))), len(set(toks(nm)) - lt)))[0]
-NICE = {'Golem_Mossy_Data': 'Golem Mossy'}
+NICE = {'Golem_Mossy_Data': 'Golem Mossy',     # fiche donnée au point d'apparition (EnemyData) : le nom de sa classe serait faux
+        'Boner_Gray_DualSword_Data': 'Boner Gray Dual Sword', 'Boner_Gray_Archer_Data': 'Boner Gray Archer',
+        'Boner_Gray_HalberdSheild_Data': 'Boner Gray Halberd', 'Boner_Standard_Arbelist_Data': 'Boner Standard Arbelist',
+        'Ribber_Variant_Data': 'Ribber Variant', 'Gargler_Halberd_Data': 'Gargler Halberd'}
 lv = {}
 d = json.load(open('data.json', encoding='utf-8'))
 for z in d['zones']:
@@ -58,5 +61,10 @@ for z in d['zones']:
         first[k] = ['bestiaire', p[1], p[2], p[3], name, p[5], p[6], keys]
         seen_types.add(k)
     z['pois'] += list(first.values()); nb['bestiaire'] += len(first)
+# deux boss avec la même fiche (Flying Manta Blood) : seul leur propre état les départage
+bosses = [p for z in d['zones'] for p in z['pois'] if p[0] == 'boss' and len(p) > 7]
+shared = collections.Counter(k for p in bosses for k in set(p[7]) if k[0] == 'K')
+for p in bosses:
+    if any(k[0] == 'G' for k in p[7]): p[7] = [k for k in p[7] if not (k[0] == 'K' and shared[k] > 1)]
 json.dump(d, open('data.json', 'w', encoding='utf-8'), ensure_ascii=False)
 print(dict(nb), '| fiches différentes :', len(seen_types))

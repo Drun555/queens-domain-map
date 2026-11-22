@@ -588,12 +588,17 @@ function selectMarker(m) {
   $('card').style.display = 'block';
 }
 // case « Trouvé » : coche un objet à la main, ou décoche un objet que la sauvegarde donne fait à tort
+// un défi a plusieurs zones de fin sur la carte : elles se cochent ensemble et comptent une fois
+function twins(p, pois) { return p.c === 'challenge' ? pois.filter(q => q.c === p.c && q.n === p.n) : [p]; }
 $('cf').addEventListener('change', () => {
   const m = selected; if (!m) return; const p = m.userData;
-  if ($('cf').checked) { delete unfound[p.id]; if (!bySave(p)) found[p.id] = 1; }
-  else { delete found[p.id]; if (bySave(p)) unfound[p.id] = p.k.filter(hasKey); }
+  const group = twins(p, zone.pois);
+  for (const q of group) {
+    if ($('cf').checked) { delete unfound[q.id]; if (!bySave(q)) found[q.id] = 1; }
+    else { delete found[q.id]; if (bySave(q)) unfound[q.id] = q.k.filter(hasKey); }
+  }
   try { localStorage.setItem('neasied-found', JSON.stringify(found)); localStorage.setItem('neasied-unfound', JSON.stringify(unfound)); } catch (e) {}
-  m.material.map = markerTex(p); m.material.needsUpdate = true;
+  markers.forEach(o => { if (group.includes(o.userData)) { o.material.map = markerTex(o.userData); o.material.needsUpdate = true; } });
   updateCounts(); refresh(); renderProg(); selectMarker(m);
 });
 let yMin = -1e9, yMax = 1e9;     // tranche de hauteur affichée (étage choisi)
@@ -640,7 +645,9 @@ $('hideDone').addEventListener('change', () => { try { localStorage.setItem('nea
 
 // --- étages et coupe ---
 const fl = (zone.floors || []).map(f => ({ ...f, n: zone.pois.filter(p => p.y >= f.z0 && p.y < f.z1).length })).filter(f => f.n);
-function floorOf(p) { for (let i = 0; i < fl.length; i++) if (p.y >= fl[i].z0 && p.y < fl[i].z1) return i; return -1; }
+// comme en 2D : le premier étage prend ce qui est plus bas, le dernier ce qui est plus haut
+function floorOf(p) { for (let i = 0; i < fl.length; i++) if ((p.y >= fl[i].z0 || i === 0) && (p.y < fl[i].z1 || i === fl.length - 1)) return i; return -1; }
+fl.forEach((f, i) => { f.n = zone.pois.filter(p => floorOf(p) === i).length; });
 let pickFloor = () => {}, floorStep = () => {};
 const cut = $('cut');
 function setCut(h) { cutPlane.constant = h; $('cutv').textContent = h >= 1e5 ? 'aucune' : Math.round(h) + ' m'; cut.value = Math.min(h, +cut.max); }
@@ -660,7 +667,9 @@ if (fl.length > 1) {
     if (i < 0) { $('fall').classList.add('on'); yMin = -1e9; yMax = 1e9; setCut(1e6); sectionOn = false; controls.maxPolarAngle = Math.PI * 0.495; }
     else {
       btns[i].classList.add('on'); const f = fl[i];
-      yMin = f.z0 - 0.5; yMax = f.z1; setCut(f.z1 - 0.2);
+      yMin = i === 0 ? -1e9 : f.z0 - 0.5;
+      yMax = i === fl.length - 1 ? 1e7 : f.z1;          // 1e7 : sans limite, mais sous 1e8, qui veut dire vue d'ensemble
+      setCut(f.z1 - 0.2);
       controls.maxPolarAngle = 0.85;                    // sur un étage : on peut incliner pour le relief, la vue reste lisible
       if (!keepCam) {                                   // vue de dessus de l'étage, comme un plan
         const c = modelBox.getCenter(new THREE.Vector3()), s = modelBox.getSize(new THREE.Vector3());
@@ -697,7 +706,7 @@ function goTo(m) {
   const t = new THREE.Vector3(p.x, p.y, p.z);
   const az = new THREE.Vector3().subVectors(camera.position, controls.target); az.y = 0;
   if (az.lengthSq() < 1e-6) az.set(-0.6, 0, 1); az.normalize();
-  if (f >= 0) setCut(Math.min(fl[f].z1 - 0.2, p.y + 3));     // murs coupés à hauteur de tête autour de l'objet
+  if (f >= 0) setCut(p.y >= fl[f].z1 ? p.y + 3 : Math.min(fl[f].z1 - 0.2, p.y + 3));     // murs coupés à hauteur de tête autour de l'objet
   topView(t, 26);
   refresh(); selectMarker(m);
 }
@@ -753,8 +762,8 @@ const pct = (d, t) => t ? Math.floor(d / t * 100) : 100;
 function progCounts() {
   const all = $('progAll').checked; let T = 0, D = 0;
   const zones = ZLIST.map(zl => {
-    const z = allZones[zl.id], byCat = {}; let t = 0, d = 0;
-    if (z) z.pois.forEach(p => { if ((!all && PROG_SKIP[p.c]) || PROG_NEVER[p.c] || PROG_NEVER_ID[p.id] || (PROG_SKIP_ZONE[zl.id] || {})[p.c] || (PROG_SKIP_ZONE[zl.id] || {})[p.id.split('/').pop()]) return; const dn = isDone(p); t++; if (dn) d++; (byCat[p.c] = byCat[p.c] || []).push({ p, done: dn }); });
+    const z = allZones[zl.id], byCat = {}, seen = new Set(); let t = 0, d = 0;
+    if (z) z.pois.forEach(p => { if ((!all && PROG_SKIP[p.c]) || PROG_NEVER[p.c] || PROG_NEVER_ID[p.id] || (PROG_SKIP_ZONE[zl.id] || {})[p.c] || (PROG_SKIP_ZONE[zl.id] || {})[p.id.split('/').pop()]) return; if (p.c === 'challenge') { if (seen.has(p.n)) return; seen.add(p.n); } const dn = twins(p, z.pois).some(q => isDone(q)); t++; if (dn) d++; (byCat[p.c] = byCat[p.c] || []).push({ p, done: dn }); });
     T += t; D += d; return { zl, t, d, byCat };
   });
   return { zones, T, D };
