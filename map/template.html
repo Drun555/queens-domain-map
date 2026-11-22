@@ -853,8 +853,17 @@ canvas.drag { cursor: grabbing; }
   else showSaveInfo();
 
   // --- progression : tous les mondes comparés à la sauvegarde ; un clic amène sur l'objet ---
-  // absents du 100 % du jeu, jamais comptés dans la progression : les notes (tous les mondes) et, par monde,
-// des catégories ou des objets (par nom interne)
+  // absents du 100 % du jeu, jamais comptés dans la progression : les notes et les runes (tous les mondes), les objets
+  // de PROG_NEVER_ID (niveau/nom, un nom seul revient dans plusieurs mondes) et, par monde, PROG_SKIP_ZONE
+  // les 16 murs secrets marqués « Don'tCountForAchievement » dans le jeu : sur la carte, mais hors du succès
+  var PROG_NEVER_ID = {
+    '100_GR/SecretWall18_2': 1, '100_GR/SecretWall5': 1, '100_GR/SecretWall8': 1,
+    '110_GR_dungeon/SecretWall21': 1, '300_LIB/Lib_Checkpoint_Gate_SM_2': 1, '300_LIB/SecretWall13': 1,
+    '450_MAUS_darkmaze/SecretWall30': 1, '450_MAUS_darkmaze/SuperCubePuzzleDoor': 1, '700_SZ_GR/SecretWall5_2': 1,
+    '740_SZ_Prison/SecretWall6_2': 1, '770_SZ_Swamp/SecretWall5': 1, '780_SZ_Depths/SG_Gate_3': 1,
+    '780_SZ_Depths/SG_Gate_4': 1, '780_SZ_Depths/SG_Gate_6': 1, '780_SZ_Depths/SG_Gate_7': 1,
+    '790_SG/SecretWall_2': 1
+  };
   var PROG_NEVER = { note: 1, rune: 1 }, PROG_SKIP_ZONE = {};
   var PROG_SKIP = { enemy: 1, npc: 1, consum: 1 }, progOpenZones = {};
   try { $('progAll').checked = localStorage.getItem('neasied-prog-all') === '1'; $('progDone').checked = localStorage.getItem('neasied-prog-done') === '1'; } catch (e) {}
@@ -863,7 +872,7 @@ canvas.drag { cursor: grabbing; }
     ZONES.forEach(function (z, zi) {
       var t = 0, d = 0, byCat = {};
       z.pois.forEach(function (p) {
-        if ((!all && PROG_SKIP[p[0]]) || PROG_NEVER[p[0]] || (PROG_SKIP_ZONE[z.id] || {})[p[0]] || (PROG_SKIP_ZONE[z.id] || {})[p[6]]) return;
+        if ((!all && PROG_SKIP[p[0]]) || PROG_NEVER[p[0]] || PROG_NEVER_ID[key(z, p)] || (PROG_SKIP_ZONE[z.id] || {})[p[0]] || (PROG_SKIP_ZONE[z.id] || {})[p[6]]) return;
         var dn = isDone(z, p); t++; if (dn) d++;
         (byCat[p[0]] = byCat[p[0]] || []).push({ p: p, done: dn });
       });

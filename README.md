@@ -1,6 +1,6 @@
 # Carte de Neasied — Queen's Domain
 
-Carte interactive non officielle de **Queen's Domain** : tous les mondes en 2D et en 3D, plus de 1 100 objets à trouver, et le suivi de ta progression à partir de ta sauvegarde.
+Carte interactive non officielle de **Queen's Domain** : tous les mondes en 2D et en 3D, près de 1 100 objets à trouver, et le suivi de ta progression à partir de ta sauvegarde.
 
 **Site : https://queensdomain.leny15.me**
 
@@ -16,7 +16,7 @@ Carte interactive non officielle de **Queen's Domain** : tous les mondes en 2D e
   - améliorations, tickets resto, crânes argentés, collectibles, pièces du scientifique, cellules d'énergie ;
   - murs et portes secrets, boss, bestiaire, notes, runes des dieux, zones de défi, téléporteurs.
 - **Lecture de la sauvegarde** (`World0.sav`, `World1.sav`…) : ce que tu as déjà fait est coché automatiquement. Le fichier est lu dans le navigateur et n'est envoyé nulle part.
-- **Progression du jeu** : la liste de tous les mondes avec ce qui est fait et ce qui manque. Un clic sur un objet manquant ouvre la carte sur lui.
+- **Progression du jeu** : la liste de tous les mondes avec ce qui est fait et ce qui manque. Un clic sur un objet manquant ouvre la carte sur lui. Les notes, les runes et les 16 murs secrets hors succès (`Don'tCountForAchievement` dans le jeu) ne comptent pas dans le 100 %.
 - **Vue 3D** (three.js) :
   - étages et plan de coupe ;
   - mondes voisins à leur vraie place (14 mondes, là où ça reste lisible ; pas sur téléphone) : un clic y vole et l'ouvre ;
@@ -122,7 +122,7 @@ Queen's Domain, ses noms, cartes, textures et modèles appartiennent à **Freshl
 
 ## English
 
-Unofficial interactive map of **Queen's Domain**: every world in 2D and 3D, more than 1,100 items to find, and progress tracking from your save file.
+Unofficial interactive map of **Queen's Domain**: every world in 2D and 3D, nearly 1,100 items to find, and progress tracking from your save file.
 
 **Website: https://queensdomain.leny15.me/en.html** (also in French)
 
@@ -131,7 +131,7 @@ Unofficial interactive map of **Queen's Domain**: every world in 2D and 3D, more
 - **Every world**, each with a textured 2D floor-by-floor map and a 3D view.
 - **Items by category**: chests, unique weapons and items, keys, upgrades, meal tickets, silver skulls, collectibles, the scientist's parts, energy cells, secret walls and doors, bosses, bestiary, notes, god runes, challenge zones, teleporters.
 - **Save file reading** (`World0.sav`, `World1.sav`…): everything you've already done is checked automatically. The file is read in your browser and never uploaded.
-- **Game progress panel**: every world with what's done and what's missing. Click a missing item to jump to it on the map.
+- **Game progress panel**: every world with what's done and what's missing. Click a missing item to jump to it on the map. Notes, runes and the 16 secret walls the game's achievement ignores don't count toward 100%.
 - **3D view** (three.js): floors, cutting plane, neighbouring worlds at their real position (14 worlds, where it stays readable; not on phones) (click one to fly there), click an item for a top-down view, keyboard movement.
 
 Save location on PC: `%LOCALAPPDATA%\QueensDomain\Saved\SaveGames\<your Steam ID>\`.
