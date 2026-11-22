@@ -164,6 +164,9 @@ ul { list-style: none; margin: 0; padding: 0; }
 #floors #fall.on { border-radius: 2px; }
 body.dropping #view::after { content: 'Dépose ta sauvegarde (World0.sav, World1.sav…) ici'; position: absolute; inset: 12px; display: grid; place-items: center; border: 2px dashed var(--gold);
   border-radius: 10px; background: rgba(15,19,29,0.82); color: var(--ink); font-size: 18px; pointer-events: none; z-index: 20; }
+#compass { position: absolute; right: 14px; bottom: 14px; width: 88px; height: 88px; z-index: 2; pointer-events: none; }
+#compass text { font: 700 13px var(--font-body); fill: var(--ink); text-anchor: middle; dominant-baseline: central; }
+#compass text.n { fill: var(--gold); }
 #tip { position: fixed; pointer-events: none; background: rgba(15,19,29,.95); border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; font-size: 13px; display: none; white-space: nowrap; }
 #card { position: fixed; right: 12px; top: 12px; width: 260px; background: var(--chart); border: 1px solid var(--line); border-radius: 6px; padding: 12px 14px; display: none; }
 #card h2 { font: 600 16px var(--font-body); margin: 0 26px 6px 0; }
@@ -181,6 +184,7 @@ body.dropping #view::after { content: 'Dépose ta sauvegarde (World0.sav, World1
   h1 { font-size: 32px; }
   .scroll { padding: 10px 16px 14px; gap: 14px; }
   #load { left: 0; }
+  #compass { left: 10px; right: auto; bottom: 10px; width: 68px; height: 68px; }
   #floors { left: auto; right: 12px; top: auto; bottom: 12px; max-height: 40%; }
 }
 </style>
@@ -192,7 +196,7 @@ body.dropping #view::after { content: 'Dépose ta sauvegarde (World0.sav, World1
 </script>
 </head>
 <body>
-<div id="view"><section class="prog" id="prog" hidden aria-label="Progression de tous les mondes">
+<div id="view"><svg id="compass" viewBox="-50 -50 100 100" role="img" aria-label="Boussole"><circle r="47" fill="rgba(15,19,29,.82)" stroke="var(--line)"/><g id="rose"><path d="M0-23 7 0H-7Z" fill="var(--gold)"/><path d="M0 23 7 0H-7Z" fill="var(--dim)"/><text class="n" x="0" y="-34" data-dir="n">N</text><text x="34" y="0" data-dir="e">E</text><text x="0" y="34" data-dir="s">S</text><text x="-34" y="0" data-dir="o">O</text></g></svg><section class="prog" id="prog" hidden aria-label="Progression de tous les mondes">
   <div class="ph">
     <div class="row"><h2>Progression</h2><button id="progClose" type="button" aria-label="Fermer">×</button></div>
     <div class="tot" id="progTot"></div>
@@ -239,6 +243,7 @@ body.dropping #view::after { content: 'Dépose ta sauvegarde (World0.sav, World1
     </div>
     <div class="group">
       <div class="lbl"><span>Catégories</span></div>
+      <div class="btns"><button id="all" type="button">Tout afficher</button><button id="none" type="button">Tout masquer</button></div>
       <ul class="cats" id="cats"></ul>
       <div class="btns"><button id="reset" type="button">Recentrer</button><button id="top" type="button">Vue de dessus</button></div>
     </div>
@@ -595,6 +600,9 @@ zone.cats.forEach(c => {
   lab.append(cb, sw, nm, ct); li.appendChild(lab); $('cats').appendChild(li);
 });
 updateCounts();
+const setAll = v => { zone.cats.forEach(c => { on[c.id] = v; if (cbs[c.id]) cbs[c.id].checked = v; }); saveCats(); refresh(); };
+$('all').addEventListener('click', () => setAll(true));
+$('none').addEventListener('click', () => setAll(false));
 $('q').addEventListener('input', refresh);
 try { $('hideDone').checked = localStorage.getItem('neasied-hide3d') === '1'; } catch (e) {}
 $('hideDone').addEventListener('change', () => { try { localStorage.setItem('neasied-hide3d', $('hideDone').checked ? '1' : '0'); } catch (e) {} refresh(); });
@@ -688,7 +696,7 @@ frame();
 // les autres mondes sont lus dans leur zone.json ; un clic sur un objet ouvre son monde en 3D et vole jusqu'à lui
 // absents du 100 % du jeu, jamais comptés dans la progression : les notes (tous les mondes) et, par monde,
 // des catégories ou des objets (par nom interne)
-const PROG_NEVER = { note: 1 }, PROG_SKIP_ZONE = {};
+const PROG_NEVER = { note: 1, rune: 1 }, PROG_SKIP_ZONE = {};
 const PROG_SKIP = { enemy: 1, npc: 1, consum: 1 }, progOpenZones = { [zid]: true }, allZones = { [zid]: zone };
 let allLoaded = false, allLoading = null;
 const trName = n => typeof L10N !== 'undefined' ? L10N.poi.reduce((s, [a, b]) => s.replace(new RegExp(a), b), n) : n;
@@ -846,7 +854,16 @@ addEventListener('keydown', ev => { if (ev.key === 'Shift') keys.shift = true; }
 addEventListener('keyup', ev => { if (ev.key === 'Shift') keys.shift = false; });
 function resize() { const v = $('view'), w = v.clientWidth || innerWidth, h = v.clientHeight || innerHeight; renderer.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix(); }
 addEventListener('resize', resize); resize();
-renderer.setAnimationLoop(() => { if (lavaTex) lavaTex.offset.set(performance.now() * 0.000012, performance.now() * 0.000007); stepFly(); stepKeys(); controls.update(); updateSection(); renderer.render(scene, camera); });
+// boussole du jeu : le nord est l'axe +X, l'est l'axe +Z (l'entrée du mausolée est à l'est du camp de départ).
+// On lit la droite de l'écran, toujours horizontale, pour que le cap reste juste en vue de dessus.
+const rose = $('rose'); let lastTurn = null;
+function updateCompass() {
+  const m = camera.matrixWorld.elements, turn = (-Math.atan2(-m[0], m[2]) * 180 / Math.PI).toFixed(1);
+  if (turn === lastTurn) return;
+  lastTurn = turn; rose.setAttribute('transform', 'rotate(' + turn + ')');
+  rose.querySelectorAll('text').forEach(t => t.setAttribute('transform', 'rotate(' + -turn + ' ' + t.getAttribute('x') + ' ' + t.getAttribute('y') + ')'));
+}
+renderer.setAnimationLoop(() => { if (lavaTex) lavaTex.offset.set(performance.now() * 0.000012, performance.now() * 0.000007); stepFly(); stepKeys(); controls.update(); updateSection(); renderer.render(scene, camera); updateCompass(); });
 </script>
 </body>
 </html>

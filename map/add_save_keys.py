@@ -54,7 +54,8 @@ def trigger_keys(b, n, depth=0):
 # objets uniques sans trace de ramassage : on regarde l'inventaire (clés 'I<objet>'). Seulement pour eux : beaucoup d'armes
 # s'achètent aussi en boutique ou tombent d'ennemis, et l'inventaire cocherait alors l'exemplaire d'un monde jamais visité
 ITEMS = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'item_names.json')))
-ITEM_FIX = {'Knifebelt': ['KnifeBelt_KeyItem'], 'Knight Rusty Sword Pickup': ['!NRustySwordKnightGaveSword'],
+ITEM_FIX = {'Torch': ['Torch_Weapon_Item'],   # torche : sans GUID dans le niveau, ni en boutique
+            'Knifebelt': ['KnifeBelt_KeyItem'], 'Knight Rusty Sword Pickup': ['!NRustySwordKnightGaveSword'],
             'Skullrod': ['SkullRod_Item'], 'Slashgun': ['SlashGun_ItemData'], 'Wing Crystal': []}
 THROWN = re.compile(r'Dagger|Throwing|Spike Ball|Chakram|Needle', re.I)
 _ST = {'pickup', 'item', 'data', 'bp', 'dans', 'un', 'coffre', 'the', 'of', '00', 'treasure', 'keyitem', 'key'}
@@ -115,7 +116,8 @@ for (zid, n), keys in TP_FIX.items():
 # - œuf de Dekanima (Registre du péché) : l'activer lance l'évènement Dekanima (DekanimaEventState) et ouvre le monde
 #   de Dekanima ; y avoir ramassé un objet prouve aussi qu'on l'a activé (GUID seulement : rien qui s'obtienne ailleurs)
 dek = [k for k in ks('dekanima', 'SkullKeyRelic_BP23_2', 'SkullKeyRelic_BP2_5', 'OtherWorldSpear_Pickup_2', 'PlasmaRifle_Pickup_2') if k[0] == 'G']
-KEY_FIX = {('tour-du-savoir', 'ExecutionerMiniboss_Spawner', 'boss'): ['NExecutionerKilled', 'KBoner_ExecutionerMiniboss_Data'],
+KEY_FIX = {('ile', 'BigNut_SM_2', 'unique'): ['IBigNut'],   # noix : seul l'inventaire dit qu'on l'a prise (pas la mort du golem)
+           ('tour-du-savoir', 'ExecutionerMiniboss_Spawner', 'boss'): ['NExecutionerKilled', 'KBoner_ExecutionerMiniboss_Data'],
            ('ros', 'Dekanima_Egg', 'unique'): ['NDekanimaEventState'] + dek,
            # zone finale : la porte aux crânes et le rituel sont notés quand on les termine
            ('zone-finale', 'SecretSkullDoor_NPC_BP_2', 'secret'): ['NSkullDoorQuestDone'],

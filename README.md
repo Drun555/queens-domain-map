@@ -13,8 +13,8 @@ Carte interactive non officielle de **Queen's Domain** : tous les mondes en 2D e
 - **Tous les mondes du jeu**, chacun avec un plan 2D texturé par étage et une vue 3D.
 - **Les objets** rangés par catégorie :
   - coffres, armes et objets uniques, clés et livres ;
-  - améliorations, crânes argentés, collectibles, pièces du scientifique, cellules d'énergie ;
-  - murs secrets, boss, bestiaire, notes, zones de défi, téléporteurs.
+  - améliorations, tickets resto, crânes argentés, collectibles, pièces du scientifique, cellules d'énergie ;
+  - murs secrets, boss, bestiaire, notes, runes des dieux, zones de défi, téléporteurs.
 - **Lecture de la sauvegarde** (`World0.sav`, `World1.sav`…) : ce que tu as déjà fait est coché automatiquement. Le fichier est lu dans le navigateur et n'est envoyé nulle part.
 - **Progression du jeu** : la liste de tous les mondes avec ce qui est fait et ce qui manque. Un clic sur un objet manquant ouvre la carte sur lui.
 - **Vue 3D** (three.js) :
@@ -126,7 +126,7 @@ Unofficial interactive map of **Queen's Domain**: every world in 2D and 3D, more
 ### Features
 
 - **Every world**, each with a textured 2D floor-by-floor map and a 3D view.
-- **Items by category**: chests, unique weapons and items, keys, upgrades, silver skulls, collectibles, the scientist's parts, energy cells, secret walls, bosses, bestiary, notes, challenge zones, teleporters.
+- **Items by category**: chests, unique weapons and items, keys, upgrades, meal tickets, silver skulls, collectibles, the scientist's parts, energy cells, secret walls, bosses, bestiary, notes, god runes, challenge zones, teleporters.
 - **Save file reading** (`World0.sav`, `World1.sav`…): everything you've already done is checked automatically. The file is read in your browser and never uploaded.
 - **Game progress panel**: every world with what's done and what's missing. Click a missing item to jump to it on the map.
 - **3D view** (three.js): floors, cutting plane, click an item for a top-down view, keyboard movement.

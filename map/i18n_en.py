@@ -14,15 +14,19 @@ ZONES = {
 }
 CATS = {
     'save': 'Save crystals', 'tp': 'Teleporters', 'chest': 'Chests', 'unique': 'Unique weapons & items',
-    'key': 'Keys & books', 'sci': "Scientist's parts", 'upgrade': 'Upgrades', 'skull': 'Silver skulls (Skull Key Relic)',
+    'key': 'Keys & books', 'sci': "Scientist's parts", 'upgrade': 'Upgrades', 'ticket': 'Meal tickets', 'skull': 'Silver skulls (Skull Key Relic)',
     'collect': 'Collectibles', 'egg': 'Eggs', 'energy': 'Energy cells', 'bestiaire': 'Bestiary (1 per creature)', 'npc': 'NPCs',
-    'note': 'Notes & tablets', 'flesh': 'Flesh walls', 'secret': 'Secret walls', 'boss': 'Bosses & unique enemies',
+    'note': 'Notes & tablets', 'rune': 'God runes', 'flesh': 'Flesh walls', 'secret': 'Secret walls', 'boss': 'Bosses & unique enemies',
     'challenge': 'Challenge zones', 'consum': 'Consumables & coins', 'enemy': 'Enemies',
 }
 POI = [  # noms d'objets : seules quelques étiquettes ajoutées par le site sont en français
     (r' \(dans un coffre\)', ' (in a chest)'), (r'^Coffre : ', 'Chest: '), (r' \(piège\)', ' (trap)'),
     (r' \(fantôme\)', ' (ghost)'), (r'^Mur secret', 'Secret wall'), (r'^Mur de chair', 'Flesh wall'),
     (r'^Crâne argenté \(Skull Key Relic\)', 'Silver skull (Skull Key Relic)'),
+    (r"^Noix mystique de l'arbre blanc", 'Mystical Nut of the White Tree'),
+    (r'^Ticket resto', 'Meal ticket'),
+    (r'^Rune de Jigeki', 'Jigeki rune'), (r'^Rune de Puwema', 'Puwema rune'),
+    (r'^Rune de Sipeha', 'Sipeha rune'), (r'^Rune de Wodaso', 'Wodaso rune'),
     (r'^Pièce du scientifique n°', "Scientist's part #"), (r'^Zone de défi', 'Challenge zone'),
 ]
 def poi_name(s):
@@ -154,6 +158,8 @@ PAGE_3D = [
     ('Tout est fait dans ce monde.', 'Everything is done in this world.'), ("'Chargement de tous les mondes…'", "'Loading every world…'"),
     ('>Chargement…<', '>Loading…<'), ('<span>Couper à</span>', '<span>Cut at</span>'), ('aria-label="Hauteur de coupe"', 'aria-label="Cut height"'),
     ('>Recentrer<', '>Recenter<'), ('>Vue de dessus<', '>Top view<'),
+    ('>Tout afficher<', '>Show all<'), ('>Tout masquer<', '>Hide all<'),
+    ('aria-label="Boussole"', 'aria-label="Compass"'), ('data-dir="o">O<', 'data-dir="o">W<'),
     ("<b>Souris</b> : clic gauche tourner · clic droit déplacer · molette zoom · clic sur un point : vue de dessus sur l'objet",
      '<b>Mouse</b>: left click rotate · right click pan · wheel zoom · click a marker: top view of the item'),
     ('<b>Clavier</b> : ZQSD (WASD en QWERTY) ou flèches se déplacer · A / E tourner (Q / E en QWERTY) · R / F zoom · Maj accélère · Espace vue de dessus',

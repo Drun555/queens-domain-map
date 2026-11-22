@@ -853,7 +853,7 @@ canvas.drag { cursor: grabbing; }
   // --- progression : tous les mondes comparés à la sauvegarde ; un clic amène sur l'objet ---
   // absents du 100 % du jeu, jamais comptés dans la progression : les notes (tous les mondes) et, par monde,
 // des catégories ou des objets (par nom interne)
-  var PROG_NEVER = { note: 1 }, PROG_SKIP_ZONE = {};
+  var PROG_NEVER = { note: 1, rune: 1 }, PROG_SKIP_ZONE = {};
   var PROG_SKIP = { enemy: 1, npc: 1, consum: 1 }, progOpenZones = {};
   try { $('progAll').checked = localStorage.getItem('neasied-prog-all') === '1'; $('progDone').checked = localStorage.getItem('neasied-prog-done') === '1'; } catch (e) {}
   function progCounts() {
