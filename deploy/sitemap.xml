@@ -1,15 +1,195 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
-  <url><loc>https://queensdomain.leny15.me/</loc><lastmod>2026-11-16</lastmod><priority>1.0</priority>
+  <url><loc>https://queensdomain.leny15.me/</loc><lastmod>2026-11-23</lastmod><priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/en.html"/></url>
-  <url><loc>https://queensdomain.leny15.me/en.html</loc><lastmod>2026-11-16</lastmod><priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/en.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/en.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/en.html</loc><lastmod>2026-11-23</lastmod><priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/en.html"/></url>
-  <url><loc>https://queensdomain.leny15.me/3d.html</loc><lastmod>2026-11-16</lastmod><priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/en.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/en.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/3d.html</loc><lastmod>2026-11-23</lastmod><priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/3d.html"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/3d-en.html"/></url>
-  <url><loc>https://queensdomain.leny15.me/3d-en.html</loc><lastmod>2026-11-16</lastmod><priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/3d-en.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/3d-en.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/3d-en.html</loc><lastmod>2026-11-23</lastmod><priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/3d.html"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/3d-en.html"/></url>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/3d-en.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/3d-en.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/mondes/ile.html</loc><lastmod>2026-11-23</lastmod><priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/mondes/ile.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/worlds/ile.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/worlds/ile.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/mondes/marchand.html</loc><lastmod>2026-11-23</lastmod><priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/mondes/marchand.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/worlds/marchand.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/worlds/marchand.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/mondes/aquatique.html</loc><lastmod>2026-11-23</lastmod><priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/mondes/aquatique.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/worlds/aquatique.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/worlds/aquatique.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/mondes/tour-du-savoir.html</loc><lastmod>2026-11-23</lastmod><priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/mondes/tour-du-savoir.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/worlds/tour-du-savoir.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/worlds/tour-du-savoir.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/mondes/mausolee.html</loc><lastmod>2026-11-23</lastmod><priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/mondes/mausolee.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/worlds/mausolee.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/worlds/mausolee.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/mondes/automne.html</loc><lastmod>2026-11-23</lastmod><priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/mondes/automne.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/worlds/automne.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/worlds/automne.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/mondes/chateau.html</loc><lastmod>2026-11-23</lastmod><priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/mondes/chateau.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/worlds/chateau.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/worlds/chateau.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/mondes/sz-ruines.html</loc><lastmod>2026-11-23</lastmod><priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/mondes/sz-ruines.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/worlds/sz-ruines.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/worlds/sz-ruines.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/mondes/sz-aquatique.html</loc><lastmod>2026-11-23</lastmod><priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/mondes/sz-aquatique.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/worlds/sz-aquatique.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/worlds/sz-aquatique.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/mondes/sz-tour.html</loc><lastmod>2026-11-23</lastmod><priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/mondes/sz-tour.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/worlds/sz-tour.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/worlds/sz-tour.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/mondes/hod.html</loc><lastmod>2026-11-23</lastmod><priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/mondes/hod.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/worlds/hod.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/worlds/hod.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/mondes/prison.html</loc><lastmod>2026-11-23</lastmod><priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/mondes/prison.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/worlds/prison.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/worlds/prison.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/mondes/sz-mausolee.html</loc><lastmod>2026-11-23</lastmod><priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/mondes/sz-mausolee.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/worlds/sz-mausolee.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/worlds/sz-mausolee.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/mondes/dekanima.html</loc><lastmod>2026-11-23</lastmod><priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/mondes/dekanima.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/worlds/dekanima.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/worlds/dekanima.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/mondes/ros.html</loc><lastmod>2026-11-23</lastmod><priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/mondes/ros.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/worlds/ros.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/worlds/ros.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/mondes/marais.html</loc><lastmod>2026-11-23</lastmod><priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/mondes/marais.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/worlds/marais.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/worlds/marais.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/mondes/jigeki.html</loc><lastmod>2026-11-23</lastmod><priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/mondes/jigeki.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/worlds/jigeki.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/worlds/jigeki.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/mondes/foret.html</loc><lastmod>2026-11-23</lastmod><priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/mondes/foret.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/worlds/foret.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/worlds/foret.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/mondes/jardin-de-pierre.html</loc><lastmod>2026-11-23</lastmod><priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/mondes/jardin-de-pierre.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/worlds/jardin-de-pierre.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/worlds/jardin-de-pierre.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/mondes/zone-finale.html</loc><lastmod>2026-11-23</lastmod><priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/mondes/zone-finale.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/worlds/zone-finale.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/worlds/zone-finale.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/mondes/sipeha.html</loc><lastmod>2026-11-23</lastmod><priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/mondes/sipeha.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/worlds/sipeha.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/worlds/sipeha.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/mondes/index.html</loc><lastmod>2026-11-23</lastmod><priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/mondes/index.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/worlds/index.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/worlds/index.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/worlds/ile.html</loc><lastmod>2026-11-23</lastmod><priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/mondes/ile.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/worlds/ile.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/worlds/ile.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/worlds/marchand.html</loc><lastmod>2026-11-23</lastmod><priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/mondes/marchand.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/worlds/marchand.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/worlds/marchand.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/worlds/aquatique.html</loc><lastmod>2026-11-23</lastmod><priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/mondes/aquatique.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/worlds/aquatique.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/worlds/aquatique.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/worlds/tour-du-savoir.html</loc><lastmod>2026-11-23</lastmod><priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/mondes/tour-du-savoir.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/worlds/tour-du-savoir.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/worlds/tour-du-savoir.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/worlds/mausolee.html</loc><lastmod>2026-11-23</lastmod><priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/mondes/mausolee.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/worlds/mausolee.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/worlds/mausolee.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/worlds/automne.html</loc><lastmod>2026-11-23</lastmod><priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/mondes/automne.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/worlds/automne.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/worlds/automne.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/worlds/chateau.html</loc><lastmod>2026-11-23</lastmod><priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/mondes/chateau.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/worlds/chateau.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/worlds/chateau.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/worlds/sz-ruines.html</loc><lastmod>2026-11-23</lastmod><priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/mondes/sz-ruines.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/worlds/sz-ruines.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/worlds/sz-ruines.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/worlds/sz-aquatique.html</loc><lastmod>2026-11-23</lastmod><priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/mondes/sz-aquatique.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/worlds/sz-aquatique.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/worlds/sz-aquatique.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/worlds/sz-tour.html</loc><lastmod>2026-11-23</lastmod><priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/mondes/sz-tour.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/worlds/sz-tour.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/worlds/sz-tour.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/worlds/hod.html</loc><lastmod>2026-11-23</lastmod><priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/mondes/hod.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/worlds/hod.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/worlds/hod.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/worlds/prison.html</loc><lastmod>2026-11-23</lastmod><priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/mondes/prison.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/worlds/prison.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/worlds/prison.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/worlds/sz-mausolee.html</loc><lastmod>2026-11-23</lastmod><priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/mondes/sz-mausolee.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/worlds/sz-mausolee.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/worlds/sz-mausolee.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/worlds/dekanima.html</loc><lastmod>2026-11-23</lastmod><priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/mondes/dekanima.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/worlds/dekanima.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/worlds/dekanima.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/worlds/ros.html</loc><lastmod>2026-11-23</lastmod><priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/mondes/ros.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/worlds/ros.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/worlds/ros.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/worlds/marais.html</loc><lastmod>2026-11-23</lastmod><priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/mondes/marais.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/worlds/marais.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/worlds/marais.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/worlds/jigeki.html</loc><lastmod>2026-11-23</lastmod><priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/mondes/jigeki.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/worlds/jigeki.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/worlds/jigeki.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/worlds/foret.html</loc><lastmod>2026-11-23</lastmod><priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/mondes/foret.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/worlds/foret.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/worlds/foret.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/worlds/jardin-de-pierre.html</loc><lastmod>2026-11-23</lastmod><priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/mondes/jardin-de-pierre.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/worlds/jardin-de-pierre.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/worlds/jardin-de-pierre.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/worlds/zone-finale.html</loc><lastmod>2026-11-23</lastmod><priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/mondes/zone-finale.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/worlds/zone-finale.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/worlds/zone-finale.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/worlds/sipeha.html</loc><lastmod>2026-11-23</lastmod><priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/mondes/sipeha.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/worlds/sipeha.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/worlds/sipeha.html"/></url>
+  <url><loc>https://queensdomain.leny15.me/worlds/index.html</loc><lastmod>2026-11-23</lastmod><priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://queensdomain.leny15.me/mondes/index.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://queensdomain.leny15.me/worlds/index.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://queensdomain.leny15.me/worlds/index.html"/></url>
 </urlset>

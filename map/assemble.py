@@ -49,7 +49,8 @@ def build(d, t, lang):
     cnt = Counter(p[0] for z in d['zones'] for p in z['pois'])
     skip = {'enemy', 'consum', 'npc'}
     word = 'items' if lang == 'en' else 'objets'
-    zl = ''.join('<li>%s (%d %s)</li>' % (_h.escape(z['label']), sum(1 for p in z['pois'] if p[0] not in skip), word) for z in d['zones'])
+    pages = 'worlds/' if lang == 'en' else 'mondes/'   # une page fixe par monde (pages_seo.py)
+    zl = ''.join('<li><a href="%s%s.html">%s</a> (%d %s)</li>' % (pages, z['id'], _h.escape(z['label']), sum(1 for p in z['pois'] if p[0] not in skip), word) for z in d['zones'])
     cl = ''.join('<li>%s%s%d</li>' % (_h.escape(c['label']), ': ' if lang == 'en' else ' : ', cnt[c['id']]) for c in d['cats'] if c['id'] not in skip and cnt[c['id']])
     t = t.replace('__SEO_ZONES__', zl).replace('__SEO_CATS__', cl)
     s = json.dumps(d, ensure_ascii=False, separators=(',', ':')).replace('</', '<\\/')

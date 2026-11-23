@@ -51,7 +51,8 @@ COMMON = [
     ('class="lang" href="en.html" hreflang="en" lang="en"', 'class="lang" href="index.html" hreflang="fr" lang="fr"'),
     ('class="lang" href="3d-en.html" hreflang="en" lang="en"', 'class="lang" href="3d.html" hreflang="fr" lang="fr"'),
     ('>English</a>', '>Français</a>'),
-    ("Carte non officielle de Queen's Domain", "Unofficial map of Queen's Domain"),
+    ("Carte interactive non officielle de Queen's Domain", "Unofficial interactive map of Queen's Domain"),
+    ('>Objets de ce monde ›<', '>Items in this world ›<'), ("'mondes/' + ", "'worlds/' + "), ('href="mondes/ile.html"', 'href="worlds/ile.html"'),
     ('>Vue 2D<', '>2D view<'), ('>Vue 3D<', '>3D view<'),
     ('<b>Progression du jeu</b>', '<b>Game progress</b>'),
     ('<label for="zone">Zone</label>', '<label for="zone">World</label>'),
@@ -106,6 +107,7 @@ PAGE_2D = [
     ('Les objets cochés « trouvé » et la sauvegarde chargée sont gardés dans ce navigateur uniquement.', 'Items ticked as “found” and the loaded save are kept in this browser only.'),
     ('Projet de fan, sans lien avec Freshly Baked Games ni Future Friends Games.', 'Fan project, not affiliated with Freshly Baked Games or Future Friends Games.'),
     ('À propos de cette carte', 'About this map'),
+    ('<a href="mondes/index.html">Tous les mondes et leurs objets ›</a>', '<a href="worlds/index.html">All worlds and their items ›</a>'),
     ("<h2>Carte interactive de Queen's Domain</h2>", "<h2>Queen's Domain interactive map</h2>"),
     ("<p>Cette carte non officielle couvre tout <b>Queen's Domain</b> : chaque monde de l'île de Neasied en plan 2D par étage et en vue 3D, avec la position de chaque objet à trouver.</p>",
      "<p>This unofficial map covers all of <b>Queen's Domain</b>: every world of the Isle of Neasied as a floor-by-floor 2D map and in 3D, with the location of every item to find.</p>"),
@@ -143,6 +145,10 @@ PAGE_2D = [
 ]
 
 PAGE_3D = [
+    ('"name":"Carte de Neasied — Queen\'s Domain en 3D"', '"name":"Neasied Map — Queen\'s Domain in 3D"'),
+    ('"url":"https://queensdomain.leny15.me/3d.html"', '"url":"https://queensdomain.leny15.me/3d-en.html"'),
+    ('"description":"' + DESC3_FR + '"', '"description":"' + DESC3_EN + '"'),
+    ('"operatingSystem":"Navigateur web","inLanguage":"fr"', '"operatingSystem":"Web browser","inLanguage":"en"'),
     ("<title>Queen's Domain en 3D — carte interactive de tous les mondes | Carte de Neasied</title>",
      "<title>Queen's Domain in 3D — interactive map of every world | Neasied Map</title>"),
     ("content=\"Queen's Domain en 3D — carte interactive de tous les mondes | Carte de Neasied\"",

@@ -69,6 +69,9 @@ aside {
 .head { padding: 16px 18px 12px; border-bottom: 1px solid var(--line); }
 h1 { font: 400 44px/0.9 var(--font-display); margin: 0; letter-spacing: 0.01em; color: var(--ink); text-wrap: balance; }
 .head p { margin: 6px 0 0; color: var(--dim); font-size: 13px; }
+h1 .sub { display: block; margin-top: 6px; font: 400 13px/1.3 var(--font-body); letter-spacing: 0; color: var(--dim); }
+.zone-page { align-self: flex-start; font-size: 13px; color: var(--gold); text-decoration: none; }
+.zone-page:hover { text-decoration: underline; }
 .scroll { overflow-y: auto; padding: 14px 18px 18px; display: flex; flex-direction: column; gap: 18px; min-height: 0; }
 .group { display: flex; flex-direction: column; gap: 8px; }
 .group > label, .group > .lbl {
@@ -230,9 +233,8 @@ canvas.drag { cursor: grabbing; }
 <body>
 <aside>
   <div class="head">
-    <h1>Neasied</h1>
+    <h1>Neasied<span class="sub">Carte interactive non officielle de Queen's Domain</span></h1>
     <a class="lang" href="en.html" hreflang="en" lang="en" onclick="try{localStorage.setItem('neasied-lang',this.getAttribute('lang'))}catch(e){}location.href=this.getAttribute('href')+location.hash;return false">English</a>
-    <p>Carte non officielle de Queen's Domain</p>
     <div class="mode"><span>Vue 2D</span><a id="to3d" href="3d.html">Vue 3D</a></div>
     <button class="progbtn" id="progOpen" type="button"><b>Progression du jeu</b><span id="progShort"></span></button>
   </div>
@@ -245,6 +247,7 @@ canvas.drag { cursor: grabbing; }
         <button id="next" type="button" aria-label="Zone suivante">›</button>
       </div>
       <div class="zone-sub" id="zoneSub"></div>
+      <a class="zone-page" id="zonePage" href="mondes/ile.html">Objets de ce monde ›</a>
       <div class="zone-sub" id="floorSub"></div>
     </div>
     <div class="group">
@@ -292,6 +295,7 @@ canvas.drag { cursor: grabbing; }
       <p>Pour viser le <b>100 %</b>, charge ta sauvegarde (<code>World0.sav</code>) : ce que tu as déjà fait est coché tout seul, et le panneau « Progression du jeu » liste ce qu'il te manque dans chaque monde.</p>
       <h3>Mondes</h3>
       <ul>__SEO_ZONES__</ul>
+      <p><a href="mondes/index.html">Tous les mondes et leurs objets ›</a></p>
       <h3>Objets répertoriés</h3>
       <ul>__SEO_CATS__</ul>
     </details>
@@ -515,6 +519,7 @@ canvas.drag { cursor: grabbing; }
   function setZone(i, keepHash) {
     S.zone = (i + ZONES.length) % ZONES.length; S.sel = null; S.hover = null;
     var z = ZONES[S.zone]; zoneSel.value = S.zone;
+    $('zonePage').href = 'mondes/' + z.id + '.html';
     $('zoneSub').textContent = z.levels.join(' · ') + (z.plan ? ' · plan détaillé' : ' · relevé approximatif');
     var zmin = $('zmin'), zmax = $('zmax');
     if (z.plan && z.plan.floors) { z.b.z0 = Math.min(z.b.z0, z.plan.floors[0].z0); z.b.z1 = Math.max(z.b.z1, z.plan.floors[z.plan.floors.length - 1].z1); }
