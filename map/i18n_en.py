@@ -73,7 +73,7 @@ COMMON = [
     ('). Tu peux aussi glisser le fichier directement sur la vue 3D.', '). You can also drag the file straight onto the 3D view.'),
     ('<span>Catégories</span>', '<span>Categories</span>'),
     ('Un problème ou une idée&nbsp;? Contacte <b>Leny15</b> sur Discord&nbsp;:', 'A problem or an idea? Contact <b>Leny15</b> on Discord:'),
-    ('>Rejoindre le Discord<', '>Join the Discord<'), ('>Code source sur GitHub<', '>Source code on GitHub<'),
+    ('>Rejoindre le Discord<', '>Join the Discord<'),
     ('>Tout</button>', '>All</button>'),
     ('<dt>Catégorie</dt>', '<dt>Category</dt>'), ('<dt>Hauteur</dt>', '<dt>Height</dt>'),
     ('aria-label="Zone précédente"', 'aria-label="Previous world"'), ('aria-label="Zone suivante"', 'aria-label="Next world"'),
