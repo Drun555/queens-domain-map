@@ -108,7 +108,7 @@ Envoie le contenu de `map/site/` (`index.html`, `3d.html`, `tiles/`, `tiles3d/`,
 
 ## Support
 
-Un problème, un objet mal placé, une idée ? Ouvre une *issue*, ou contacte **Leny15** sur le Discord : https://discord.gg/guKx9kJjmt
+Un problème, un objet mal placé, une idée ? Ouvre une *issue*, ou contacte **Leny15** sur le Discord : https://discord.gg/n5nVh8qafs
 
 ## Licence
 
@@ -144,7 +144,7 @@ The save reader (`readSave` in `map/template.html`) parses the GVAS format (Unre
 
 ### Support
 
-Open an issue, or contact **Leny15** on Discord: https://discord.gg/guKx9kJjmt
+Open an issue, or contact **Leny15** on Discord: https://discord.gg/n5nVh8qafs
 
 ### License
 
