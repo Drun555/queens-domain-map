@@ -9,7 +9,7 @@ ZONES = {
     'tour-du-savoir': 'Tower of Knowledge', 'mausolee': 'Deimpo Mausoleum', 'automne': 'Ancient World',
     'chateau': 'Siraatsu Castle', 'sz-ruines': 'Secret zone: Ruins', 'sz-aquatique': 'Secret zone: Obmuer',
     'sz-tour': 'Secret zone: Tower', 'hod': 'HOD', 'prison': 'Underground Prison', 'sz-mausolee': 'Deep Mausoleum',
-    'dekanima': 'Dekanima', 'ros': 'Record of Sin', 'marais': 'Rotting Cavern', 'jigeki': 'Jigeki Temple',
+    'dekanima': 'Overgrown Record of Sin', 'ros': 'Record of Sin', 'marais': 'Rotting Cavern', 'jigeki': 'Jigeki Temple',
     'foret': 'Verdant Hollow', 'jardin-de-pierre': 'Stone Garden', 'zone-finale': 'Final Zone', 'sipeha': "Sipeha's World",
 }
 CATS = {

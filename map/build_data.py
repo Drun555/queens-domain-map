@@ -17,7 +17,7 @@ ZONES=[ # id, label, sous-titre, niveaux
  ('hod','HOD','730_HOD',['730_HOD']),
  ('prison','Prison','740_SZ_Prison',['740_SZ_Prison']),
  ('sz-mausolee','Mausolée profond','750_SZ_MAUS2',['750_SZ_MAUS2']),
- ('dekanima','Dekanima','760_Dekanima',['760_Dekanima']),
+ ('dekanima','Registre du péché envahi','760_Dekanima',['760_Dekanima']),
  ('ros','Registre du péché','760_SZ_AUT',['760_SZ_AUT']),
  ('marais','Caverne pourrissante','770_SZ_Swamp',['770_SZ_Swamp','070_UpperShell']),
  ('jigeki','Temple de Jigeki','775_JigekiTemple',['775_JigekiTemple']),

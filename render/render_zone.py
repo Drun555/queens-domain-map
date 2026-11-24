@@ -42,8 +42,11 @@ ZONES = {
               exclude=EXS, px=12.5, samp=3.0, min_sep=800, merge_gap=1000, start_all=True),
   'sz-mausolee': dict(levels=['750_SZ_MAUS2', '070_UpperShell'], level_filter={'070_UpperShell': r'^SZ_Part_S2_00_SM$'},
               exclude=EXS, px=10.0, samp=2.5, min_sep=700, merge_gap=1000, start_all=True),
-  'dekanima': dict(levels=['760_Dekanima', '070_UpperShell'], level_filter={'070_UpperShell': r'^Ros_Exterior_SM$'},
-              exclude=EXS, px=10.0, samp=2.5, min_sep=700, merge_gap=1000, start_all=True),
+  # Dekanima : la tour du Registre du péché avec, en plus, la zone bleue ; on reprend donc aussi le niveau de la tour,
+  # et le bord de la forêt des profondeurs, qui touche le bas de la zone bleue (même hauteur, à une vingtaine de mètres)
+  'dekanima': dict(levels=['760_Dekanima', '760_SZ_AUT', '780_SZ_Depths', '070_UpperShell'],
+              level_filter={'070_UpperShell': r'^(Ros_Exterior_SM|SZ_Part_S1_00_SM)$'},
+              exclude=EXS + r'|Grass|gd_grass|PPC|fog|SKYLIGHT', px=10.0, samp=2.5, min_sep=700, merge_gap=1000, start_all=True),
   'ros': dict(levels=['760_SZ_AUT', '070_UpperShell'], level_filter={'070_UpperShell': r'^Ros_Exterior_SM$'},
               exclude=EXS, px=15.0, samp=3.5, min_sep=900, merge_gap=1200, start_all=True),
   'marais': dict(levels=['770_SZ_Swamp', '070_UpperShell'], level_filter={'070_UpperShell': r'^(SZ_Part_S1_SwampZone_SM|SZ_Part_S1_SwampEntree_SM|SZ_Swamp_SipehaShrine_SM)$'},

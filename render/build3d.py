@@ -14,10 +14,43 @@ os.makedirs(OUT, exist_ok=True)
 src = open(ROOT + '/render/render_zone.py', encoding='utf-8').read()
 src = src[:src.index('# cadre de la zone')]
 sys.argv = ['render_zone.py', zid]
-G = {'__name__': 'r3d'}
+G = {'__name__': 'r3d', '__file__': ROOT + '/render/render_zone.py'}
 exec(compile(src, 'render_zone.py', 'exec'), G)
 Z, pl, prims, texture, TECH, exclude, WATERMAT = G['Z'], G['pl'], G['prims'], G['texture'], G['TECH'], G['exclude'], G['WATERMAT']
 TECHMAT = G['TECHMAT']
+
+# arbres de Dekanima : leur matériau n'a pas de texture de base (en jeu, ils reflètent un décor bleu-vert) ;
+# on fabrique une texture répétable : motif gris du jeu teinté bleu-vert, trous des masques en taches lumineuses
+DEK_MATS = {'Dekanima_MA_Inst', 'Dekanima_MI_Dissolve', 'Dekanima_Full_MI'}
+_dek = []
+def dek_texture():
+    from PIL import ImageFilter
+    if not _dek:
+        png = G['png']
+        base = np.asarray(Image.open(png['Dekanima_Tile_00_tx']).convert('L').resize((512, 512)), np.float32) / 255
+        r, g, _ = [np.asarray(c, np.float32) / 255 for c in Image.open(png['Dekanima_Tile_Masks_tx']).convert('RGB').resize((512, 512)).split()]
+        hole = Image.fromarray((np.clip((0.13 - np.minimum(r, g)) / 0.08, 0, 1) * 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(1.2))
+        hole = np.asarray(hole, np.float32)[..., None] / 255
+        t = np.clip(base * 1.3, 0, 1)[..., None]
+        img = np.array([22, 52, 50], np.float32) * (1 - t) + np.array([70, 128, 118], np.float32) * t
+        _dek.append(np.clip(img * (1 - hole) + np.array([95, 200, 180], np.float32) * hole, 0, 255).astype(np.uint8))
+    return _dek[0]
+_texture = texture
+def texture(mat):
+    return dek_texture() if mat in DEK_MATS else _texture(mat)
+
+# téléporteurs : leur modèle est posé par le blueprint Teleporter_C, absent de l'export ; on pose à la racine
+# de chaque acteur Teleporter_Preview_SM, le même modèle (le jeu s'en sert, réduit, comme objet de la boutique)
+for lv in Z['levels']:
+    objs = json.load(open(G['MAPS'] + lv + '.json', encoding='utf-8-sig'))
+    roots = {o['Name']: (o.get('Properties') or {}).get('RootComponent') for o in objs if o['Type'] == 'Teleporter_C'}
+    for o in objs:
+        outer = (o.get('Outer') or {}).get('ObjectName', '')
+        for a, rc in roots.items():
+            if rc and outer.endswith('PersistentLevel.' + a + "'") and rc['ObjectName'].endswith('.' + o['Name'] + "'"):
+                p = o.get('Properties') or {}; place = G['place']
+                pl.append(('Teleporter_Preview_SM', place._rot(p.get('RelativeRotation')) * place._vec(p.get('RelativeScale3D'), 1.0),
+                           place._vec(p.get('RelativeLocation')), 'c'))
 
 # cadre : points d'intérêt de la zone + marge
 dd = json.load(open(ROOT + '/map/data.json', encoding='utf-8'))

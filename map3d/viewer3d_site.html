@@ -520,7 +520,7 @@ let modelBox = new THREE.Box3(lo, hi);
     buf = buf.buffer;
   } else {
     $('load').textContent = 'Chargement du modèle…';
-    buf = await (await fetch(DIR + 'scene.glb')).arrayBuffer();
+    buf = await (await fetch(DIR + 'scene.glb?v=20261124')).arrayBuffer();   // v= : à changer quand les scene.glb changent (le .htaccess les garde 30 jours en cache)
   }
   new GLTFLoader().parse(buf, '', g => {
     g.scene.traverse(o => {
