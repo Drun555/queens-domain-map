@@ -14,7 +14,7 @@ ZONES=[ # id, label, sous-titre, niveaux
  ('sz-ruines','Zone secrète des ruines','700_SZ_GR',['700_SZ_GR']),
  ('sz-aquatique','Zone secrète aquatique','710_SZ_AQ',['710_SZ_AQ']),
  ('sz-tour','Zone secrète de la Tour','720_SZ_LIB',['720_SZ_LIB']),
- ('hod','HOD','730_HOD',['730_HOD']),
+ ('hod','Sanctuaire primordial','730_HOD',['730_HOD']),
  ('prison','Prison','740_SZ_Prison',['740_SZ_Prison']),
  ('sz-mausolee','Mausolée profond','750_SZ_MAUS2',['750_SZ_MAUS2']),
  ('dekanima','Registre du péché envahi','760_Dekanima',['760_Dekanima']),

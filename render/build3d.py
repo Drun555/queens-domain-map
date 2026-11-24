@@ -39,17 +39,20 @@ _texture = texture
 def texture(mat):
     return dek_texture() if mat in DEK_MATS else _texture(mat)
 
-# téléporteurs : leur modèle est posé par le blueprint Teleporter_C, absent de l'export ; on pose à la racine
-# de chaque acteur Teleporter_Preview_SM, le même modèle (le jeu s'en sert, réduit, comme objet de la boutique)
+# modèles posés par un blueprint (absent de l'export) : le niveau ne donne que la place de l'acteur ; on y pose le modèle
+# du jeu correspondant. Téléporteurs : Teleporter_Preview_SM est le même modèle (le jeu s'en sert, réduit, comme objet
+# de la boutique). Statues des dieux sans forme (Sanctuaire primordial, autels de Sipeha des zones secrètes).
+BP_MESH = {'Teleporter_C': 'Teleporter_Preview_SM', 'FS_Jigeki_Statue_BP_C': 'Jigeki_Statue_SM', 'FS_Puwema_Statue_BP_C': 'Puwema_Statue_SM',
+           'FS_SipehaStatue_BP_C': 'Sipeha_Statue_SM', 'FS_Wodaso_Statue_BP_C': 'Wodaso_Statue_SM'}
 for lv in Z['levels']:
     objs = json.load(open(G['MAPS'] + lv + '.json', encoding='utf-8-sig'))
-    roots = {o['Name']: (o.get('Properties') or {}).get('RootComponent') for o in objs if o['Type'] == 'Teleporter_C'}
+    roots = {o['Name']: (o['Type'], (o.get('Properties') or {}).get('RootComponent')) for o in objs if o['Type'] in BP_MESH}
     for o in objs:
         outer = (o.get('Outer') or {}).get('ObjectName', '')
-        for a, rc in roots.items():
+        for a, (cls, rc) in roots.items():
             if rc and outer.endswith('PersistentLevel.' + a + "'") and rc['ObjectName'].endswith('.' + o['Name'] + "'"):
                 p = o.get('Properties') or {}; place = G['place']
-                pl.append(('Teleporter_Preview_SM', place._rot(p.get('RelativeRotation')) * place._vec(p.get('RelativeScale3D'), 1.0),
+                pl.append((BP_MESH[cls], place._rot(p.get('RelativeRotation')) * place._vec(p.get('RelativeScale3D'), 1.0),
                            place._vec(p.get('RelativeLocation')), 'c'))
 
 # cadre : points d'intérêt de la zone + marge
