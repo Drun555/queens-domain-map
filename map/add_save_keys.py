@@ -154,5 +154,40 @@ for z in d['zones']:
         keys = KEY_FIX.get((z['id'], p[6], p[0]))
         if keys and len(p) == 7:
             p.append(list(dict.fromkeys(keys))); c[p[0]] += 1; c[p[0] + ' (sans clé)'] -= 1
+# PNJ, fantômes et souvenirs. Un PNJ mort laisse un fantôme : son GUID n'est enregistré qu'une fois le fantôme apparu.
+# Le fantôme donne le souvenir de son groupe (inventaire 'I<souvenir>', même à 0 une fois déposé), que l'on dépose
+# dans un réceptacle du HOD (GUID du réceptacle). Fantôme et souvenir : faits une fois le souvenir obtenu.
+def ghost(level, name): return 'G' + g2hex(lv[(level, name)]['Properties']['GUID'])
+def recept(name): return 'G' + g2hex(lv[('730_HOD', name)]['Properties']['GUIDs'][0])
+MEMENTO = {'Knight': 'MementoRecepticle_2', 'Fish': 'MementoRecepticle2', 'Raider': 'MementoRecepticle3', 'Librarian': 'MementoRecepticle4',
+           'Scientist': 'MementoRecepticle5', 'Chef': 'MementoRecepticle6', 'King': 'MementoRecepticle7', 'BMMC': 'MementoRecepticle8'}
+MKEYS = {m: ['I%s_Memento_Item' % m, recept(r)] for m, r in MEMENTO.items()}
+GHOSTS = {**{('100_GR', 'Ghost_' + k): 'Knight' for k in ('Arjaot', 'Budaen', 'Daon', 'Ekonta', 'Imba', 'Ippibi', 'Nu', 'Ujji')},
+          ('100_GR', 'Raider_2_Ghost'): 'Raider', ('100_GR', 'Raider_4_Ghost'): 'Raider', ('200_AQ', 'Raider_1_Ghost'): 'Raider',
+          ('200_AQ', 'Raider_Captain_Ghost'): 'Raider', ('210_AQ_underground', 'Raider_3_Ghost'): 'Raider',
+          ('200_AQ', 'Fishwife_Ghost_BP_2'): 'Fish', ('300_LIB', 'Librarian_Ghost_NPC_BP_2'): 'Librarian',
+          ('450_MAUS_darkmaze', 'BMMC_Ghost_NPC_BP_2'): 'BMMC', ('450_MAUS_darkmaze', 'Chef_Ghost_BP_2'): 'Chef',
+          ('450_MAUS_darkmaze', 'ChefCrow_Ghost_BP_2'): 'Chef', ('450_MAUS_darkmaze', 'King_Ghost_NPC_BP_2'): 'King',
+          ('500_AUT', 'Scientist_Ghost_NPC_BP_2'): 'Scientist'}
+# PNJ vivant -> son fantôme (Erma n'a pas de GUID de fantôme : le jeu note qu'elle est vaincue et qu'on a parlé à son fantôme)
+ALIVE = {('100_GR', 'Knight_SaddestPose2'): ghost('100_GR', 'Ghost_Arjaot'), ('100_GR', 'Knight_BP_Helmet3_0'): ghost('100_GR', 'Ghost_Ekonta'),
+         ('100_GR', 'Knight_Ippibi'): ghost('100_GR', 'Ghost_Ippibi'), ('300_LIB', 'Knight_Budaen_NPC_BP_2'): ghost('100_GR', 'Ghost_Budaen'),
+         ('420_MAUS_mid', 'Knight_Nu_NPC_BP_2'): ghost('100_GR', 'Ghost_Nu'), ('450_MAUS_darkmaze', 'Knight_Daon_NPC_BP_2'): ghost('100_GR', 'Ghost_Daon'),
+         ('450_MAUS_darkmaze', 'Knight_Imba_NPC_BP_2'): ghost('100_GR', 'Ghost_Imba'),
+         ('200_AQ', 'Raider_NPC_BP'): ghost('200_AQ', 'Raider_Captain_Ghost'), ('200_AQ', 'Fishwife_NPC_BP_2'): 'NEvilFishWifeDefeated',
+         ('300_LIB', 'Librarian_NPC_BP'): ghost('300_LIB', 'Librarian_Ghost_NPC_BP_2'),
+         ('450_MAUS_darkmaze', 'BMMC_NPC_BP'): ghost('450_MAUS_darkmaze', 'BMMC_Ghost_NPC_BP_2'),
+         ('450_MAUS_darkmaze', 'King_NPC_BP_2'): ghost('450_MAUS_darkmaze', 'King_Ghost_NPC_BP_2'),
+         ('450_MAUS_darkmaze', 'Chef_BP'): ghost('450_MAUS_darkmaze', 'Chef_Ghost_BP_2'), ('100_GR', 'ChefCrowEvent_NPC_2'): ghost('450_MAUS_darkmaze', 'Chef_Ghost_BP_2'),
+         ('450_MAUS_darkmaze', 'ChefCrow_NPC'): ghost('450_MAUS_darkmaze', 'ChefCrow_Ghost_BP_2'),
+         ('500_AUT', 'Scientist_NPC_BP'): ghost('500_AUT', 'Scientist_Ghost_NPC_BP_2'), ('500_AUT', 'Scientist_Kicked_NPC_2'): ghost('500_AUT', 'Scientist_Ghost_NPC_BP_2')}
+for z in d['zones']:
+    for p in z['pois']:
+        at = (z['levels'][p[5]], p[6])
+        if p[0] == 'memento': keys = MKEYS[GHOSTS[(at[0], p[6][:-len('_Souvenir')])]]
+        elif p[0] == 'npc' and at in GHOSTS: keys = MKEYS[GHOSTS[at]]
+        elif p[0] == 'npc' and at in ALIVE: keys = [ALIVE[at]] + (['NFishwifeGhostTalked'] if p[6] == 'Fishwife_NPC_BP_2' else [])
+        else: continue
+        del p[7:]; p.append(list(keys)); c[p[0]] += 1
 json.dump(d, open('data.json', 'w', encoding='utf-8'), ensure_ascii=False)
 for k, v in sorted(c.items()): print(k, v)

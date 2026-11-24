@@ -861,7 +861,7 @@ canvas.drag { cursor: grabbing; }
   else showSaveInfo();
 
   // --- progression : tous les mondes comparés à la sauvegarde ; un clic amène sur l'objet ---
-  // absents du 100 % du jeu, jamais comptés dans la progression : les notes et les runes (tous les mondes), les objets
+  // absents du 100 % du jeu, jamais comptés dans la progression : les notes, les runes et les souvenirs (récompense de fin, tous les mondes), les objets
   // de PROG_NEVER_ID (niveau/nom, un nom seul revient dans plusieurs mondes) et, par monde, PROG_SKIP_ZONE
   // les 16 murs secrets marqués « Don'tCountForAchievement » dans le jeu : sur la carte, mais hors du succès
   var PROG_NEVER_ID = {
@@ -872,7 +872,7 @@ canvas.drag { cursor: grabbing; }
     '780_SZ_Depths/SG_Gate_4': 1, '780_SZ_Depths/SG_Gate_6': 1, '780_SZ_Depths/SG_Gate_7': 1,
     '790_SG/SecretWall_2': 1
   };
-  var PROG_NEVER = { note: 1, rune: 1 }, PROG_SKIP_ZONE = {};
+  var PROG_NEVER = { note: 1, rune: 1, memento: 1 }, PROG_SKIP_ZONE = {};
   var PROG_SKIP = { enemy: 1, npc: 1, consum: 1 }, progOpenZones = {};
   try { $('progAll').checked = localStorage.getItem('neasied-prog-all') === '1'; $('progDone').checked = localStorage.getItem('neasied-prog-done') === '1'; } catch (e) {}
   function progCounts() {

@@ -15,7 +15,7 @@ ZONES = {
 CATS = {
     'save': 'Save crystals', 'tp': 'Teleporters', 'chest': 'Chests', 'unique': 'Unique weapons & items',
     'key': 'Keys & books', 'sci': "Scientist's parts", 'upgrade': 'Upgrades', 'ticket': 'Meal tickets', 'skull': 'Silver skulls (Skull Key Relic)',
-    'collect': 'Collectibles', 'egg': 'Eggs', 'energy': 'Energy cells', 'bestiaire': 'Bestiary (1 per creature)', 'npc': 'NPCs',
+    'collect': 'Collectibles', 'egg': 'Eggs', 'memento': 'Mementos', 'energy': 'Energy cells', 'bestiaire': 'Bestiary (1 per creature)', 'npc': 'NPCs',
     'note': 'Notes & tablets', 'rune': 'God runes', 'flesh': 'Flesh walls', 'secret': 'Secret walls & doors', 'boss': 'Bosses & unique enemies',
     'challenge': 'Challenge zones', 'consum': 'Consumables & coins', 'enemy': 'Enemies',
 }
@@ -28,7 +28,7 @@ POI = [  # noms d'objets : seules quelques étiquettes ajoutées par le site son
     (r'^Porte secrète \(3 cibles\)', 'Secret door (3 targets)'),
     (r'^Porte secrète \(2 gargouilles\)', 'Secret door (2 gargoyles)'),
     (r"^Noix mystique de l'arbre blanc", 'Mystical Nut of the White Tree'),
-    (r'^Ticket resto', 'Meal ticket'),
+    (r'^Ticket resto', 'Meal ticket'), (r'^Souvenir \(', 'Memento ('),
     (r'^Rune de Jigeki', 'Jigeki rune'), (r'^Rune de Puwema', 'Puwema rune'),
     (r'^Rune de Sipeha', 'Sipeha rune'), (r'^Rune de Wodaso', 'Wodaso rune'),
     (r'^Pièce du scientifique n°', "Scientist's part #"), (r'^Zone de défi', 'Challenge zone'),

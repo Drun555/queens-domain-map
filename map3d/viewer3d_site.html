@@ -738,7 +738,7 @@ frame();
 
 // --- progression : tous les mondes comparés à la sauvegarde, sans quitter la vue 3D ---
 // les autres mondes sont lus dans leur zone.json ; un clic sur un objet ouvre son monde en 3D et vole jusqu'à lui
-// absents du 100 % du jeu, jamais comptés dans la progression : les notes et les runes (tous les mondes), les objets
+// absents du 100 % du jeu, jamais comptés dans la progression : les notes, les runes et les souvenirs (récompense de fin, tous les mondes), les objets
 // de PROG_NEVER_ID (niveau/nom, un nom seul revient dans plusieurs mondes) et, par monde, PROG_SKIP_ZONE
 // les 16 murs secrets marqués « Don'tCountForAchievement » dans le jeu : sur la carte, mais hors du succès
 const PROG_NEVER_ID = {
@@ -749,7 +749,7 @@ const PROG_NEVER_ID = {
   '780_SZ_Depths/SG_Gate_4': 1, '780_SZ_Depths/SG_Gate_6': 1, '780_SZ_Depths/SG_Gate_7': 1,
   '790_SG/SecretWall_2': 1
 };
-const PROG_NEVER = { note: 1, rune: 1 }, PROG_SKIP_ZONE = {};
+const PROG_NEVER = { note: 1, rune: 1, memento: 1 }, PROG_SKIP_ZONE = {};
 const PROG_SKIP = { enemy: 1, npc: 1, consum: 1 }, progOpenZones = { [zid]: true }, allZones = { [zid]: zone };
 let allLoaded = false, allLoading = null;
 const trName = n => typeof L10N !== 'undefined' ? L10N.poi.reduce((s, [a, b]) => s.replace(new RegExp(a), b), n) : n;

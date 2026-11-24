@@ -33,7 +33,7 @@ OFFSET={'900_SipehaWorld':(28000,-35000,20000)}
 CATS=[ # id,label,color,default
  ('save','Cristaux de sauvegarde','#7fe3ff',1),('tp','Téléporteurs','#b79bff',1),('chest','Coffres','#ffc24a',1),
  ('unique','Armes et objets uniques','#ff7a59',1),('key','Clés et livres','#f2e36b',1),('sci','Pièces du scientifique','#4f8cff',1),('upgrade','Améliorations','#6fe08c',1),('ticket','Tickets resto','#b5f23d',1),
- ('skull','Crânes argentés (Skull Key Relic)','#c9d2de',1),('collect','Collectibles','#ff9ad5',1),('egg','Œufs','#ffb38a',1),('npc','PNJ','#ffffff',1),('note','Notes et tablettes','#c9b48a',1),('rune','Runes des dieux','#e64cf5',1),
+ ('skull','Crânes argentés (Skull Key Relic)','#c9d2de',1),('collect','Collectibles','#ff9ad5',1),('egg','Œufs','#ffb38a',1),('memento','Souvenirs','#d9b8ff',1),('npc','PNJ','#ffffff',1),('note','Notes et tablettes','#c9b48a',1),('rune','Runes des dieux','#e64cf5',1),
  ('flesh','Murs de chair','#e0527a',1),('secret','Murs et portes secrets','#5fd0b8',1),('boss','Boss et ennemis uniques','#ff3b3b',0),
  ('challenge','Zones de défi','#9fb4ff',0),('consum','Consommables et pièces','#b8a24a',0),
  ('enemy','Ennemis','#a05a5a',0),
@@ -62,7 +62,7 @@ def cat(t,p):
     if t in('SecretWall_C','ScienceSecretWall_C') or re.search(r'SecretZoneDoor|SecretSkull|SecretTeleporter',t): return 'secret'
     if t=='ChallengeCompleteVolume_C': return 'challenge'
     if re.search(r'Oldnotes|SmallTablet|^Note$',t): return 'note'
-    if re.search(r'NPC|Shopkeeper',t) and 'Collision' not in t: return 'npc'
+    if (re.search(r'NPC|Shopkeeper',t) or t.endswith('_Ghost_BP_C')) and 'Collision' not in t: return 'npc'   # fantômes du chef, d'En et d'Erma : sans « NPC »
     if t.endswith('Spawner_C') or t.endswith('Spawner_BP_C') or t.endswith('Spawner_Default_C') or 'TrapDecoy' in t or t.startswith('Potion_Lizer'):
         if FX.search(t): return None
         if re.search(r'Boss|Miniboss',t) or (tc[t]==1 and 'TrapDecoy' not in t): return 'boss'
@@ -78,6 +78,11 @@ def cat(t,p):
     return None
 # objets retirés de la carte : rien à trouver pour le joueur (zone, nom interne)
 EXCLURE={('jardin-de-pierre','SecretTeleporterDestination2_2')}
+# souvenirs : un par groupe de PNJ, donné par son fantôme une fois le PNJ mort, à déposer au HOD (Épée spectrale).
+# Point posé sur le fantôme qui le donne ; chevaliers et pillards : celui du commandant Ekonta et du capitaine Aganmi
+SOUVENIRS={('100_GR','Ghost_Ekonta'),('200_AQ','Raider_Captain_Ghost'),('200_AQ','Fishwife_Ghost_BP_2'),('300_LIB','Librarian_Ghost_NPC_BP_2'),
+           ('450_MAUS_darkmaze','BMMC_Ghost_NPC_BP_2'),('450_MAUS_darkmaze','Chef_Ghost_BP_2'),('450_MAUS_darkmaze','King_Ghost_NPC_BP_2'),
+           ('500_AUT','Scientist_Ghost_NPC_BP_2')}
 # portes secrètes qui demandent plusieurs activations : le nom dit lesquelles (niveau, nom interne)
 PORTES={('420_MAUS_mid','SecretWall22'):'Porte secrète (runes des 4 dieux)',
         ('790_SG','SecretWall_2'):'Porte secrète (runes des 4 dieux)',
@@ -141,6 +146,8 @@ for zid,zl,zs,levels in ZONES:
                 # copies inutilisées laissées par les développeurs : jamais ramassables (absentes d'une sauvegarde à 100 %)
                 if c in ('unique','upgrade','collect') and (ln, a['n']) in DEV_LEFTOVERS: continue
                 pois.append([c,round(x),round(y),round(z),lab,li,a['n']]); tot[c]+=1
+                if (ln,a['n']) in SOUVENIRS:   # identifiant distinct de celui du fantôme (cases « trouvé »)
+                    pois.append(['memento',round(x),round(y),round(z),'Souvenir ('+lab.replace(' (fantôme)','')+')',li,a['n']+'_Souvenir']); tot['memento']+=1
             if ln not in SANS_DECOR: bg.add((round(x/150),round(y/150),round(z/300)))
     # clip outliers for bg using percentiles
     xs=sorted(b[0] for b in bg); ys=sorted(b[1] for b in bg); zs_=sorted(b[2] for b in bg)
