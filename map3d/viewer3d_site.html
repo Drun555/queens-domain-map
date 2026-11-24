@@ -127,9 +127,10 @@ ul { list-style: none; margin: 0; padding: 0; }
 .cats { display: flex; flex-direction: column; }
 .cats li { border-top: 1px solid var(--line); }
 .cats li:last-child { border-bottom: 1px solid var(--line); }
-.cats label { display: grid; grid-template-columns: 18px 14px 1fr auto; align-items: center; gap: 8px; padding: 6px 2px; cursor: pointer; }
+.cats label { display: grid; grid-template-columns: 18px 20px 1fr auto; align-items: center; gap: 8px; padding: 6px 2px; cursor: pointer; }
 .cats input { margin: 0; accent-color: var(--gold); width: 15px; height: 15px; }
 .sw { width: 11px; height: 11px; border-radius: 50%; border: 1px solid rgba(0,0,0,.6); }
+.swi { width: 20px; height: 20px; display: block; }
 .cnt { color: var(--dim); font-size: 13px; font-variant-numeric: tabular-nums; white-space: nowrap; text-align: right; min-width: 58px; }
 #cutv { color: var(--ink); font-variant-numeric: tabular-nums; letter-spacing: 0; text-transform: none; font-weight: 500; }
 #res { max-height: 210px; overflow: auto; }
@@ -549,41 +550,82 @@ const on = {}; zone.cats.forEach(c => on[c.id] = !!c.on);
 // catégories cochées : partagées avec la carte 2D et gardées d'une zone à l'autre
 try { const sv = JSON.parse(localStorage.getItem('neasied-cats') || 'null'); if (sv) zone.cats.forEach(c => { if (c.id in sv) on[c.id] = !!sv[c.id]; }); } catch (e) {}
 const saveCats = () => { try { const all = JSON.parse(localStorage.getItem('neasied-cats') || '{}') || {}; Object.assign(all, on); localStorage.setItem('neasied-cats', JSON.stringify(all)); } catch (e) {} };
-function dot(color, done) {
-  const cv = document.createElement('canvas'); cv.width = cv.height = 64;
-  const x = cv.getContext('2d');
-  if (done) {   // fait : pastille sombre teintée de la couleur de la catégorie, contour coloré et coche
-    x.beginPath(); x.arc(32, 32, 24, 0, Math.PI * 2); x.fillStyle = '#121722'; x.fill();
-    x.globalAlpha = 0.38; x.fillStyle = color; x.fill(); x.globalAlpha = 1;
-    x.lineWidth = 5; x.strokeStyle = color; x.stroke();
-    x.beginPath(); x.moveTo(21, 33); x.lineTo(29, 41); x.lineTo(44, 24);
+  // --- icônes des catégories : formes simples dessinées dans un carré de -1 à 1 (blanc sur la couleur du point)
+  var ICONS = (function () {
+    function L(c, pts) { c.beginPath(); c.moveTo(pts[0], pts[1]); for (var i = 2; i < pts.length; i += 2) c.lineTo(pts[i], pts[i + 1]); }
+    function circ(c, x, y, r) { c.beginPath(); c.arc(x, y, r, 0, 6.2832); }
+    return {
+      save: function (c) { L(c, [0, -0.62, 0.36, -0.05, 0, 0.62, -0.36, -0.05]); c.closePath(); c.fill(); },
+      tp: function (c) { circ(c, 0, 0, 0.5); c.stroke(); circ(c, 0, 0, 0.2); c.fill(); },
+      chest: function (c, bg) { c.fillRect(-0.58, -0.12, 1.16, 0.56); c.beginPath(); c.moveTo(-0.58, -0.12); c.lineTo(-0.58, -0.3); c.quadraticCurveTo(0, -0.62, 0.58, -0.3); c.lineTo(0.58, -0.12); c.closePath(); c.fill();
+        c.fillStyle = bg; c.fillRect(-0.58, -0.17, 1.16, 0.1); c.fillRect(-0.09, -0.12, 0.18, 0.22); },
+      unique: function (c) { L(c, [-0.5, 0.5, 0.52, -0.52]); c.stroke(); L(c, [-0.44, 0.06, -0.06, 0.44]); c.stroke(); },
+      key: function (c) { circ(c, -0.32, 0, 0.22); c.stroke(); L(c, [-0.1, 0, 0.58, 0, 0.58, 0.22]); c.stroke(); L(c, [0.36, 0, 0.36, 0.18]); c.stroke(); },
+      sci: function (c) { for (var i = 0; i < 8; i++) { var a = i * 0.7854; L(c, [Math.cos(a) * 0.3, Math.sin(a) * 0.3, Math.cos(a) * 0.58, Math.sin(a) * 0.58]); c.stroke(); } circ(c, 0, 0, 0.32); c.stroke(); },
+      upgrade: function (c) { L(c, [0, 0.55, 0, -0.45]); c.stroke(); L(c, [-0.38, -0.08, 0, -0.5, 0.38, -0.08]); c.stroke(); },
+      ticket: function (c, bg) { c.fillRect(-0.6, -0.32, 1.2, 0.64); c.fillStyle = bg; for (var y = -0.26; y < 0.3; y += 0.18) c.fillRect(0.16, y, 0.07, 0.1); },
+      skull: function (c, bg) { circ(c, 0, -0.1, 0.46); c.fill(); c.fillRect(-0.24, 0.2, 0.48, 0.34); c.fillStyle = bg; circ(c, -0.18, -0.08, 0.13); c.fill(); circ(c, 0.18, -0.08, 0.13); c.fill(); c.fillRect(-0.03, 0.3, 0.06, 0.24); },
+      collect: function (c) { c.beginPath(); for (var i = 0; i < 10; i++) { var a = -1.5708 + i * 0.6283, r = i % 2 ? 0.26 : 0.62; c.lineTo(Math.cos(a) * r, Math.sin(a) * r + 0.05); } c.closePath(); c.fill(); },
+      egg: function (c) { c.beginPath(); c.ellipse(0, 0.06, 0.38, 0.52, 0, 0, 6.2832); c.fill(); },
+      memento: function (c) { circ(c, 0, 0.15, 0.36); c.fill(); circ(c, 0, -0.38, 0.13); c.stroke(); },
+      energy: function (c) { L(c, [0.12, -0.62, -0.38, 0.08, -0.02, 0.08, -0.14, 0.62, 0.38, -0.1, 0.02, -0.1]); c.closePath(); c.fill(); },
+      bestiaire: function (c) { c.beginPath(); c.ellipse(0, 0.22, 0.3, 0.26, 0, 0, 6.2832); c.fill(); circ(c, -0.42, -0.1, 0.13); c.fill(); circ(c, -0.15, -0.38, 0.13); c.fill(); circ(c, 0.15, -0.38, 0.13); c.fill(); circ(c, 0.42, -0.1, 0.13); c.fill(); },
+      npc: function (c) { circ(c, 0, -0.3, 0.22); c.fill(); c.beginPath(); c.ellipse(0, 0.48, 0.46, 0.4, 0, 3.1416, 6.2832); c.fill(); },
+      note: function (c, bg) { c.fillRect(-0.42, -0.55, 0.84, 1.1); c.fillStyle = bg; for (var y = -0.34; y < 0.4; y += 0.22) c.fillRect(-0.26, y, 0.52, 0.08); },
+      rune: function (c) { L(c, [-0.18, -0.58, -0.18, 0.58]); c.stroke(); L(c, [-0.18, -0.3, 0.34, -0.58]); c.stroke(); L(c, [-0.18, 0.02, 0.34, -0.26]); c.stroke(); },
+      flesh: function (c) { c.beginPath(); c.moveTo(0, -0.6); c.bezierCurveTo(0.2, -0.25, 0.45, 0, 0.45, 0.2); c.arc(0, 0.2, 0.45, 0, 3.1416); c.bezierCurveTo(-0.45, 0, -0.2, -0.25, 0, -0.6); c.fill(); },
+      secret: function (c, bg) { c.beginPath(); c.moveTo(-0.4, 0.58); c.lineTo(-0.4, -0.12); c.arc(0, -0.12, 0.4, 3.1416, 0); c.lineTo(0.4, 0.58); c.closePath(); c.fill(); c.fillStyle = bg; circ(c, 0.18, 0.12, 0.08); c.fill(); },
+      boss: function (c) { L(c, [-0.58, 0.42, -0.58, -0.3, -0.28, 0.02, 0, -0.5, 0.28, 0.02, 0.58, -0.3, 0.58, 0.42]); c.closePath(); c.fill(); },
+      challenge: function (c) { L(c, [-0.36, 0.6, -0.36, -0.58]); c.stroke(); L(c, [-0.36, -0.58, 0.5, -0.32, -0.36, -0.06]); c.closePath(); c.fill(); },
+      consum: function (c) { circ(c, 0, 0, 0.5); c.stroke(); circ(c, 0, 0, 0.2); c.fill(); },
+      enemy: function (c) { L(c, [-0.45, -0.45, 0.45, 0.45]); c.stroke(); L(c, [0.45, -0.45, -0.45, 0.45]); c.stroke(); },
+    };
+  })();
+  // dessine l'icône d'une catégorie au centre (x, y), taille s (demi-côté en px), couleur ink sur le fond bg
+  function drawIcon(c, id, x, y, s, ink, bg) {
+    var f = ICONS[id]; if (!f) return;
+    c.save(); c.translate(x, y); c.scale(s, s);
+    c.fillStyle = ink; c.strokeStyle = ink; c.lineWidth = 0.17; c.lineCap = 'round'; c.lineJoin = 'round';
+    f(c, bg); c.restore();
+  }
+// point d'un objet : pastille de la couleur de la catégorie avec son icône ; fait : icône pâle et petite coche verte
+function dot(id, color, done) {
+  const cv = document.createElement('canvas'); cv.width = cv.height = 128;
+  const x = cv.getContext('2d'), cx = 60, cy = 68, r = 44;
+  x.beginPath(); x.arc(cx, cy, r, 0, Math.PI * 2);
+  if (done) {
+    x.fillStyle = '#121722'; x.fill(); x.globalAlpha = 0.38; x.fillStyle = color; x.fill(); x.globalAlpha = 1;
+    x.lineWidth = 7; x.strokeStyle = color; x.stroke();
+    x.globalAlpha = 0.6; drawIcon(x, id, cx, cy, r * 0.62, '#ffffff', '#3a3f4a'); x.globalAlpha = 1;
+    x.beginPath(); x.arc(100, 28, 21, 0, Math.PI * 2); x.fillStyle = '#3fae6a'; x.fill(); x.lineWidth = 5; x.strokeStyle = '#0f131d'; x.stroke();
+    x.beginPath(); x.moveTo(91, 29); x.lineTo(98, 36); x.lineTo(110, 21);
     x.lineWidth = 6; x.lineCap = 'round'; x.lineJoin = 'round'; x.strokeStyle = '#ffffff'; x.stroke();
   } else {
-    x.beginPath(); x.arc(32, 32, 24, 0, Math.PI * 2); x.fillStyle = color; x.fill();
-    x.lineWidth = 6; x.strokeStyle = 'rgba(8,10,16,0.9)'; x.stroke();
+    x.fillStyle = color; x.fill(); x.lineWidth = 8; x.strokeStyle = 'rgba(8,10,16,0.9)'; x.stroke();
+    drawIcon(x, id, cx, cy, r * 0.62, 'rgba(10,12,18,0.85)', color);
   }
   const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; return t;
 }
 const texByCat = {}, markers = [];
 const markerTex = p => { const done = isDone(p), key = p.c + (done ? '_done' : ''); p.done = done;
-  return texByCat[key] || (texByCat[key] = dot(cats[p.c].color, done)); };
+  return texByCat[key] || (texByCat[key] = dot(p.c, cats[p.c].color, done)); };
 zone.pois.forEach(p => {
   const c = cats[p.c]; if (!c) return;
   const tex = markerTex(p);
   const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthTest: false, sizeAttenuation: false }));
-  s.scale.set(0.024, 0.024, 1); s.position.set(p.x, p.y + 0.5, p.z); s.renderOrder = 10; s.userData = p;
+  s.scale.set(0.034, 0.034, 1); s.position.set(p.x, p.y + 0.5, p.z); s.renderOrder = 10; s.userData = p;
   scene.add(s); markers.push(s);
 });
 const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: (() => { const cv = document.createElement('canvas'); cv.width = cv.height = 64;
   const x = cv.getContext('2d'); x.beginPath(); x.arc(32, 32, 27, 0, Math.PI * 2); x.lineWidth = 5; x.strokeStyle = '#e9b949'; x.stroke();
   const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; return t; })(), depthTest: false, sizeAttenuation: false }));
-halo.scale.set(0.05, 0.05, 1); halo.renderOrder = 11; halo.visible = false; scene.add(halo);
+halo.scale.set(0.056, 0.056, 1); halo.renderOrder = 11; halo.visible = false; scene.add(halo);
 let selected = null;
 function selectMarker(m) {
-  if (selected) selected.scale.set(0.024, 0.024, 1);
+  if (selected) selected.scale.set(0.034, 0.034, 1);
   selected = m;
   if (!m) { halo.visible = false; $('card').style.display = 'none'; return; }
-  m.scale.set(0.036, 0.036, 1); halo.position.copy(m.position); halo.visible = m.visible;
+  m.scale.set(0.046, 0.046, 1); halo.position.copy(m.position); halo.visible = m.visible;
   const p = m.userData;
   $('cn').textContent = p.n + (p.done ? ' ✓' : ''); $('cc').textContent = cats[p.c].label + (p.done ? ' · déjà fait' : ''); $('ch').textContent = Math.round(p.y) + ' m' + (floorOf(p) >= 0 ? ' · étage ' + (floorOf(p) + 1) : '');
   $('cf').checked = p.done;
@@ -633,7 +675,8 @@ zone.cats.forEach(c => {
   const li = document.createElement('li'), lab = document.createElement('label');
   const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = on[c.id]; cbs[c.id] = cb;
   cb.addEventListener('change', () => { on[c.id] = cb.checked; saveCats(); refresh(); });
-  const sw = document.createElement('span'); sw.className = 'sw'; sw.style.background = c.color;
+  const sw = document.createElement('canvas'); sw.className = 'swi'; sw.width = sw.height = 36;
+  { const g = sw.getContext('2d'); g.beginPath(); g.arc(18, 18, 16, 0, 6.2832); g.fillStyle = c.color; g.fill(); drawIcon(g, c.id, 18, 18, 13.5, 'rgba(10,12,18,0.85)', c.color); }
   const nm = document.createElement('span'); nm.textContent = c.label;
   const ct = document.createElement('span'); ct.className = 'cnt'; cnts[c.id] = ct;
   lab.append(cb, sw, nm, ct); li.appendChild(lab); $('cats').appendChild(li);
