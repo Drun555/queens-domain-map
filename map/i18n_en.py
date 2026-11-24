@@ -43,6 +43,7 @@ DESC3_FR = "Explore Queen's Domain en 3D : chaque monde avec ses étages, ses co
 DESC3_EN = "Explore Queen's Domain in 3D: every world with its floors, chests, silver skulls and secrets. Click an item to see it from above."
 
 COMMON = [
+    ('<span>Dernière sauvegarde : </span>', '<span>Last save: </span>'), ("' · dernière sauvegarde'", "' · last save'"),
     ('<html lang="fr">', '<html lang="en">'),
     ('<meta property="og:locale" content="fr_FR">', '<meta property="og:locale" content="en_GB">'),
     ('<meta property="og:site_name" content="Carte de Neasied">', '<meta property="og:site_name" content="Neasied Map">'),

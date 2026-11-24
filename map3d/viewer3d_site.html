@@ -141,6 +141,11 @@ ul { list-style: none; margin: 0; padding: 0; }
 #saveInfo { font-size: 13px; color: var(--ink); font-variant-numeric: tabular-nums; margin: 0; }
 #saveInfo:empty { display: none; }
 #saveInfo.err { color: #ff8a7a; }
+.last-save { display: block; width: 100%; margin: 6px 0 2px; padding: 6px 8px; text-align: left; font: inherit; font-size: 13px; line-height: 1.35;
+  color: var(--ink); background: rgba(127,227,255,.08); border: 1px solid rgba(127,227,255,.35); border-radius: 6px; cursor: pointer; }
+.last-save:hover { background: rgba(127,227,255,.16); }
+.last-save b { color: #7fe3ff; font-weight: 600; }
+.last-save i { font-style: normal; color: var(--mut, #8d95a8); }
 .group > label.chk, .chk { display: flex; align-items: center; justify-content: flex-start; gap: 8px; font-size: 13.5px; font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--ink); cursor: pointer; }
 .chk input { margin: 0; accent-color: var(--gold); width: 15px; height: 15px; }
 .where summary { cursor: pointer; font-size: 12.5px; color: var(--dim); }
@@ -254,6 +259,7 @@ body.dropping #view::after { content: 'Dépose ta sauvegarde (World0.sav, World1
       <div class="lbl"><span>Ma sauvegarde</span></div>
       <p class="save-hint">Charge ton fichier de sauvegarde (<b>World0.sav</b>, <b>World1.sav</b>…) : ce que tu as déjà fait est grisé. Le fichier est lu dans ton navigateur et n'est envoyé nulle part.</p>
       <div id="saveInfo"></div>
+      <button class="last-save" id="lastSave" type="button" hidden></button>
       <div class="btns"><button id="saveLoad" type="button">Charger ma sauvegarde</button><button id="saveClear" type="button" hidden>Oublier</button></div>
       <input id="saveFile" type="file" accept=".sav" hidden>
       <label class="chk"><input id="hideDone" type="checkbox"> Masquer ce qui est déjà fait</label>
@@ -377,6 +383,8 @@ try { unfound = JSON.parse(localStorage.getItem('neasied-unfound') || '{}') || {
     p = props[nm].off; var c = i32();
     for (var q = 0; q < c; q++) { var path = fstr(); have['O' + path.slice(path.lastIndexOf('.') + 1)] = 1; }
   });
+  // dernier cristal de sauvegarde utilisé : clé 'L<nom>' (même nom que la clé 'O<nom>' du cristal)
+  if (props.SavePointID) { p = props.SavePointID.off; var sp = fstr(); if (sp) have['L' + sp.slice(sp.lastIndexOf('.') + 1)] = 1; }
   return have;
 }
 
@@ -620,6 +628,13 @@ const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: (() => { const cv 
   const x = cv.getContext('2d'); x.beginPath(); x.arc(32, 32, 27, 0, Math.PI * 2); x.lineWidth = 5; x.strokeStyle = '#e9b949'; x.stroke();
   const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; return t; })(), depthTest: false, sizeAttenuation: false }));
 halo.scale.set(0.056, 0.056, 1); halo.renderOrder = 11; halo.visible = false; scene.add(halo);
+// dernier cristal de sauvegarde utilisé : anneau bleu clair (placé une fois la sauvegarde lue)
+const lastRing = new THREE.Sprite(new THREE.SpriteMaterial({ map: (() => { const cv = document.createElement('canvas'); cv.width = cv.height = 64;
+  const x = cv.getContext('2d'); x.beginPath(); x.arc(32, 32, 27, 0, Math.PI * 2); x.lineWidth = 8; x.strokeStyle = 'rgba(127,227,255,0.35)'; x.stroke();
+  x.beginPath(); x.arc(32, 32, 27, 0, Math.PI * 2); x.lineWidth = 3; x.strokeStyle = '#7fe3ff'; x.stroke();
+  const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; return t; })(), depthTest: false, sizeAttenuation: false }));
+lastRing.scale.set(0.068, 0.068, 1); lastRing.renderOrder = 9; lastRing.visible = false; scene.add(lastRing);
+let lastSaveM = null;
 let selected = null;
 function selectMarker(m) {
   if (selected) selected.scale.set(0.034, 0.034, 1);
@@ -627,7 +642,7 @@ function selectMarker(m) {
   if (!m) { halo.visible = false; $('card').style.display = 'none'; return; }
   m.scale.set(0.046, 0.046, 1); halo.position.copy(m.position); halo.visible = m.visible;
   const p = m.userData;
-  $('cn').textContent = p.n + (p.done ? ' ✓' : ''); $('cc').textContent = cats[p.c].label + (p.done ? ' · déjà fait' : ''); $('ch').textContent = Math.round(p.y) + ' m' + (floorOf(p) >= 0 ? ' · étage ' + (floorOf(p) + 1) : '');
+  $('cn').textContent = p.n + (p.done ? ' ✓' : ''); $('cc').textContent = cats[p.c].label + (m === lastSaveM ? ' · dernière sauvegarde' : '') + (p.done ? ' · déjà fait' : ''); $('ch').textContent = Math.round(p.y) + ' m' + (floorOf(p) >= 0 ? ' · étage ' + (floorOf(p) + 1) : '');
   $('cf').checked = p.done;
   $('cft').textContent = bySave(p) ? (unfound[p.id] ? 'Pas fait (corrigé à la main)' : 'Fait (d\'après ta sauvegarde)') : 'Trouvé';
   $('card').style.display = 'block';
@@ -652,6 +667,7 @@ function refresh() {
   const hide = $('hideDone').checked;
   markers.forEach(m => m.visible = matches(m.userData) && m.userData.y >= yMin && m.userData.y <= yMax && !(hide && m.userData.done));
   if (selected) halo.visible = selected.visible;
+  if (lastSaveM) lastRing.visible = lastSaveM.visible;
   // liste des résultats de recherche : un clic amène la caméra sur l'objet
   const q = $('q').value.trim().toLowerCase(), res = $('res'); res.innerHTML = '';
   if (!q) return;
@@ -882,6 +898,20 @@ function modelReady() {
 }
 if (/progression/.test(location.search) || (() => { try { return sessionStorage.getItem('neasied-prog3d') === '1'; } catch (e) { return false; } })()) openProg(true);
 else if (hasProgress()) loadAllZones();
+// dernier cristal de sauvegarde utilisé (clé 'L<nom>') : marqué s'il est dans ce monde ; la ligne du panneau y amène
+{ const L = saveHave && [...saveHave].find(k => k[0] === 'L'), key = L && 'O' + L.slice(1);
+  const isIt = p => p.c === 'save' && (p.k || []).includes(key);
+  if (key) {
+    lastSaveM = markers.find(m => isIt(m.userData)) || null;
+    if (lastSaveM) { lastRing.position.copy(lastSaveM.position); lastRing.visible = lastSaveM.visible; }
+    loadAllZones().then(() => {
+      const zl = ZLIST.find(z => ((allZones[z.id] || {}).pois || []).some(isIt)); if (!zl) return;
+      const p = allZones[zl.id].pois.find(isIt), b = $('lastSave');
+      b.innerHTML = '📍 <span>Dernière sauvegarde : </span><b></b> <i></i>';
+      b.querySelector('b').textContent = p.n; b.querySelector('i').textContent = '(' + zl.label + ')'; b.hidden = false;
+      b.onclick = () => progGoTo(zl.id, p);
+    });
+  } }
 
 // --- survol et clic ---
 function pick(ev) {

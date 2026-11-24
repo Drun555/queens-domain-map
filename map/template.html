@@ -117,6 +117,11 @@ input[type="range"] { width: 100%; accent-color: var(--gold); }
 .save-hint { margin: 0; color: var(--dim); font-size: 12.5px; line-height: 1.45; }
 .save-info { font-size: 13px; color: var(--ink); font-variant-numeric: tabular-nums; }
 .save-info.err { color: #ff8a7a; }
+.last-save { display: block; width: 100%; margin: 6px 0 2px; padding: 6px 8px; text-align: left; font: inherit; font-size: 13px; line-height: 1.35;
+  color: var(--ink); background: rgba(127,227,255,.08); border: 1px solid rgba(127,227,255,.35); border-radius: 6px; cursor: pointer; }
+.last-save:hover { background: rgba(127,227,255,.16); }
+.last-save b { color: #7fe3ff; font-weight: 600; }
+.last-save i { font-style: normal; color: var(--mut, #8d95a8); }
 .group > label.chk, .chk { display: flex; align-items: center; justify-content: flex-start; gap: 8px; font-size: 13.5px; font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--ink); cursor: pointer; }
 .chk input { margin: 0; accent-color: var(--gold); width: 15px; height: 15px; }
 .where summary { cursor: pointer; font-size: 12.5px; color: var(--dim); }
@@ -258,6 +263,7 @@ canvas.drag { cursor: grabbing; }
       <div class="lbl"><span>Ma sauvegarde</span></div>
       <p class="save-hint">Charge ton fichier de sauvegarde (<b>World0.sav</b>, <b>World1.sav</b>…) : ce que tu as déjà fait est grisé sur la carte. Le fichier est lu dans ton navigateur et n'est envoyé nulle part.</p>
       <div class="save-info" id="saveInfo" hidden></div>
+      <button class="last-save" id="lastSave" type="button" hidden></button>
       <div class="mini">
         <button id="saveLoad" type="button">Charger ma sauvegarde</button>
         <button id="saveClear" type="button" hidden>Oublier</button>
@@ -696,6 +702,12 @@ canvas.drag { cursor: grabbing; }
       else { ctx.fillStyle = cat.color; ctx.fill(); ctx.strokeStyle = 'rgba(8,10,16,0.9)'; ctx.stroke();
         if (ico) drawIcon(ctx, p[0], x, y, r * 0.84, 'rgba(10,12,18,0.85)', cat.color); }
     }
+    // dernier cristal de sauvegarde utilisé : double anneau bleu clair
+    if (S.last && z.pois.indexOf(S.last) >= 0 && visible(S.last)) {
+      var lx = sx(S.last[1]), ly = sy(S.last[2]), lr = S.view.k >= ICON_K ? 21 : 11;
+      ctx.beginPath(); ctx.arc(lx, ly, lr, 0, 6.2832); ctx.strokeStyle = 'rgba(127,227,255,0.35)'; ctx.lineWidth = 6; ctx.stroke();
+      ctx.beginPath(); ctx.arc(lx, ly, lr, 0, 6.2832); ctx.strokeStyle = '#7fe3ff'; ctx.lineWidth = 2; ctx.stroke();
+    }
     [S.hover, S.sel].forEach(function (q, n) {
       if (!q || !visible(q)) return;
       ctx.beginPath(); ctx.arc(sx(q[1]), sy(q[2]), (S.view.k >= ICON_K ? 6 : 0) + (n ? 11 : 9), 0, 6.2832);
@@ -756,7 +768,7 @@ canvas.drag { cursor: grabbing; }
     S.sel = p; var card = $('card');
     if (!p) { card.style.display = 'none'; draw(); return; }
     var z = ZONES[S.zone];
-    $('cTitle').textContent = p[4]; $('cCat').textContent = catById[p[0]].label; $('cLvl').textContent = z.levels[p[5]];
+    $('cTitle').textContent = p[4]; $('cCat').textContent = catById[p[0]].label + (p === S.last ? ' · dernière sauvegarde' : ''); $('cLvl').textContent = z.levels[p[5]];
     $('cZ').textContent = fmtM(p[3]); $('cName').textContent = p[6];
     var bySave = !!saveDone[key(z, p)];
     $('cFound').checked = isDone(z, p); $('cFound').disabled = false;   // décochable même si la sauvegarde le donne fait
@@ -827,6 +839,8 @@ canvas.drag { cursor: grabbing; }
       p = props[nm].off; var c = i32();
       for (var q = 0; q < c; q++) { var path = fstr(); have['O' + path.slice(path.lastIndexOf('.') + 1)] = 1; }
     });
+    // dernier cristal de sauvegarde utilisé : clé 'L<nom>' (même nom que la clé 'O<nom>' du cristal)
+    if (props.SavePointID) { p = props.SavePointID.off; var sp = fstr(); if (sp) have['L' + sp.slice(sp.lastIndexOf('.') + 1)] = 1; }
     return have;
   }
   function applySave(have, fileName, keep) {
@@ -856,7 +870,23 @@ canvas.drag { cursor: grabbing; }
     showSaveInfo(); refresh(); if (S.sel) select(S.sel);
     if (typeof renderProg === 'function') renderProg();
   }
+  // dernier cristal de sauvegarde utilisé : retrouvé par sa clé 'O<nom>' dans tous les mondes
+  function lastSave() {
+    if (!saveHave) return null;
+    var n = null; for (var k in saveHave) if (k.charAt(0) === 'L') { n = 'O' + k.slice(1); break; }
+    if (!n) return null;
+    for (var zi = 0; zi < ZONES.length; zi++) for (var i = 0, ps = ZONES[zi].pois; i < ps.length; i++)
+      if (ps[i][0] === 'save' && (ps[i][7] || []).indexOf(n) >= 0) return { zi: zi, p: ps[i] };
+    return null;
+  }
+  function showLast() {
+    var b = $('lastSave'), ls = saveMeta && lastSave(); S.last = ls ? ls.p : null;
+    if (!ls) { b.hidden = true; return; }
+    b.innerHTML = '📍 <span>Dernière sauvegarde : </span><b></b> <i></i>';
+    b.querySelector('b').textContent = ls.p[4]; b.querySelector('i').textContent = '(' + ZONES[ls.zi].label + ')'; b.hidden = false;
+  }
   function showSaveInfo(err) {
+    showLast();
     var el = $('saveInfo');
     if (err) { el.hidden = false; el.className = 'save-info err'; el.textContent = err; return; }
     el.className = 'save-info';
@@ -887,6 +917,7 @@ canvas.drag { cursor: grabbing; }
     r.readAsArrayBuffer(f);
   }
   $('saveLoad').addEventListener('click', function () { $('saveFile').click(); });
+  $('lastSave').addEventListener('click', function () { var ls = lastSave(); if (ls) goToPoi(ls.zi, ls.p); });
   $('saveFile').addEventListener('change', function () { loadFile(this.files[0]); this.value = ''; });
   $('saveClear').addEventListener('click', function () {
     saveDone = {}; saveMeta = null; saveHave = null; unfound = {}; saveUnfound();
