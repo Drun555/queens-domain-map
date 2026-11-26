@@ -48,7 +48,7 @@ for z in d['zones']:
         if re.search(r'EnergyCell', p[6]) or 'Energy Cell' in p[4] and p[0] != 'chest': p[0] = 'energy'; nb['energy'] += 1
     first = {}
     for p in z['pois']:
-        if p[0] not in ('enemy', 'boss') or 'piège' in p[4]: continue
+        if p[0] not in ('enemy', 'boss', 'lizard') or 'piège' in p[4]: continue
         o = lv[z['levels'][p[5]]].get(p[6]) or {}
         pr = o.get('Properties') or {}
         ed = pr.get('EnemyData')

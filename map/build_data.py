@@ -55,7 +55,7 @@ def cat(t,p):
     if TICKET.match(t): return 'ticket'
     if t in SANS_PICKUP: return SANS_PICKUP[t][0]
     if RUNE.match(t): return 'rune'
-    if re.match(r'^Lizard_[A-Za-z]+_BP_C$',t): return 'lizard'   # lézards stellaires : fuient, lâchent un sac de butin
+    if t.startswith('Potion_Lizer'): return 'lizard'   # lézards stellaires : fuient, lâchent un sac de butin (LizerBag)
     if t=='Checkpoint_C': return 'save'
     if t in('Teleporter_C','MiniTeleporter_C'): return 'tp'
     if re.search(r'(^|_)Chest(_|$)',t) and 'Charm' not in t: return 'chest'
@@ -90,6 +90,9 @@ PORTES={('420_MAUS_mid','SecretWall22'):'Porte secrète (runes des 4 dieux)',
         ('450_MAUS_darkmaze','SecretWall30'):'Porte secrète (6 runes de Puwema)',
         ('450_MAUS_darkmaze','SuperCubePuzzleDoor'):'Porte secrète (3 cibles)',
         ('300_LIB','SecretWall12'):'Porte secrète (2 gargouilles)'}
+# noms du bestiaire des Potion_Lizer_0N (dans l'ordre du bestiaire)
+LEZARDS={1:'Lézard stellaire',2:'Lézard stellaire aquatique',3:'Lézard stellaire érudit',4:'Lézard stellaire des tombes',
+         5:'Lézard stellaire des profondeurs',6:'Lézard stellaire majestueux',7:'Lézard stellaire reluisant'}
 def pretty(t):
     s=re.sub(r'_C$','',t); s=re.sub(r'(_BP\d*|_Bp|_PickupBP|_Pickup\d*|_ItemBP|_Item_BP|_Item_Bp|_Item|_Spawner_BP|_Spawner|_NPC|_Data|_Inspect)(?=_|$)','',s)
     s=re.sub(r'_BP\d*$','',s); s=s.replace('_',' ')
@@ -106,7 +109,7 @@ def label(a,c):
     if c=='chest':
         items=[pretty(x.split(':')[0]) for x in p.get('ActorsToActivateOnOpen',[]) if isinstance(x,str) and re.search(r'Pickup|Item|Key|Relic|Fragment|Upgrade',x)]
         return 'Coffre'+(' : '+', '.join(items) if items else '')
-    if c=='lizard': return 'Lézard stellaire (lâche un sac de butin)'
+    if c=='lizard': k=int(re.search(r'(\d+)',t).group(1)); return '%s (Potion Lizer %02d)'%(LEZARDS[k],k)
     if c=='challenge': return str(p.get('ChallengeToComplete'))
     if c=='flesh': return 'Mur de chair ('+', '.join(x for x in p.get('NamedSaveDataToIncrement',[]) if x!='NecroWallsDestroyed')+')'
     if c=='note':

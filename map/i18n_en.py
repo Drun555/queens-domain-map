@@ -32,7 +32,14 @@ POI = [  # noms d'objets : seules quelques étiquettes ajoutées par le site son
     (r'^Rune de Jigeki', 'Jigeki rune'), (r'^Rune de Puwema', 'Puwema rune'),
     (r'^Rune de Sipeha', 'Sipeha rune'), (r'^Rune de Wodaso', 'Wodaso rune'),
     (r'^Pièce du scientifique n°', "Scientist's part #"), (r'^Zone de défi', 'Challenge zone'),
-    (r'^Lézard stellaire \(lâche un sac de butin\)', 'Star Lizard (drops a loot sack)'),
+    # lézards stellaires : nom du bestiaire en français, nom interne en anglais
+    (r'^Lézard\ stellaire \(Potion Lizer 01\)$', 'Potion Lizer 01'),
+    (r'^Lézard\ stellaire\ aquatique \(Potion Lizer 02\)$', 'Potion Lizer 02'),
+    (r'^Lézard\ stellaire\ érudit \(Potion Lizer 03\)$', 'Potion Lizer 03'),
+    (r'^Lézard\ stellaire\ des\ tombes \(Potion Lizer 04\)$', 'Potion Lizer 04'),
+    (r'^Lézard\ stellaire\ des\ profondeurs \(Potion Lizer 05\)$', 'Potion Lizer 05'),
+    (r'^Lézard\ stellaire\ majestueux \(Potion Lizer 06\)$', 'Potion Lizer 06'),
+    (r'^Lézard\ stellaire\ reluisant \(Potion Lizer 07\)$', 'Potion Lizer 07'),
 ]
 def poi_name(s):
     for a, b in POI: s = re.sub(a, b, s)
