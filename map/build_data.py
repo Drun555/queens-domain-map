@@ -35,7 +35,7 @@ CATS=[ # id,label,color,default
  ('unique','Armes et objets uniques','#ff7a59',1),('key','Clés et livres','#f2e36b',1),('sci','Pièces du scientifique','#4f8cff',1),('upgrade','Améliorations','#6fe08c',1),('ticket','Tickets resto','#b5f23d',1),
  ('skull','Crânes argentés (Skull Key Relic)','#c9d2de',1),('collect','Collectibles','#ff9ad5',1),('egg','Œufs','#ffb38a',1),('memento','Souvenirs','#d9b8ff',1),('npc','PNJ','#ffffff',1),('note','Notes et tablettes','#c9b48a',1),('rune','Runes des dieux','#e64cf5',1),
  ('flesh','Murs de chair','#e0527a',1),('secret','Murs et portes secrets','#5fd0b8',1),('boss','Boss et ennemis uniques','#ff3b3b',0),
- ('challenge','Zones de défi','#9fb4ff',0),('consum','Consommables et pièces','#b8a24a',0),
+ ('challenge','Zones de défi','#9fb4ff',0),('lizard','Lézards stellaires','#3fb6e8',0),('consum','Consommables et pièces','#b8a24a',0),
  ('enemy','Ennemis','#a05a5a',0),
 ]
 tc=collections.Counter(a['t'] for l in d['levels'] for a in l['actors'])
@@ -55,6 +55,7 @@ def cat(t,p):
     if TICKET.match(t): return 'ticket'
     if t in SANS_PICKUP: return SANS_PICKUP[t][0]
     if RUNE.match(t): return 'rune'
+    if re.match(r'^Lizard_[A-Za-z]+_BP_C$',t): return 'lizard'   # lézards stellaires : fuient, lâchent un sac de butin
     if t=='Checkpoint_C': return 'save'
     if t in('Teleporter_C','MiniTeleporter_C'): return 'tp'
     if re.search(r'(^|_)Chest(_|$)',t) and 'Charm' not in t: return 'chest'
@@ -105,6 +106,7 @@ def label(a,c):
     if c=='chest':
         items=[pretty(x.split(':')[0]) for x in p.get('ActorsToActivateOnOpen',[]) if isinstance(x,str) and re.search(r'Pickup|Item|Key|Relic|Fragment|Upgrade',x)]
         return 'Coffre'+(' : '+', '.join(items) if items else '')
+    if c=='lizard': return 'Lézard stellaire (lâche un sac de butin)'
     if c=='challenge': return str(p.get('ChallengeToComplete'))
     if c=='flesh': return 'Mur de chair ('+', '.join(x for x in p.get('NamedSaveDataToIncrement',[]) if x!='NecroWallsDestroyed')+')'
     if c=='note':

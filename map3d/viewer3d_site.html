@@ -631,6 +631,10 @@ const saveCats = () => { try { const all = JSON.parse(localStorage.getItem('neas
       challenge: function (c) { L(c, [-0.36, 0.6, -0.36, -0.58]); c.stroke(); L(c, [-0.36, -0.58, 0.5, -0.32, -0.36, -0.06]); c.closePath(); c.fill(); },
       consum: function (c) { circ(c, 0, 0, 0.5); c.stroke(); circ(c, 0, 0, 0.2); c.fill(); },
       enemy: function (c) { L(c, [-0.45, -0.45, 0.45, 0.45]); c.stroke(); L(c, [0.45, -0.45, -0.45, 0.45]); c.stroke(); },
+      // lézard vu de dessus : corps, tête, queue courbée, quatre pattes
+      lizard: function (c) { c.beginPath(); c.ellipse(0, 0.02, 0.17, 0.34, 0, 0, 6.2832); c.fill(); circ(c, 0, -0.42, 0.16); c.fill();
+        c.beginPath(); c.moveTo(0, 0.3); c.quadraticCurveTo(0.06, 0.52, 0.34, 0.58); c.stroke();
+        L(c, [-0.4, -0.32, -0.12, -0.16]); c.stroke(); L(c, [0.4, -0.32, 0.12, -0.16]); c.stroke(); L(c, [-0.4, 0.34, -0.12, 0.18]); c.stroke(); L(c, [0.4, 0.34, 0.12, 0.18]); c.stroke(); },
     };
   })();
   // dessine l'icône d'une catégorie au centre (x, y), taille s (demi-côté en px), couleur ink sur le fond bg
@@ -853,7 +857,7 @@ const PROG_NEVER_ID = {
   '790_SG/SecretWall_2': 1
 };
 const PROG_NEVER = { note: 1, rune: 1, memento: 1 }, PROG_SKIP_ZONE = {};
-const PROG_SKIP = { enemy: 1, npc: 1, consum: 1 }, progOpenZones = { [zid]: true }, allZones = { [zid]: zone };
+const PROG_SKIP = { enemy: 1, npc: 1, consum: 1, lizard: 1 }, progOpenZones = { [zid]: true }, allZones = { [zid]: zone };
 let allLoaded = false, allLoading = null;
 const trName = n => typeof L10N !== 'undefined' ? L10N.poi.reduce((s, [a, b]) => s.replace(new RegExp(a), b), n) : n;
 function loadAllZones() {
