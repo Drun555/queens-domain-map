@@ -146,6 +146,7 @@ PAGE_2D = [
 ]
 
 PAGE_3D = [
+    ("'Réessayer'", "'Retry'"), ("' Mo'", "' MB'"),
     ('"name":"Carte de Neasied — Queen\'s Domain en 3D"', '"name":"Neasied Map — Queen\'s Domain in 3D"'),
     ('"url":"https://queensdomain.leny15.me/3d.html"', '"url":"https://queensdomain.leny15.me/3d-en.html"'),
     ('"description":"' + DESC3_FR + '"', '"description":"' + DESC3_EN + '"'),

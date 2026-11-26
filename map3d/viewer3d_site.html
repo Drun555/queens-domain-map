@@ -197,7 +197,13 @@ body.dropping #view::after { content: 'Dépose ta sauvegarde (World0.sav, World1
 #card dt { color: var(--dim); }
 #card dd { margin: 0; }
 #card .chk { margin-top: 10px; }
-#load { position: fixed; top: 0; bottom: 0; left: 312px; right: 0; display: grid; place-items: center; color: var(--dim); font-size: 15px; pointer-events: none; }
+#load { position: fixed; top: 50%; left: calc(50% + 156px); transform: translate(-50%, -50%); z-index: 30; padding: 13px 22px; border-radius: 10px;
+  background: rgba(12,14,20,.92); border: 1px solid rgba(127,227,255,.4); box-shadow: 0 6px 28px rgba(0,0,0,.55);
+  color: #eef3ff; font-size: 16px; font-weight: 600; text-align: center; white-space: nowrap; font-variant-numeric: tabular-nums; pointer-events: none; }
+.load-err { color: #ff8a7a; }
+.load-err button { pointer-events: auto; margin-top: 10px; padding: 7px 18px; font: inherit; color: var(--ink, #e8eaf0); cursor: pointer;
+  background: rgba(127,227,255,.1); border: 1px solid rgba(127,227,255,.4); border-radius: 6px; }
+.load-err button:hover { background: rgba(127,227,255,.2); }
 @media (max-width: 760px) {
   body { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); }
   aside { grid-column: 1; grid-row: 1; border-right: 0; border-bottom: 1px solid var(--line); max-height: 46vh; }
@@ -205,7 +211,7 @@ body.dropping #view::after { content: 'Dépose ta sauvegarde (World0.sav, World1
   .head { padding: 10px 16px 8px; }
   h1 { font-size: 32px; }
   .scroll { padding: 10px 16px 14px; gap: 14px; }
-  #load { left: 0; }
+  #load { left: 50%; top: 73%; }   /* au milieu de la carte, sous le panneau */
   #compass { left: 10px; right: auto; bottom: 10px; width: 68px; height: 68px; }
   #nbOn { top: 10px; bottom: auto; padding: 8px 12px; font-size: 13px; }   /* fenêtre étroite : en bas, il y a la boussole et les étages */
   #floors { left: auto; right: 12px; top: auto; bottom: 12px; max-height: 40%; }
@@ -514,12 +520,45 @@ function makeLava(o) {
 
 // --- modèle : morceaux base64 recollés ---
 let modelBox = new THREE.Box3(lo, hi);
-(async () => {
+// téléchargement suivi : pourcentage (ou Mo reçus si la taille est inconnue) ; abandon si plus rien n'arrive pendant 30 s
+async function fetchProgress(url, label, opts) {
+  const ctl = new AbortController(); let timer;
+  const arm = () => { clearTimeout(timer); timer = setTimeout(() => ctl.abort(), 30000); };
+  arm();
+  try {
+    const r = await fetch(url, Object.assign({ signal: ctl.signal }, opts));
+    if (!r.ok) throw new Error('HTTP ' + r.status + ' ' + url);
+    const tot = +r.headers.get('Content-Length') || 0;
+    if (!r.body || !r.body.getReader) return await r.arrayBuffer();
+    const rd = r.body.getReader(), parts = []; let got = 0;
+    for (;;) {
+      const { done, value } = await rd.read(); if (done) break;
+      arm(); parts.push(value); got += value.length;
+      if (label) $('load').textContent = label + ' ' + (tot ? Math.min(99, Math.floor(got / tot * 100)) + ' %' : (got / 1048576).toFixed(1) + ' Mo');
+    }
+    const out = new Uint8Array(got); let o = 0; for (const p of parts) { out.set(p, o); o += p.length; }
+    return out.buffer;
+  } finally { clearTimeout(timer); }
+}
+// échec : message et bouton « Réessayer » (le nouvel essai ignore le cache du navigateur)
+function loadFailed(e) {
+  console.error(e);
+  const L = $('load'), box = document.createElement('div'), msg = document.createElement('div'), b = document.createElement('button');
+  msg.textContent = 'Le modèle n\'a pas pu être chargé.';
+  b.type = 'button'; b.textContent = 'Réessayer'; b.onclick = () => loadModel(true);
+  box.className = 'load-err'; box.append(msg, b); L.textContent = ''; L.append(box);
+}
+let modelLoading = false;
+async function loadModel(retry) {
+  if (modelLoading) return; modelLoading = true;
+  const opts = retry ? { cache: 'reload' } : {};
   let buf;
+  try {
   if (zone.parts) {
     const n = zone.parts, chunks = new Array(n); let done = 0;
+    $('load').textContent = 'Chargement du modèle…';
     await Promise.all([...Array(n).keys()].map(async i => {
-      chunks[i] = (await (await fetch(DIR + 'scene' + i + '.json')).json()).glb;
+      chunks[i] = JSON.parse(new TextDecoder().decode(await fetchProgress(DIR + 'scene' + i + '.json', '', opts))).glb;
       done++; $('load').textContent = 'Chargement du modèle… ' + Math.round(done / n * 100) + ' %';
     }));
     $('load').textContent = 'Préparation de la scène…';
@@ -528,8 +567,11 @@ let modelBox = new THREE.Box3(lo, hi);
     buf = buf.buffer;
   } else {
     $('load').textContent = 'Chargement du modèle…';
-    buf = await (await fetch(DIR + 'scene.glb?v=20261124')).arrayBuffer();   // v= : à changer quand les scene.glb changent (le .htaccess les garde 30 jours en cache)
+    buf = await fetchProgress(DIR + 'scene.glb?v=20261124', 'Chargement du modèle…', opts);   // v= : à changer quand les scene.glb changent (le .htaccess les garde 30 jours en cache)
+    $('load').textContent = 'Préparation de la scène…';
   }
+  } catch (e) { modelLoading = false; loadFailed(e); return; }
+  try {
   new GLTFLoader().parse(buf, '', g => {
     g.scene.traverse(o => {
       if (!o.isMesh) return;
@@ -549,8 +591,10 @@ let modelBox = new THREE.Box3(lo, hi);
     if (!arrival) frame();
     modelReady();
     if (neighbours) neighbours.ready(g.scene);
-  }, e => { $('load').textContent = 'Le modèle n\'a pas pu être chargé.'; console.error(e); });
-})();
+  }, e => { modelLoading = false; loadFailed(e); });
+  } catch (e) { modelLoading = false; loadFailed(e); }
+}
+loadModel();
 
 // --- points d'intérêt ---
 const cats = {}; zone.cats.forEach(c => cats[c.id] = c);
